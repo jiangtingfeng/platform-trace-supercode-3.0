@@ -1,5 +1,7 @@
 package com.jgw.supercodeplatform.trace.dao.mapper1;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -11,8 +13,9 @@ import com.jgw.supercodeplatform.trace.pojo.TraceOrgFunRoute;
 
 @Mapper
 public interface TraceOrgFunRouteMapper extends CommonSql{
-    
-	@Insert(startScript
+    static String allFields="Id id,OrganizationId organizationId,FunctionId functionId,DatabaseAddress databaseAddress,TableName tableName ,TraceTemplateId traceTemplateId";
+	
+    @Insert(startScript
 			+ " INSERT into trace_fun "
 			+ " <trim prefix='(' suffix=')' suffixOverrides=','>"
 				+ "<if test='organizationId != null and organizationId != &apos;&apos;'>OrganizationId,</if> "
@@ -31,11 +34,9 @@ public interface TraceOrgFunRouteMapper extends CommonSql{
 			+ endScript)
 	void insert(TraceOrgFunRoute tofr);
 
-//	@Select("select Id id,OrganizationId organizationId,FunctionId functionId,DatabaseAddress databaseAddress,TableName tableName from trace_fun where FunctionId=#{functionId} limit 1")
-//	TraceOrgFunRoute selectOneByFunctionId(@Param("functionId")String functionId);
-	
 	@Select(startScript
-			+ "select Id id,OrganizationId organizationId,FunctionId functionId,DatabaseAddress databaseAddress,TableName tableName ,TraceTemplateId traceTemplateId from trace_fun "
+			+ "select "+allFields
+			+ " from trace_fun "
 			+startWhere
 			+ "<if test='traceTemplateId != null and traceTemplateId !=  &apos;&apos; '>and TraceTemplateId=#{traceTemplateId}</if> "
 			+ "<if test='traceTemplateId == null or traceTemplateId ==  &apos;&apos; '>and TraceTemplateId is null</if> "
@@ -46,9 +47,15 @@ public interface TraceOrgFunRouteMapper extends CommonSql{
 	TraceOrgFunRoute selectByTraceTemplateIdAndFunctionId(@Param("traceTemplateId")String traceTemplateId, @Param("functionId")String functionId);
 
 	@Delete("delete from trace_fun where FunctionId=#{nodeFunctionId} and TraceTemplateId=#{traceTemplateId}")
-	void deleteByFunctionId(@Param("nodeFunctionId")String nodeFunctionId,@Param("traceTemplateId")String orgnazitionId);
+	void deleteByFunctionId(@Param("nodeFunctionId")String nodeFunctionId,@Param("traceTemplateId")String traceTemplateId);
 
 	@Delete("delete from trace_fun where FunctionId in (${strFunctionIds}) and TraceTemplateId=#{traceTemplateId}")
 	void deleteByFunctionIdsAndTemplateConfigId(@Param("strFunctionIds")String strFunctionIds, @Param("traceTemplateId")String templateConfigId);
+
+	@Select("select "+allFields+" from trace_fun where FunctionId=#{functionId} and TraceTemplateId is not null")
+	List<TraceOrgFunRoute> selectByFunctionIdWithTempIdIsNotNull(@Param("functionId")String functionId);
+
+	@Delete("delete from trace_fun where FunctionId=#{functionId} and TraceTemplateId is null")
+	void deleteByDzFunctionId(@Param("functionId")String functionId);
 
 }

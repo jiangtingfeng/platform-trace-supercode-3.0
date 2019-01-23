@@ -26,19 +26,18 @@ public class TraceBatchInfo implements Serializable{
 	private String createMan;//创建人
 	private String createTime;//创建时间
 	private String updateTime;//修改时间
-	private String productBarcode;//产品条形码
-	private String productSpecificationsCode;//产品条规格
-	private String productModel;//产品型号
-	private String productUrl;//产品图片url
+	private Integer nodeDataCount;
 	
-	public String getProductUrl() {
-		return productUrl;
-	}
-	public void setProductUrl(String productUrl) {
-		this.productUrl = productUrl;
-	}
+
 	public String getTraceBatchInfoId() {
 		return traceBatchInfoId;
+	}
+	
+	public Integer getNodeDataCount() {
+		return nodeDataCount;
+	}
+	public void setNodeDataCount(Integer nodeDataCount) {
+		this.nodeDataCount = nodeDataCount;
 	}
 	public void setTraceBatchInfoId(String traceBatchInfoId) {
 		this.traceBatchInfoId = traceBatchInfoId;
@@ -126,24 +125,6 @@ public class TraceBatchInfo implements Serializable{
 	}
 	public void setCreateMan(String createMan) {
 		this.createMan = createMan;
-	}
-	public String getProductBarcode() {
-		return productBarcode;
-	}
-	public void setProductBarcode(String productBarcode) {
-		this.productBarcode = productBarcode;
-	}
-	public String getProductSpecificationsCode() {
-		return productSpecificationsCode;
-	}
-	public void setProductSpecificationsCode(String productSpecificationsCode) {
-		this.productSpecificationsCode = productSpecificationsCode;
-	}
-	public String getProductModel() {
-		return productModel;
-	}
-	public void setProductModel(String productModel) {
-		this.productModel = productModel;
 	}
 	
 }

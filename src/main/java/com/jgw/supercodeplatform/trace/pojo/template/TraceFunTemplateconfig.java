@@ -13,7 +13,7 @@ public class TraceFunTemplateconfig implements Serializable{
 	
 	private Integer id;  //序列ID
     private String traceTemplateId;      //溯源模板号
-    private String businessTypes;        //业务类型 1、自动节点 2、手动节点 3、默认节点
+    private String businessType;        //业务类型 1、自动节点 2、手动节点 3、默认节点
     private String nodeFunctionId;           //功能ID号
     private String organizationId;
     private String nodeFunctionName;         //功能名称
@@ -24,10 +24,10 @@ public class TraceFunTemplateconfig implements Serializable{
     public TraceFunTemplateconfig() {
     }
 
-    public TraceFunTemplateconfig(Integer id, String traceTemplateId, String businessTypes, String nodeFunctionId, String nodeFunctionName, Integer nodeWeight, String createTime, String updateTime) {
+    public TraceFunTemplateconfig(Integer id, String traceTemplateId, String businessType, String nodeFunctionId, String nodeFunctionName, Integer nodeWeight, String createTime, String updateTime) {
         this.id = id;
         this.traceTemplateId = traceTemplateId;
-        this.businessTypes = businessTypes;
+        this.businessType = businessType;
         this.nodeFunctionId = nodeFunctionId;
         this.nodeWeight = nodeWeight;
         this.createTime = createTime;
@@ -55,12 +55,12 @@ public class TraceFunTemplateconfig implements Serializable{
         this.traceTemplateId = traceTemplateId;
     }
 
-    public String getBusinessTypes() {
-        return businessTypes;
+    public String getBusinessType() {
+        return businessType;
     }
 
-    public void setBusinessTypes(String businessTypes) {
-        this.businessTypes = businessTypes;
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
     }
 
     public String getNodeFunctionId() {

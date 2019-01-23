@@ -65,4 +65,7 @@ public interface TraceFuntemplateStatisticalMapper extends CommonSql{
     
 	@Delete("delete from trace_funtemplatestatistical where Id=#{id}")
 	void deleteById(@Param("id")Long id);
+
+	@Select("select count(*) from trace_funtemplatestatistical where TraceTemplateName= #{templateName} and TraceTemplateId !=#{traceTemplateId}")
+	Integer countOtherTemplateNameByTemplateId(@Param("templateName")String templateConfigName, @Param("traceTemplateId")String templateConfigId);
 }

@@ -25,8 +25,7 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	String selectSql = " SELECT a.TraceBatchInfoId traceBatchInfoId,a.OrganizationId organizationId,a.ProductID productId,"
 			+ "a.ProductName productName,a.TraceBatchName traceBatchName,a.TraceTemplateName traceTemplateName,"
 			+ "a.TraceBatchId traceBatchId,a.ListedTime listedTime,a.TraceTemplateId traceTemplateId,"
-			+"a.ProductBarcode productBarcode,a.ProductSpecificationsCode productSpecificationsCode,a.ProductModel productModel,"
-			+"a.ProductUrl productUrl,"
+			+"a.NodeDataCount nodeDataCount,"
 			+ "a.H5TrancePageId h5TrancePageId,a.H5TempleteName h5TempleteName,a.CreateId createId,a.CreateMan createMan"
 			+ createTime + updateTime ;
 	
@@ -40,11 +39,11 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	@Insert(" INSERT INTO trace_batchinfo"
 			+ "(TraceBatchInfoId,OrganizationId,ProductID,ProductName,TraceBatchName,"
 			+ "TraceBatchId,ListedTime,TraceTemplateId,TraceTemplateName,H5TrancePageId,"
-			+ "H5TempleteName,CreateId,CreateMan,ProductBarcode,ProductSpecificationsCode,ProductModel,ProductUrl)"
+			+ "H5TempleteName,CreateId,CreateMan,NodeDataCount)"
 			+ "VALUES"
 			+ "(#{traceBatchInfoId},#{organizationId},#{productId},#{productName},#{traceBatchName},"
 			+ "#{traceBatchId},#{listedTime},#{traceTemplateId},#{traceTemplateName},#{h5TrancePageId},"
-			+ "#{h5TempleteName},#{createId},#{createMan},#{productBarcode},#{productSpecificationsCode},#{productModel},#{productUrl}) ")
+			+ "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}) ")
 	int insertTraceBatchInfo(TraceBatchInfo traceBatchInfo);
 	
 	/**
@@ -65,10 +64,7 @@ public interface TraceBatchInfoMapper extends CommonSql{
             + " <if test='traceTemplateName !=null and traceTemplateName != &apos;&apos; '>  TraceTemplateName = #{traceTemplateName} ,</if> "
             + " <if test='h5TrancePageId !=null and h5TrancePageId != &apos;&apos; '>  H5TrancePageId = #{h5TrancePageId} ,</if> "
             + " <if test='h5TempleteName !=null and h5TempleteName != &apos;&apos; '>  H5TempleteName = #{h5TempleteName} ,</if> "
-			+ " <if test='productBarcode !=null and productBarcode != &apos;&apos; '>  ProductBarcode = #{productBarcode} ,</if> "
-			+ " <if test='productSpecificationsCode !=null and productSpecificationsCode != &apos;&apos; '>  ProductSpecificationsCode = #{productSpecificationsCode} ,</if> "
-			+ " <if test='productModel !=null and productModel != &apos;&apos; '>  ProductModel = #{productModel} ,</if> "
-			+ " <if test='productUrl !=null and productUrl != &apos;&apos; '>  ProductUrl = #{productUrl} ,</if> "
+			+ " <if test='nodeDataCount !=null and nodeDataCount != &apos;&apos; '>  NodeDataCount = #{nodeDataCount} ,</if> "
             + " </set>"
             + " WHERE TraceBatchInfoId = #{traceBatchInfoId} "
             + endScript
@@ -118,10 +114,11 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	 * @param traceBatchInfo
 	 * @return
 	 */
-	@Select(startScript + selectSql + " ,IF(b.NodeCount IS NULL,0,b.NodeCount) nodeCount "
+	@Select(startScript + selectSql
 			+ " FROM trace_batchinfo a LEFT JOIN trace_funtemplatestatistical b ON a.TraceTemplateId = b.TraceTemplateId "
 			+ startWhere
             + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
+            + " <if test='productID !=null and productID != &apos;&apos; '>  AND a.ProductID = #{productID} </if> "
             + " <if test='search !=null and search != &apos;&apos; '> AND ( a.ProductName LIKE CONCAT('%',#{search},'%') OR a.TraceBatchName LIKE CONCAT('%',#{search},'%') "
             	+ " OR a.TraceTemplateName LIKE CONCAT('%',#{search},'%') OR a.H5TempleteName LIKE CONCAT('%',#{search},'%') OR a.CreateMan LIKE CONCAT('%',#{search},'%') )</if> "
             + endWhere

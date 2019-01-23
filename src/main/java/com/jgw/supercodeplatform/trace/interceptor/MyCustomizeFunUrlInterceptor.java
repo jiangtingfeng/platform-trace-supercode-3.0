@@ -16,10 +16,10 @@ public class MyCustomizeFunUrlInterceptor implements WebMvcCustomizeFunUrlInterc
     @Override
     public List<String> addPathPatterns() {
         String[] add = new String[]{
-//                "/trace/dynamic/add",
-//                "/trace/dynamic/query",
-//                "/trace/dynamic/update",
-//                "/trace/dynamic/delete"
+                "/trace/dynamic/fun/addFunData",
+                "/trace/dynamic/fun/list",
+                "/trace/dynamic/fun/update",
+        		"/trace/dynamic/fun/delete"
                 };
         return Arrays.asList(add);
     }

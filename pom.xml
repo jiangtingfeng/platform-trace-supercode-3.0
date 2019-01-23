@@ -225,6 +225,24 @@
 			<artifactId>interceptor</artifactId>
 			<version>0.0.1-RELEASE</version>
 		</dependency>
+		
+		<dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.zxing/javase -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jgw.blockchain</groupId>
+            <artifactId>blockchain-client-spring-boot-starter</artifactId>
+            <version>1.0.0.RELEASE</version>
+        </dependency>
 	</dependencies>
 
 	<!-- 指定spring cloud版本， 新版本使用Finchley.SR2 -->

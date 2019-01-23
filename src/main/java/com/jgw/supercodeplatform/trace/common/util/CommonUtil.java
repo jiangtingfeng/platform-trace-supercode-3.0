@@ -19,19 +19,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.jgw.supercodeplatform.exception.SuperCodeException;
 import com.jgw.supercodeplatform.trace.common.model.ReturnParamsMap;
 import com.jgw.supercodeplatform.trace.common.model.page.NormalProperties;
 import com.jgw.supercodeplatform.trace.common.model.page.Page;
 import com.jgw.supercodeplatform.trace.config.redis.RedisUtil;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
-import com.jgw.supercodeplatform.trace.constants.TraceBaseConstants;
-import com.jgw.supercodeplatform.trace.dao.dynamicMapper1.DynamicCreateTableMapper1;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 import com.jgw.supercodeplatform.user.UserInfoUtil;
 
@@ -49,6 +49,9 @@ public class CommonUtil extends UserInfoUtil {
     @Autowired
     protected RedisUtil redisUtil;
 
+	@Value("${spring.dynamic_datasource1.tableNum}")
+	private long dynamicDatasource1tableNum;
+	
     /**
      * 获取32位UUID，去掉中间的-
      *
@@ -475,12 +478,12 @@ public class CommonUtil extends UserInfoUtil {
 	 * @return
 	 */
 	public int getDynamicDatabaseSequence() {
-		String value=redisUtil.get(TraceBaseConstants.DATABASE1_TABLE_NUM_REDIS_KEY);
+		String value=redisUtil.get(RedisKey.DATABASE1_TABLE_NUM_REDIS_KEY);
 		if (StringUtils.isBlank(value)) {
 			return 1;
 		}
 		Long key=Long.parseLong(value);
-		if (key<100L) {
+		if (key<dynamicDatasource1tableNum) {
 			return 1;
 		}
 		return 2;
@@ -493,9 +496,9 @@ public class CommonUtil extends UserInfoUtil {
 	public void setDynamicDatabaseNum(int databaseNum,long newTableNum) {
 		String key=null;
 		if (1==databaseNum) {
-			key=TraceBaseConstants.DATABASE1_TABLE_NUM_REDIS_KEY;
+			key=RedisKey.DATABASE1_TABLE_NUM_REDIS_KEY;
 		}else {
-			key=TraceBaseConstants.DATABASE2_TABLE_NUM_REDIS_KEY;
+			key=RedisKey.DATABASE2_TABLE_NUM_REDIS_KEY;
 		}
 		String value=redisUtil.get(key);
 		if (StringUtils.isBlank(value)) {
@@ -505,4 +508,14 @@ public class CommonUtil extends UserInfoUtil {
 		}
 	}
 
+	@Override
+	public String getOrganizationId() throws SuperCodeException {
+		try {
+			return super.getOrganizationId();
+		} catch (Exception e) {
+			throw new SuperCodeException("无组织信息，请确认当前用户为普通角色用户", 500);
+		}
+	}
+
+	
 }

@@ -26,7 +26,7 @@ public class ReturnTraceBatchInfo implements Serializable{
 	private String createMan;//创建人
 	private String createTime;//创建时间
 	private String updateTime;//修改时间
-	private Integer nodeCount;//节点数量
+	private Integer nodeDataCount;//节点业务数据数量
 	
 	public String getTraceBatchInfoId() {
 		return traceBatchInfoId;
@@ -118,14 +118,15 @@ public class ReturnTraceBatchInfo implements Serializable{
 	public void setCreateMan(String createMan) {
 		this.createMan = createMan;
 	}
-	public Integer getNodeCount() {
-		return nodeCount;
-	}
-	public void setNodeCount(Integer nodeCount) {
-		this.nodeCount = nodeCount;
-	}
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+	public Integer getNodeDataCount() {
+		return nodeDataCount;
+	}
+	public void setNodeDataCount(Integer nodeDataCount) {
+		this.nodeDataCount = nodeDataCount;
 	}
 	
 }

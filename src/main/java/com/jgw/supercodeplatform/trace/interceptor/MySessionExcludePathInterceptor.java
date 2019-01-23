@@ -24,7 +24,12 @@ public class MySessionExcludePathInterceptor implements WebMvcSessionInterceptor
                 "/v2/**",
                 "/doc.html",
                 //静态资源
-                "/webjars/**"};
+                "/webjars/**",
+                //h5扫码不需要拦截
+                "/trace/batch/info/h5PageData",
+                //生产二维码
+                "/trace/common/qrCode",       
+         };
         return Arrays.asList(add);
     }
 }

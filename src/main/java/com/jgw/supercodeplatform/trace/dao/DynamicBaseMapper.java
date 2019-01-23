@@ -1,7 +1,7 @@
 package com.jgw.supercodeplatform.trace.dao;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -16,7 +16,7 @@ public interface DynamicBaseMapper extends CommonSql{
 	void dynamicDDLTable(@Param("sql")String sql);
 	
 	@Select("${sql}")
-	List<Map<String, Object>> select(@Param("sql")String sql);
+	List<LinkedHashMap<String, Object>> select(@Param("sql")String sql);
     
 	@Insert("${sql}")
 	void insert(@Param("sql")String sql);

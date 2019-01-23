@@ -59,7 +59,17 @@ public class Swagger2Config {
                  .enable(enable);
      }
 
-     
+     @Bean("溯源公共接口")
+     public Docket test() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("工具接口")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.common"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("新超级码系统平台接口文档")

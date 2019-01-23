@@ -42,18 +42,6 @@ public class InsertTraceBatchInfo implements Serializable{
 	@ApiModelProperty(name = "h5TempleteName", value = "H5溯源页模板名称", example = "模板1", required = true)
 	private String h5TempleteName;//H5溯源页模板名称
 	
-	@ApiModelProperty(name = "productBarcode", value = "产品条形码", example = "2018113001", required = false)
-	private String productBarcode;//产品条形码
-	
-	@ApiModelProperty(name = "productSpecificationsCode", value = "产品规格", example = "10斤/箱", required = true)
-	private String productSpecificationsCode;//产品条规格
-	
-	@ApiModelProperty(name = "productModel", value = "产品型号", example = "一级", required = true)
-	private String productModel;//产品型号
-	
-	@ApiModelProperty(name = "productUrl", value = "产品图片url,格式前端定义", example = "djiui21sdjf", required = true)
-	private String productUrl;//产品图片url
-	
 	public String getProductId() {
 		return productId;
 	}
@@ -107,30 +95,6 @@ public class InsertTraceBatchInfo implements Serializable{
 	}
 	public void setH5TempleteName(String h5TempleteName) {
 		this.h5TempleteName = h5TempleteName;
-	}
-	public String getProductBarcode() {
-		return productBarcode;
-	}
-	public void setProductBarcode(String productBarcode) {
-		this.productBarcode = productBarcode;
-	}
-	public String getProductSpecificationsCode() {
-		return productSpecificationsCode;
-	}
-	public void setProductSpecificationsCode(String productSpecificationsCode) {
-		this.productSpecificationsCode = productSpecificationsCode;
-	}
-	public String getProductModel() {
-		return productModel;
-	}
-	public void setProductModel(String productModel) {
-		this.productModel = productModel;
-	}
-	public String getProductUrl() {
-		return productUrl;
-	}
-	public void setProductUrl(String productUrl) {
-		this.productUrl = productUrl;
 	}
 	
 }

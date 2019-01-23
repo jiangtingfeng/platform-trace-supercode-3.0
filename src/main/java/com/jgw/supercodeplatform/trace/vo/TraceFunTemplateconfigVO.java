@@ -19,7 +19,7 @@ public class TraceFunTemplateconfigVO {
 	
 	@NotNull
 	@ApiModelProperty(value = "业务类型 ，1自动节点  2手动节点  3默认节点")
-    private String businessTypes;        //业务类型 1、自动节点 2、手动节点 3、默认节点
+    private String businessType;        //业务类型 1、自动节点 2、手动节点 3、默认节点
 	
 	@ApiModelProperty(value = "节点对应的功能id--更新时必传")
     private String nodeFunctionId;           //功能ID号
@@ -30,7 +30,7 @@ public class TraceFunTemplateconfigVO {
 	
 	@NotNull
 	@ApiModelProperty(value = "节点功能名称")
-    private String functionName;         //功能名称
+    private String nodeFunctionName;         //功能名称
 
 	@ApiModelProperty(value = "动态生成的表名")
 	private String enTableName;   //动态生成的表名
@@ -54,9 +54,7 @@ public class TraceFunTemplateconfigVO {
 		this.traceTemplateName = traceTemplateName;
 	}
 
-	public String getBusinessTypes() {
-		return businessTypes;
-	}
+
 
 	public String getTraceTemplateId() {
 		return traceTemplateId;
@@ -90,11 +88,6 @@ public class TraceFunTemplateconfigVO {
 		this.enTableName = enTableName;
 	}
 
-	public void setBusinessTypes(String businessTypes) {
-		this.businessTypes = businessTypes;
-	}
-
-
 	public Integer getNodeWeight() {
 		return nodeWeight;
 	}
@@ -111,12 +104,20 @@ public class TraceFunTemplateconfigVO {
 		this.nodeFunctionId = nodeFunctionId;
 	}
 
-	public String getFunctionName() {
-		return functionName;
+	public String getNodeFunctionName() {
+		return nodeFunctionName;
 	}
 
-	public void setFunctionName(String functionName) {
-		this.functionName = functionName;
+	public void setNodeFunctionName(String nodeFunctionName) {
+		this.nodeFunctionName = nodeFunctionName;
+	}
+
+	public String getBusinessType() {
+		return businessType;
+	}
+
+	public void setBusinessType(String businessType) {
+		this.businessType = businessType;
 	}
 
 

@@ -1,6 +1,6 @@
 package com.jgw.supercodeplatform.trace.service.dynamic;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,31 +13,43 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jgw.supercodeplatform.exception.SuperCodeException;
 import com.jgw.supercodeplatform.trace.aware.TraceApplicationContextAware;
+import com.jgw.supercodeplatform.trace.common.cache.FunctionFieldCache;
+import com.jgw.supercodeplatform.trace.common.model.NodeOrFunFields;
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
 import com.jgw.supercodeplatform.trace.dao.DynamicBaseMapper;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.DynamicTableRequestParam;
-import com.jgw.supercodeplatform.trace.dto.dynamictable.common.DynamicAddOrUpdateParam;
-import com.jgw.supercodeplatform.trace.dto.dynamictable.common.DynamicDeleteParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigQueryParam;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.common.AddBusinessDataModel;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.common.DynamicHideParam;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.common.LineBusinessData;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.fun.DynamicAddFunParam;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.fun.DynamicDeleteFunParam;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.node.DynamicAddNodeParam;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.node.DynamicDeleteNodeParam;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
-import com.jgw.supercodeplatform.trace.pojo.template.TraceFunTemplateconfig;
+import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
+import com.jgw.supercodeplatform.trace.service.blockchain.BlockChainService;
 import com.jgw.supercodeplatform.trace.service.template.TraceFunFieldConfigService;
 import com.jgw.supercodeplatform.trace.service.template.TraceFunTemplateconfigService;
+import com.jgw.supercodeplatform.trace.service.tracebatch.TraceBatchInfoService;
+import com.jgw.supercodeplatform.trace.vo.TraceFunTemplateconfigVO;
 
 @Service
 @Transactional
 public class DynamicTableService extends AbstractPageService<DynamicTableRequestParam> {
 	private static Logger logger = LoggerFactory.getLogger(DynamicTableService.class);
 	@Autowired
-	private FunctionFieldCacheService functionFieldManageService;
+	private FunctionFieldCache functionFieldManageService;
 
 	@Autowired
 	private TraceFunFieldConfigService traceFunFieldConfigService;
 
+	@Autowired
+	private TraceBatchInfoService traceBatchInfoService;
+	
 	@Autowired
 	private TraceFunTemplateconfigService traceFunTemplateconfigService;
 
@@ -45,86 +57,252 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	private CommonUtil commonUtil;
 
 	@Autowired
-	private DynamicServiceDelegate dynamicCommonService;
+	private DynamicServiceDelegate dynamicServiceDelegate;
+	
+	@Autowired
+	private BlockChainService blockChainService;
 
 	@Autowired
 	private TraceApplicationContextAware applicationAware;
 	
-	public RestResult<List<String>> addFunData(DynamicAddOrUpdateParam param)
-			throws SuperCodeTraceException, SuperCodeException {
-		param.setNode(false);
-		RestResult<List<String>> backResult = new RestResult<List<String>>();
-		RestResult<String> restResult = dynamicCommonService.addMethodSqlBuilderParamValidate(param);
-		if (200 != restResult.getState()) {
-			backResult.setState(restResult.getState());
-			backResult.setMsg(restResult.getMsg());
+	/**
+	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
+	 * @param param
+	 * @return
+	 * @throws Exception 
+	 */
+	public RestResult<String> addFunData(DynamicAddFunParam param)
+			throws Exception {
+		String functionId = param.getFunctionId();
+		RestResult<String> backResult = new RestResult<String>();
+		//校验参数
+		AddBusinessDataModel addBusinessDataModel = dynamicServiceDelegate.addMethodSqlBuilderParamValidate(param.getFunctionId(),param.getLineData(),false,null,null);
+
+		//校验批次记录存不存在
+		String traceBatchInfoId=addBusinessDataModel.getTraceBatchInfoId();
+		TraceBatchInfo traceBatchInfo=traceBatchInfoService.selectByTraceBatchInfoId(traceBatchInfoId);
+		if (null==traceBatchInfo) {
+			backResult.setState(500);
+			backResult.setMsg("无法根据traceBatchInfoId="+traceBatchInfoId+"查询到记录");
 			return backResult;
 		}
-		backResult = dynamicCommonService.funAddOrUpdateSqlBuilder(param, 1);
-		if (restResult.getState() == 200) {
-			List<String> insertSqls = (List<String>) backResult.getResults();
-			if (null == insertSqls || insertSqls.isEmpty()) {
-				throw new SuperCodeTraceException("根据参数无法生成sql，请检查参数", 500);
-			}
-			//定制功能查询记录不能加模板id
-			DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,param.getFunctionId());
-			for (String insertSql : insertSqls) {
-				dao.insert(insertSql);
-			}
-			backResult.setMsg("操作成功");
-			backResult.setResults(null);
+		//获取到表名
+		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
+		
+		
+		StringBuilder sqlFieldNameBuilder=new StringBuilder();
+		StringBuilder sqlFieldValueBuilder=new StringBuilder();
+		
+		boolean containObj=dynamicServiceDelegate.funAddOrUpdateSqlBuilder(param.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,false);
+		
+		String organizationId=null;
+		try {
+			 organizationId=commonUtil.getOrganizationId();
+		} catch (Exception e) {
 		}
+		
+		String insertSql = addDefaultField(tableName, null,organizationId, sqlFieldNameBuilder,
+				sqlFieldValueBuilder);
+		
+		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,functionId);
+		dao.insert(insertSql);
+		
+		
+		//更新批次节点数据条数
+		try {
+			blockChainService.coChain(param.getLineData(),containObj);
+			Integer nodeDataCount=traceBatchInfo.getNodeDataCount();
+			if (null==nodeDataCount) {
+				traceBatchInfo.setNodeDataCount(1);
+			}else {
+				traceBatchInfo.setNodeDataCount(nodeDataCount+1);
+			}
+			traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		backResult.setState(200);
+		backResult.setMsg("操作成功");
 		return backResult;
 	}
-
-	public RestResult<List<String>> addNodeData(DynamicAddOrUpdateParam param)
-			throws SuperCodeTraceException, SuperCodeException {
-		param.setNode(true);
-		RestResult<List<String>> backResult = new RestResult<List<String>>();
+    /**
+     * 新增节点业务数据模板id和批次id都可以从前端获取
+     * @param param
+     * @return
+     * @throws Exception 
+     */
+	public RestResult<String> addNodeData(DynamicAddNodeParam param)
+			throws Exception {
+		RestResult<String> backResult = new RestResult<String>();
 		String functionId = param.getFunctionId();
 		if (StringUtils.isBlank(functionId)) {
 			throw new SuperCodeTraceException("functionId不能为空", 500);
 		}
-		if (StringUtils.isBlank(param.getTraceTemplateId())) {
-			// 手动节点有独立的功能id所以根据功能id只会查出一条记录
-			TraceFunTemplateconfig traceFunTemplateconfig = traceFunTemplateconfigService
-					.selectByNodeFunctionId(functionId);
-			if (null == traceFunTemplateconfig) {
-				throw new SuperCodeTraceException("无法根据该功能id:" + functionId + "查询出一条模板节点记录", 500);
+		String traceTemplateId=param.getTraceTemplateId();
+		if (StringUtils.isBlank(traceTemplateId)) {
+			throw new SuperCodeTraceException("模板id不能为空", 500);
+		}else {
+			List<TraceFunTemplateconfigVO> traceFunTemplateconfigList = traceFunTemplateconfigService.listNodes(traceTemplateId);
+			if (null==traceFunTemplateconfigList || traceFunTemplateconfigList.isEmpty()) {
+				throw new SuperCodeTraceException("无法根据该模板id查询出一条模板节点记录", 500);
 			}
-			param.setTraceTemplateId(traceFunTemplateconfig.getTraceTemplateId());
+			param.setTraceTemplateId(traceTemplateId);
 		}
-		RestResult<String> restResult = dynamicCommonService.addMethodSqlBuilderParamValidate(param);
-		if (200 != restResult.getState()) {
-			backResult.setState(restResult.getState());
-			backResult.setMsg(restResult.getMsg());
+		//校验该传的参数有没有传
+		AddBusinessDataModel adDataModel = dynamicServiceDelegate.addMethodSqlBuilderParamValidate(param.getFunctionId(),param.getLineData(),true,param.getTraceBatchInfoId(),param.getTraceTemplateId());
+
+		
+		//校验批次记录存不存在
+		String traceBatchInfoId=adDataModel.getTraceBatchInfoId();
+		TraceBatchInfo traceBatchInfo=traceBatchInfoService.selectByTraceBatchInfoId(traceBatchInfoId);
+		if (null==traceBatchInfo) {
+			backResult.setState(500);
+			backResult.setMsg("无法根据traceBatchInfoId="+traceBatchInfoId+"查询到记录");
 			return backResult;
 		}
-		backResult = dynamicCommonService.funAddOrUpdateSqlBuilder(param, 1);
-		if (restResult.getState() == 200) {
-			List<String> insertSqls = (List<String>) backResult.getResults();
-			if (null == insertSqls || insertSqls.isEmpty()) {
-				throw new SuperCodeTraceException("根据参数无法生成sql，请检查参数", 500);
-			}
-			DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(param.getTraceTemplateId(),functionId);
-			for (String insertSql : insertSqls) {
-				dao.insert(insertSql);
-			}
-			backResult.setMsg("操作成功");
-			backResult.setResults(null);
+		
+		//获取表名
+		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
+		
+		StringBuilder sqlFieldNameBuilder=new StringBuilder();
+		StringBuilder sqlFieldValueBuilder=new StringBuilder();
+		
+		//拼装sql
+		boolean containObj=dynamicServiceDelegate.funAddOrUpdateSqlBuilder(adDataModel.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,true);
+		
+		//判断当前sql里是否包含批次信息
+		int batchInfoId=sqlFieldNameBuilder.indexOf("TraceBatchInfoId");
+		if (batchInfoId<0) {
+			sqlFieldNameBuilder.append(" TraceBatchInfoId,");
+			sqlFieldValueBuilder.append("'").append(adDataModel.getTraceBatchInfoId()).append("',");
 		}
+		
+		String organizationId=commonUtil.getOrganizationId();
+		//组装插入sql
+		String insertSql = addDefaultField(tableName, traceTemplateId,organizationId, sqlFieldNameBuilder,
+				sqlFieldValueBuilder);
+		
+		//根据模板id和功能id获取对应的库mapper
+		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(traceTemplateId,functionId);
+		//插入
+		dao.insert(insertSql);
+		
+		//数据上链
+		blockChainService.coChain(param.getLineData(),containObj);
+		//插入成功更新批次节点数据条数
+		Integer nodeDataCount = traceBatchInfo.getNodeDataCount();
+		if (null == nodeDataCount) {
+			traceBatchInfo.setNodeDataCount(1);
+		} else {
+			traceBatchInfo.setNodeDataCount(nodeDataCount + 1);
+		}
+		traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+		
+		backResult.setState(200);
+		backResult.setMsg("操作成功");
+		return backResult;
+	}
+    /**
+     * 注意进入这个方法事 StringBuilder sqlFieldValueBuilder后面都有一个人','
+     * @param tableName
+     * @param traceTemplateId
+     * @param organizationId
+     * @param sqlFieldNameBuilder
+     * @param sqlFieldValueBuilder
+     * @return
+     * @throws SuperCodeException
+     */
+	private String addDefaultField(String tableName, String traceTemplateId,String organizationId,
+			StringBuilder sqlFieldNameBuilder, StringBuilder sqlFieldValueBuilder) throws SuperCodeException {
+	
+		sqlFieldNameBuilder.append(" SortDateTime");
+		sqlFieldValueBuilder.append(System.currentTimeMillis());
+		
+		
+		if (StringUtils.isNotBlank(organizationId)) {
+			sqlFieldNameBuilder.append(",").append(" OrganizationId");
+			sqlFieldValueBuilder.append(",").append("'").append(organizationId).append("'");
+		}
+		
+		if (StringUtils.isNotBlank(traceTemplateId)) {
+			sqlFieldNameBuilder.append(",").append(" TraceTemplateId");
+			sqlFieldValueBuilder.append(",").append("'").append(traceTemplateId).append("'");
+		}
+		
+		String fieldNames =sqlFieldNameBuilder.toString();
+		String fieldValues = sqlFieldValueBuilder.toString();
+		String insertSql = "insert into " + tableName + " (" + fieldNames + ") values (" + fieldValues + ")";
+		return insertSql;
+	}
+
+	/**
+	 * 删除节点
+	 * @param param
+	 * @return
+	 * @throws Exception 
+	 */
+	public RestResult<List<String>> delete(DynamicDeleteNodeParam param)
+			throws Exception {
+		return dynamicServiceDelegate.delete(param.getFunctionId(),param.getIds(),param.getTraceTemplateId());
+	}
+    /**
+     * 删除定制功能业务数据
+     * @param param
+     * @return
+     * @throws Exception 
+     */
+	public RestResult<List<String>> deleteFun(DynamicDeleteFunParam param) throws Exception {
+		return dynamicServiceDelegate.delete(param.getFunctionId(),param.getIds(),null);
+	}
+
+	public RestResult<String> update(String functionId,LineBusinessData lineData,boolean isNode,String traceTemplateId)
+			throws SuperCodeTraceException, SuperCodeException {
+		RestResult<String> backResult = new RestResult<String>();
+
+		if (StringUtils.isBlank(functionId)) {
+			throw new SuperCodeTraceException("functionId不能为空", 500);
+		}
+		if (isNode) {
+			if (StringUtils.isBlank(traceTemplateId)) {
+				throw new SuperCodeTraceException("修改溯源节点数据时traceTemplateId不能为空", 500);
+			}
+		}
+		StringBuilder sqlFieldNameBuilder=new StringBuilder();
+		StringBuilder sqlFieldValueBuilder=new StringBuilder();
+		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
+		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(traceTemplateId,functionId);
+		
+		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(lineData, 3,sqlFieldNameBuilder,sqlFieldValueBuilder,isNode);
+		
+		//拼装查询语句
+		String queryIdSQL="select Id from "+tableName+sqlFieldValueBuilder.toString();
+		List<LinkedHashMap<String, Object>> idlistDdata=dao.select(queryIdSQL);
+		if (null==idlistDdata || idlistDdata.isEmpty()) {
+			throw new SuperCodeTraceException("要修改的记录不存在", 500);
+		}
+		
+		String sql = "update " + tableName + " set " ;
+		String fieldNames = sqlFieldNameBuilder.substring(0, sqlFieldNameBuilder.length()-1);
+		sql=sql+ fieldNames+sqlFieldValueBuilder.toString() ;
+		dao.update(sql);
+		
+		try {
+			
+			//获取当前节点或功能的字段
+			NodeOrFunFields nodeOrFunFields=dynamicServiceDelegate.selectFields(functionId, isNode, traceTemplateId);
+			String querySQL="select "+nodeOrFunFields.getFields()+" from "+tableName+sqlFieldValueBuilder.toString();
+			List<LinkedHashMap<String, Object>> listDdata=dao.select(querySQL);
+			blockChainService.coChain(listDdata,nodeOrFunFields.isContainObj());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		backResult.setMsg("操作成功");
+		backResult.setState(200);
 		return backResult;
 	}
 
-	public RestResult<List<String>> delete(DynamicDeleteParam param)
-			throws SuperCodeTraceException, SuperCodeException {
-		return dynamicCommonService.delete(param);
-	}
-
-	public RestResult<List<String>> update(DynamicAddOrUpdateParam param)
-			throws SuperCodeTraceException, SuperCodeException {
-		return dynamicCommonService.update(param);
-	}
     /**
      *  定制功能列表查询
      * @param param
@@ -133,21 +311,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
      */
 	public RestResult<PageResults<List<Map<String, Object>>>> list(DynamicTableRequestParam param) throws Exception {
 		RestResult<PageResults<List<Map<String, Object>>>> result=new RestResult<PageResults<List<Map<String, Object>>>>();
-		PageResults<List<Map<String, Object>>> p = listSearchViewLike(param);
-		List<Map<String, Object>> listData=p.getList();
-		if (null==listData || listData.isEmpty()) {
-			result.setState(500);
-			result.setMsg("无法查询到数据");
-			return result;
+		String functionId=param.getFunctionId();
+		if (StringUtils.isBlank(functionId)) {
+			throw new SuperCodeTraceException("请求头里的functionId不能为空", 500);
 		}
-		Map<String, Object> data = new HashMap<String, Object>();
-		String functionId = param.getFunctionId();
-		
-		TraceFunTemplateconfigQueryParam traceFunTemplateconfigQueryParam=new TraceFunTemplateconfigQueryParam();
-		traceFunTemplateconfigQueryParam.setFunctionId(functionId);
-		traceFunTemplateconfigQueryParam.setTypeClass(2);
-		Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(traceFunTemplateconfigQueryParam);
-		p.setOther(fieldsMap);
+		PageResults<List<Map<String, Object>>> p = listSearchViewLike(param);
+		result.setMsg("成功");
 		result.setState(200);
 		result.setResults(p);
         return result;
@@ -156,11 +325,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
      * 定制功能列表查询记录
      */
 	@Override
-	protected List<Map<String, Object>> searchResult(DynamicTableRequestParam param)
+	protected List<LinkedHashMap<String, Object>> searchResult(DynamicTableRequestParam param)
 			throws SuperCodeTraceException, SuperCodeException {
-		String sql = querySqlBuilder(null,null,param.getFunctionId(), null,null, false,param);
+		String orgnizationId=commonUtil.getOrganizationId();
+		String sql = querySqlBuilder(null,null,param.getFunctionId(), null,null, false,false,orgnizationId,param);
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,param.getFunctionId());
-		List<Map<String, Object>> list = dao.select(sql);
+		List<LinkedHashMap<String, Object>> list = dao.select(sql);
 		return list;
 	}
     /**
@@ -168,7 +338,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
      */
 	@Override
 	protected int count(DynamicTableRequestParam param) throws Exception {
-		String sql = querySqlBuilder(null,null,param.getFunctionId(), null,null, true,param);
+		String orgnizationId=commonUtil.getOrganizationId();
+		String sql = querySqlBuilder(null,null,param.getFunctionId(), null,null, true,false,orgnizationId,param);
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,param.getFunctionId());
 		return dao.count(sql);
 	}
@@ -181,35 +352,35 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
      * @param tableName
      * @param nodeType
      * @param isCount
+     * @param orgnizationId 
      * @param searchParam
      * @return
      * @throws SuperCodeTraceException
      * @throws SuperCodeException
      */
 	private String querySqlBuilder(String traceBatchInfoId,String traceTemplateId,String functionId, String tableName,String nodeType, 
-			boolean isCount,DaoSearch searchParam)
+			boolean isCount,boolean fromH5Page,String orgnizationId, DaoSearch searchParam)
 			throws SuperCodeTraceException, SuperCodeException {
-		TraceFunTemplateconfigQueryParam traceFunTemplateconfigQueryParam = new TraceFunTemplateconfigQueryParam();
 
 		if (StringUtils.isBlank(functionId)) {
 			throw new SuperCodeTraceException("functionId不能为空", 500);
 		}
+		
+		Map<String, TraceFunFieldConfig> fieldsMap =null;
 		if (StringUtils.isBlank(nodeType)) {
-			traceFunTemplateconfigQueryParam.setTypeClass(1);
+			fieldsMap = functionFieldManageService
+					.getFunctionIdFields(null,functionId,1);
 		} else {
 			if (StringUtils.isBlank(traceTemplateId)) {
 				throw new SuperCodeTraceException("节点业务数据查询必须传模板id", 500);
 			}
-			traceFunTemplateconfigQueryParam.setBusinessType(Integer.valueOf(nodeType));
-			traceFunTemplateconfigQueryParam.setTypeClass(2);
-			traceFunTemplateconfigQueryParam.setTraceTemplateId(traceTemplateId);
+			fieldsMap = functionFieldManageService
+					.getFunctionIdFields(traceTemplateId,functionId,2);
 		}
-		traceFunTemplateconfigQueryParam.setFunctionId(functionId);
-		Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService
-				.getFunctionIdFields(traceFunTemplateconfigQueryParam);
 		if (null == fieldsMap || fieldsMap.isEmpty()) {
 			throw new SuperCodeTraceException("无此功能字段", 500);
 		}
+		
 		if (StringUtils.isBlank(tableName)) {
 			tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
 			if (StringUtils.isBlank(tableName)) {
@@ -218,38 +389,61 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		}
 		StringBuilder sqlFieldValueBuilder = new StringBuilder();
 		
-		//过滤掉已被隐藏或删除的记录
-		sqlFieldValueBuilder.append(" where DeleteStatus!=1 or DeleteStatus is null");
-		Integer flag=searchParam.getFlag();
-		
-		//防止查到其它组织添加的信息
-		String organizationId = commonUtil.getOrganizationId();
-		sqlFieldValueBuilder.append(" and  OrganizationId='").append(organizationId).append("'");
-		
-		//如果是生产管理里的查询则没有批次id
-		if (StringUtils.isNotBlank(traceBatchInfoId)) {
-			sqlFieldValueBuilder.append(" and  TraceBatchInfoId='").append(traceBatchInfoId).append("'");
+		//来源于h5过滤掉已被隐藏的记录
+		if (fromH5Page) {
+			sqlFieldValueBuilder.append(" where  (DeleteStatus!=1 or DeleteStatus is null) ");
+			//如果是生产管理里的查询则没有批次id
+			if (StringUtils.isNotBlank(traceBatchInfoId)) {
+				if (StringUtils.isNotBlank(nodeType) && !"3".equals(nodeType)) {
+					
+					sqlFieldValueBuilder.append(" and TraceBatchInfoId='").append(traceBatchInfoId).append("'");
+				}
+			}else {
+				//有组织信息就添加组织信息
+				if (StringUtils.isNotBlank(orgnizationId)) {
+					sqlFieldValueBuilder.append(" and OrganizationId='").append(orgnizationId).append("'");
+
+				}
+			}
+		}else {
+			
+			//如果是生产管理里的查询则没有批次id
+			if (StringUtils.isNotBlank(traceBatchInfoId) && !"3".equals(nodeType)) {
+				sqlFieldValueBuilder.append(" where TraceBatchInfoId='").append(traceBatchInfoId).append("'");
+			}else {
+				if (StringUtils.isNotBlank(orgnizationId)) {
+					sqlFieldValueBuilder.append(" where OrganizationId='").append(orgnizationId).append("'");
+				}
+			}
 		}
+		
+		Integer flag=searchParam.getFlag();
 		if (null == flag) {
 			// 无查询
 			logger.info("flag为空，无参数查询，使用默认的模板id和组织id过滤");
 		} else {
-	
-			int count = 0;
+
 			if (1 == flag) {
 				// 普通搜索--拼装所有字段匹配
 				String search=searchParam.getSearch();
 				if (null == search) {
 					throw new SuperCodeTraceException("普通搜索 search不能为空", 500);
 				}
-				sqlFieldValueBuilder.append(" and (");
-				for (String fieldCode : fieldsMap.keySet()) {
-					sqlFieldValueBuilder.append(fieldCode).append(" like ").append("'").append(search).append("'");
-					++count;
-					if (count < fieldsMap.size()) {
-						sqlFieldValueBuilder.append(" or ");
-					}
+				
+				if (sqlFieldValueBuilder.length()==0) {
+					sqlFieldValueBuilder.append(" where ");
+				}else {
+					sqlFieldValueBuilder.append(" and ");
 				}
+				sqlFieldValueBuilder.append("  (");
+				for (String fieldCode : fieldsMap.keySet()) {
+					if (!FunctionFieldCache.defaultCreateFields.contains(fieldCode)) {
+						sqlFieldValueBuilder.append(fieldCode).append(" like binary ").append("'%").append(search).append("%'");
+							sqlFieldValueBuilder.append(" or ");
+					}
+					
+				}
+				sqlFieldValueBuilder.replace(sqlFieldValueBuilder.length()-4, sqlFieldValueBuilder.length(), "");
 				sqlFieldValueBuilder.append(")");
 
 			} else {
@@ -258,17 +452,23 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				if (null == parmsMap || parmsMap.isEmpty()) {
 					throw new SuperCodeTraceException("高级搜索搜索 params不能为空", 500);
 				}
-				sqlFieldValueBuilder.append(" and ");
+				
+				if (sqlFieldValueBuilder.length()==0) {
+					sqlFieldValueBuilder.append(" where ");
+				}else {
+					sqlFieldValueBuilder.append(" and ");
+				}
 				for (String fieldCode : parmsMap.keySet()) {
-					String fieldValue = parmsMap.get(fieldCode);
-					sqlFieldValueBuilder.append(fieldCode).append("=").append("'").append(fieldValue).append("'");
-					++count;
-					if (count < parmsMap.size()) {
-						sqlFieldValueBuilder.append(" and ");
+					if (!FunctionFieldCache.defaultCreateFields.contains(fieldCode)) {
+						String fieldValue = parmsMap.get(fieldCode);
+						sqlFieldValueBuilder.append(fieldCode).append("=").append("'").append(fieldValue).append("'");
+							sqlFieldValueBuilder.append(" and ");
 					}
 				}
+				sqlFieldValueBuilder.replace(sqlFieldValueBuilder.length()-4, sqlFieldValueBuilder.length(), "");
 			}
 		}
+
 		String sql = null;
 		if (isCount) {
 			sql = "select count(*) from " + tableName + sqlFieldValueBuilder.toString();
@@ -277,27 +477,62 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				sqlFieldValueBuilder.append(" limit ").append(searchParam.getStartNumber()).append(",")
 						.append(searchParam.getPageSize());
 			}
-			// 返回的字段已经过fieldWeight排序
-			StringBuilder fieldNameBuilder = new StringBuilder();
-			for (String key : fieldsMap.keySet()) {
-				fieldNameBuilder.append(key).append(",");
-			}
-			String fields = fieldNameBuilder.substring(0, fieldNameBuilder.length() - 1);
-			sql = "select " + fields + " from " + tableName + sqlFieldValueBuilder.toString();
+			
+			NodeOrFunFields nodeOrFunFields =dynamicServiceDelegate.selectFields(fieldsMap);
+					
+			sql = "select " + nodeOrFunFields.getFields() + " from " + tableName + sqlFieldValueBuilder.toString();
 		}
 		return sql;
 	}
 
-	public RestResult<String> hideOrDelete(DynamicDeleteParam param) throws SuperCodeTraceException {
-		return dynamicCommonService.hideOrDelete(param);
+	public RestResult<String> hide(DynamicHideParam param) throws SuperCodeTraceException {
+		return dynamicServiceDelegate.hide(param);
 	}
     
-	public List<Map<String, Object>> queryTemplateNodeBatchData(String traceBatchInfoId, String traceTemplateId, String functionId,String tableName,String businessType) throws SuperCodeTraceException, SuperCodeException {
-		String sql = querySqlBuilder(traceBatchInfoId,traceTemplateId,functionId, tableName, businessType,false,new DaoSearch());
+	public List<LinkedHashMap<String, Object>> queryTemplateNodeBatchData(String traceBatchInfoId, String traceTemplateId, String functionId,String tableName,String businessType, boolean fromH5, String orgnizationId) throws SuperCodeTraceException, SuperCodeException {
+		String sql = querySqlBuilder(traceBatchInfoId,traceTemplateId,functionId, tableName, businessType,false,fromH5,orgnizationId,new DaoSearch());
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(traceTemplateId,functionId);
-		List<Map<String, Object>> list = dao.select(sql);
+		List<LinkedHashMap<String, Object>> list = dao.select(sql);
 		return list;
 		
+	}
+	/**
+	 * 获取单条记录
+	 * @param id
+	 * @param functionId
+	 * @return
+	 * @throws SuperCodeTraceException
+	 */
+	public RestResult<Map<String, Object>> getById(Long id, String functionId) throws SuperCodeTraceException {
+		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
+		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,functionId);
+		Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,functionId,1);
+		if (null == fieldsMap || fieldsMap.isEmpty()) {
+			throw new SuperCodeTraceException("无此功能字段", 500);
+		}
+		
+		RestResult<Map<String, Object>> restResult=new RestResult<Map<String, Object>>();
+		// 返回的字段已经过fieldWeight排序
+		StringBuilder fieldNameBuilder = new StringBuilder();
+		for (String key : fieldsMap.keySet()) {
+			TraceFunFieldConfig fieldConfig=fieldsMap.get(key);
+			if (null!=fieldConfig) {
+				String fieldType=fieldConfig.getFieldType();
+				if ("8".equals(fieldType)) {
+					fieldNameBuilder.append("DATE_FORMAT("+key+",'%Y-%m-%d %H:%i:%S')");
+				}
+			}
+			fieldNameBuilder.append(key).append(",");
+		}
+		String fields = fieldNameBuilder.substring(0, fieldNameBuilder.length() - 1);
+		String sql = "select " + fields + " from " + tableName + " where Id="+id;
+		List<LinkedHashMap<String, Object>> list = dao.select(sql);
+		if (null!=list && !list.isEmpty()) {
+			restResult.setResults(list.get(0));
+		}
+		restResult.setMsg("成功");
+		restResult.setState(200);
+		return restResult;
 	}
 
 }

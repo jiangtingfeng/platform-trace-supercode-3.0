@@ -20,10 +20,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.trace.dto.TraceFunFieldConfigParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigListParam;
 import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigUpdateParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigUpdateSubParam;
+import com.jgw.supercodeplatform.trace.dto.template.query.TraceFunTemplateconfigListParam;
+import com.jgw.supercodeplatform.trace.dto.template.update.TraceFunTemplateconfigUpdateParam;
+import com.jgw.supercodeplatform.trace.dto.template.update.TraceFunTemplateconfigUpdateSubParam;
 
 /**
  * 溯源批次测试
@@ -47,7 +47,7 @@ public class TraceFunTemplateconfigControllerTest {
 	public void inser() throws Exception{
 		List<TraceFunTemplateconfigParam> templateList=new ArrayList<TraceFunTemplateconfigParam>();
 		TraceFunTemplateconfigParam template=new TraceFunTemplateconfigParam();
-		template.setBusinessTypes("1");
+		template.setBusinessType("1");
 		template.setNodeFunctionName("模板节点名称1");
 		template.setNodeWeight(1);
 		template.setTraceTemplateName("模板名称11");

@@ -19,4 +19,8 @@ public class RedisKey {
 
     //用户组织功能关系,为用户角色服务关系所服务，如果是特定功能接口拦截，需要用到此数据结果
     public static final String TRACE = "trace:";
+    
+    public static String DATABASE1_TABLE_NUM_REDIS_KEY="trace:dynamic_database1_table_num";
+    
+    public static String DATABASE2_TABLE_NUM_REDIS_KEY="trace:dynamic_database2_table_num";
 }

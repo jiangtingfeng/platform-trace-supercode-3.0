@@ -8,11 +8,11 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value = "字段业务数据")
 public class FieldBusinessParam {
 	@NotEmpty
-    @ApiModelProperty(name = "fieldCode", value = "字段code", example = "FunctionName")
+    @ApiModelProperty(name = "fieldCode", value = "字段code", example = "FunctionName",required=true)
     private String fieldCode;
     
 	@NotEmpty
-    @ApiModelProperty(name = "fieldValue", value = "字段值", example = "搜索")
+    @ApiModelProperty(name = "fieldValue", value = "字段值", example = "搜索",required=true)
     private String fieldValue;
     
     @ApiModelProperty(name = "objectType", value = "对象类型，不是对象类型不需要传", example = "1001")

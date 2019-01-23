@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import com.jgw.supercodeplatform.trace.config.redis.RedisUtil;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
-import com.jgw.supercodeplatform.trace.constants.TraceBaseConstants;
 import com.jgw.supercodeplatform.trace.dao.DynamicBaseMapper;
 import com.jgw.supercodeplatform.trace.dao.dynamicMapper1.DynamicCreateTableMapper1;
 import com.jgw.supercodeplatform.trace.dao.dynamicMapper2.DynamicCreateTableMapper2;
@@ -37,7 +36,7 @@ public class TraceApplicationContextAware implements ApplicationContextAware{
 	 * @return
 	 */
 	public DynamicBaseMapper getDynamicMapperByTableNum() {
-		String value=redisUtil.get(TraceBaseConstants.DATABASE1_TABLE_NUM_REDIS_KEY);
+		String value=redisUtil.get(RedisKey.DATABASE1_TABLE_NUM_REDIS_KEY);
 		if (StringUtils.isBlank(value)) {
 			return applicationContext.getBean(DynamicCreateTableMapper1.class);
 		}else {
@@ -69,5 +68,22 @@ public class TraceApplicationContextAware implements ApplicationContextAware{
 		}else {
 			throw new SuperCodeTraceException("功能id："+functionId+"在企业路由表里获取记录数据库地址字段值="+database+"非法", 500);
 		}
+	}
+	
+	/**
+	 * 动态表已存在时使用
+	 * 根据功能id在企业路由关系表中找到表对应的报存库的序号
+	 * @param functionId
+	 * @return
+	 * @throws SuperCodeTraceException
+	 */
+	public DynamicBaseMapper getDynamicMapperByDataBaseNum(String dataBaseNum) throws SuperCodeTraceException {
+
+		if (StringUtils.isBlank(dataBaseNum) || "1".equals(dataBaseNum)) {
+			return applicationContext.getBean(DynamicCreateTableMapper1.class);
+		}else if ("2".equals(dataBaseNum)) {
+			return applicationContext.getBean(DynamicCreateTableMapper2.class);
+		}
+		throw new SuperCodeTraceException("请传正确的dataBaseNum", 500);
 	}
 }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,13 +15,11 @@ import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService.PageResults;
 import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
 import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigDeleteParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigListParam;
 import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigUpdateParam;
-import com.jgw.supercodeplatform.trace.pojo.template.TraceFunTemplateconfig;
-import com.jgw.supercodeplatform.trace.service.template.TraceFunTemplateconfigService;
+import com.jgw.supercodeplatform.trace.dto.template.query.TraceFunTemplateconfigListParam;
+import com.jgw.supercodeplatform.trace.dto.template.update.TraceFunTemplateconfigUpdateParam;
 import com.jgw.supercodeplatform.trace.service.template.TraceFunTemplatecofigListService;
-import com.jgw.supercodeplatform.trace.vo.TemplateconfigAndNodeVO;
+import com.jgw.supercodeplatform.trace.service.template.TraceFunTemplateconfigService;
 import com.jgw.supercodeplatform.trace.vo.TraceFunTemplateconfigVO;
 
 import io.swagger.annotations.Api;
@@ -77,17 +74,10 @@ public class TraceFunTemplateconfigController {
 	public RestResult<PageResults<List<TraceFunTemplateconfigListParam>>> query(DaoSearch searchParams) throws Exception {
 		PageResults<List<TraceFunTemplateconfigListParam>> listPageResults = service.listSearchViewLike(searchParams);
 		RestResult<PageResults<List<TraceFunTemplateconfigListParam>>> reslt=new RestResult<PageResults<List<TraceFunTemplateconfigListParam>>>();
-		if(null!=listPageResults.getList() && listPageResults.getList().size()!=0){
-			reslt.setResults(listPageResults);
-			reslt.setMsg("成功");
-			reslt.setState(200);
-			return reslt;
-		}else {
-			reslt.setResults(listPageResults);
-			reslt.setMsg("失败");
-			reslt.setState(500);
-			return reslt;
-		}
+		reslt.setResults(listPageResults);
+		reslt.setMsg("成功");
+		reslt.setState(200);
+		return reslt;
 	}
 
 	@RequestMapping(value="/queryByTemplateName",method=RequestMethod.GET)
@@ -96,17 +86,10 @@ public class TraceFunTemplateconfigController {
 	public RestResult<PageResults<List<TraceFunTemplateconfigListParam>>> queryByTemplateName(DaoSearch searchParams) throws Exception {
 		PageResults<List<TraceFunTemplateconfigListParam>> listPageResults = traceFunTemplatecofigListService.listSearchViewLike(searchParams);
 		RestResult<PageResults<List<TraceFunTemplateconfigListParam>>> reslt=new RestResult<PageResults<List<TraceFunTemplateconfigListParam>>>();
-		if(null!=listPageResults.getList() && listPageResults.getList().size()!=0 ){
-			reslt.setResults(listPageResults);
-			reslt.setMsg("成功");
-			reslt.setState(200);
-			return reslt;
-		}else {
-			reslt.setResults(listPageResults);
-			reslt.setMsg("失败");
-			reslt.setState(500);
-			return reslt;
-		}
+		reslt.setResults(listPageResults);
+		reslt.setMsg("成功");
+		reslt.setState(200);
+		return reslt;
 	}
 
 	@RequestMapping(value="/list",method=RequestMethod.GET)
@@ -115,17 +98,10 @@ public class TraceFunTemplateconfigController {
 	public RestResult<List<TraceFunTemplateconfigListParam>> list() throws Exception {
 		List<TraceFunTemplateconfigListParam> list = service.selectTemplateByTemplateId();
 		RestResult<List<TraceFunTemplateconfigListParam>> reslt=new RestResult<List<TraceFunTemplateconfigListParam>>();
-		if(null!=list && list.size()!=0){
-			reslt.setResults(list);
-			reslt.setMsg("成功");
-			reslt.setState(200);
-			return reslt;
-		}else {
-			reslt.setResults(list);
-			reslt.setMsg("失败");
-			reslt.setState(500);
-			return reslt;
-		}
+		reslt.setResults(list);
+		reslt.setMsg("成功");
+		reslt.setState(200);
+		return reslt;
 	}
 
 	@RequestMapping(value="/listNodes",method=RequestMethod.GET)
@@ -140,17 +116,4 @@ public class TraceFunTemplateconfigController {
 		return reslt;
 	}
     
-	/**
-	 * 根据批次唯一id和模板id查询该模板节点下的节点中该批次的数据
-	 * @param traceBatchInfoId
-	 * @param traceTemplateId
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value="/queryNodeInfo",method=RequestMethod.GET)
-	@ApiOperation(value = "通过追溯模板id查询节点业务数据接口", notes = "",consumes="application/x-www-form-urlencoded;charset=UTF-8")
-	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="query",value = "批次id",name="traceBatchInfoId",required=true),@ApiImplicitParam(paramType="query",value = "模板id",name="traceTemplateId",required=true),@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
-	public RestResult<List<TemplateconfigAndNodeVO>> queryNodeInfo(@RequestParam(required=true,name="traceBatchInfoId") String traceBatchInfoId,@RequestParam(required=true,name="traceTemplateId") String traceTemplateId) throws Exception {
-		return service.queryNodeInfo(traceBatchInfoId,traceTemplateId);
-	}
 }

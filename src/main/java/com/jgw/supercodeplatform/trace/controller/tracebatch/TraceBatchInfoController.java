@@ -157,21 +157,27 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
     })
-    public RestResult listTraceBatchInfoByOrgAndField(@RequestParam(value = "field") String field) throws Exception {
-
+    public RestResult listTraceBatchInfoByOrgAndField(@RequestParam Map<String, Object> map) throws Exception {
+        validateRequestParamAndValueNotNull(map,"field");
+        String field = map.get("field").toString();
         BatchInfo batchInfo = BatchInfo.valueOf(field);
         if (batchInfo == null) {
             return new RestResult(500, "field 有误：" + field, null);
         }
 
-        List<ReturnTraceBatchInfo> traceBatchInfos = traceBatchInfoService.listTraceBatchInfo();
+        Map result = traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
+
+        List<ReturnTraceBatchInfo> traceBatchInfos = (List<ReturnTraceBatchInfo>) result.get("list");
+
         Set<Object> re;
         if (traceBatchInfos != null && traceBatchInfos.size() > 0) {
             re = getBatchInfoValue(batchInfo,traceBatchInfos);
         } else {
             re = new HashSet<>();
         }
-        return new RestResult(200, "success", re);
+
+        result.put("list",re);
+        return new RestResult(200, "success", result);
     }
 
     private Set<Object> getBatchInfoValue(BatchInfo batchInfo,List<ReturnTraceBatchInfo> traceBatchInfos) {
@@ -230,15 +236,15 @@ public class TraceBatchInfoController extends CommonUtil {
 
 
     public static class BatchInfoResult{
-        private String traceBatchInfoId;
+        private String objectUniqueValue;
         private String field;
 
-        public String getTraceBatchInfoId() {
-            return traceBatchInfoId;
+        public String getObjectUniqueValue() {
+            return objectUniqueValue;
         }
 
-        public void setTraceBatchInfoId(String traceBatchInfoId) {
-            this.traceBatchInfoId = traceBatchInfoId;
+        public void setObjectUniqueValue(String objectUniqueValue) {
+            this.objectUniqueValue = objectUniqueValue;
         }
 
         public String getField() {
@@ -249,8 +255,8 @@ public class TraceBatchInfoController extends CommonUtil {
             this.field = field;
         }
 
-        public BatchInfoResult(String traceBatchInfoId, String field) {
-            this.traceBatchInfoId = traceBatchInfoId;
+        public BatchInfoResult(String objectUniqueValue, String field) {
+            this.objectUniqueValue = objectUniqueValue;
             this.field = field;
         }
 
@@ -276,23 +282,23 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次号",name="traceBatchInfoId",required=true),
         @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
     })
-	public RestResult<List<TemplateconfigAndNodeVO>> listBusinessNodeData(@RequestParam String traceBatchInfoId) throws Exception{
+	public RestResult<List<Map<String, Object>>> listBusinessNodeData(@RequestParam String traceBatchInfoId) throws Exception{
 		return traceBatchInfoService.listBusinessNodeData(traceBatchInfoId);
 	}
 	
     /**
-     *  获取溯源批次对应模板节点业务数据
+     *  根据溯源批次扫码接口
      * @param traceBatchInfoId
      * @return
      * @throws Exception
      */
-//	@GetMapping("/nodeBusinessData")
-//	@ApiOperation(value = "根据批次号获取关联溯源模板下节点业务数据接口", notes = "节点业务数据",consumes="application/x-www-form-urlencoded;charset=UTF-8")
-//    @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次号",name="traceBatchInfoId",required=true),
-//        @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
-//    })
-//	public RestResult<List<TemplateconfigAndNodeVO>> listBusinessNodeData(@RequestParam String traceBatchInfoId) throws Exception{
-//		return traceBatchInfoService.listBusinessNodeData(traceBatchInfoId);
-//	}
+	@GetMapping("/h5PageData")
+	@ApiOperation(value = "根据批次号获取h5溯源页数据接口", notes = "h5溯源页数据",consumes="application/x-www-form-urlencoded;charset=UTF-8")
+    @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true),
+        @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+    })
+	public RestResult<Map<String, Object>> h5PageData(@RequestParam String traceBatchInfoId) throws Exception{
+		return traceBatchInfoService.h5PageData(traceBatchInfoId);
+	}
 	
 }

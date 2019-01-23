@@ -1,7 +1,5 @@
 package com.jgw.supercodeplatform.trace.pojo;
 
-import java.util.Date;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 /**
@@ -34,9 +32,9 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
     private Integer showHidden;  //显示隐藏
     private String createBy;  //创建人
     private Integer extraCreate;  //是否是后台额外新增的字段而不是页面创建的 1表示是
-    private Date createTime;  //创建时间
+    private String createTime;  //创建时间
     private String lastUpdateBy;  //修改人
-    private Date lastUpdateTime;  //修改时间
+    private String lastUpdateTime;  //修改时间
     private String objectFieldId;//对象字段表主键id
     
 	public String getObjectFieldId() {
@@ -51,7 +49,7 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
      * 不存数据库
      * 对象属性业务数据请求地址
      */
-    private String ServiceAddress;
+    private String serviceAddress;
     
     public TraceFunFieldConfig() {
     }
@@ -61,11 +59,11 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
 	}
 
 	public String getServiceAddress() {
-		return ServiceAddress;
+		return serviceAddress;
 	}
 
 	public void setServiceAddress(String serviceAddress) {
-		ServiceAddress = serviceAddress;
+		this.serviceAddress = serviceAddress;
 	}
 
 	public void setId(Long id) {
@@ -256,11 +254,11 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
 		this.createBy = createBy;
 	}
 
-	public Date getCreateTime() {
+	public String getCreateTime() {
 		return createTime;
 	}
 
-	public void setCreateTime(Date createTime) {
+	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
 	}
 
@@ -272,11 +270,11 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
 		this.lastUpdateBy = lastUpdateBy;
 	}
 
-	public Date getLastUpdateTime() {
+	public String getLastUpdateTime() {
 		return lastUpdateTime;
 	}
 
-	public void setLastUpdateTime(Date lastUpdateTime) {
+	public void setLastUpdateTime(String lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}
 
@@ -288,7 +286,10 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
 		if (null==this.fieldWeight) {
 			return 0;
 		}
-		return this.fieldWeight.compareTo(o.getFieldWeight());
+		if (this.fieldWeight<o.getFieldWeight()) {
+			return 1;
+		}
+		return 0;
 	}
 
 	@Override

@@ -1,16 +1,17 @@
 package com.jgw.supercodeplatform.trace.service.template;
 
-import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
-import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
-import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
-import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigListParam;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
+import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
+import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
+import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
+import com.jgw.supercodeplatform.trace.dto.template.query.TraceFunTemplateconfigListParam;
 
 @Service
 public class TraceFunTemplatecofigListService extends AbstractPageService {

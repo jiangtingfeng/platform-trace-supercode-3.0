@@ -1,6 +1,9 @@
 package com.jgw.supercodeplatform.trace.service.template;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jgw.supercodeplatform.exception.SuperCodeException;
 import com.jgw.supercodeplatform.pojo.cache.AccountCache;
+import com.jgw.supercodeplatform.trace.aware.TraceApplicationContextAware;
+import com.jgw.supercodeplatform.trace.common.cache.FunctionFieldCache;
+import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
@@ -22,15 +28,16 @@ import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconf
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFuntemplateStatisticalMapper;
 import com.jgw.supercodeplatform.trace.dto.TraceFunFieldConfigParam;
 import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigDeleteParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigListParam;
 import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigUpdateParam;
-import com.jgw.supercodeplatform.trace.dto.template.TraceFunTemplateconfigUpdateSubParam;
+import com.jgw.supercodeplatform.trace.dto.template.query.TraceFunTemplateconfigListParam;
+import com.jgw.supercodeplatform.trace.dto.template.update.TraceFunTemplateconfigUpdateParam;
+import com.jgw.supercodeplatform.trace.dto.template.update.TraceFunTemplateconfigUpdateSubParam;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
+import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
+import com.jgw.supercodeplatform.trace.pojo.TraceOrgFunRoute;
 import com.jgw.supercodeplatform.trace.pojo.template.TraceFunTemplateconfig;
 import com.jgw.supercodeplatform.trace.pojo.template.TraceFuntemplateStatistical;
 import com.jgw.supercodeplatform.trace.service.dynamic.DynamicTableService;
-import com.jgw.supercodeplatform.trace.vo.TemplateconfigAndNodeVO;
 import com.jgw.supercodeplatform.trace.vo.TraceFunTemplateconfigVO;
 
 @Service
@@ -57,11 +64,30 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
     @Autowired
     private TraceFunFieldConfigDelegate traceFunFieldConfigDelegate;
     
+    @Autowired
+    private FunctionFieldCache functionFieldCache;
+    
+	@Autowired
+	private TraceApplicationContextAware applicationAware;
+	
     @Transactional
 	public RestResult<String> add(List<TraceFunTemplateconfigParam> templateList) throws Exception {
 		RestResult<String> restResult=new RestResult<String>();
+		if (null==templateList || templateList.isEmpty()) {
+			restResult.setState(500);
+			restResult.setMsg("参数不能为空");
+			return restResult;
+		}
+		
+		String templateName1 = templateList.get(0).getTraceTemplateName();
+		if (StringUtils.isBlank(templateName1)) {
+			restResult.setState(500);
+			restResult.setMsg("模板名称不能为空");
+			return restResult;
+		}
+		
+		String templateName=templateName1.replaceAll(" ", "");
 		String templateId = getUUID();
-		String templateName = templateList.get(0).getTraceTemplateName();
 		String organizationId = commonUtil.getOrganizationId();
 		List<TraceFunTemplateconfig> existTemplateList=traceFunTemplateconfigDao.selectByTempNameAndOrgId(templateName,organizationId);
 		if (null!=existTemplateList && !existTemplateList.isEmpty()) {
@@ -79,6 +105,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		restResult.setMsg("成功");
 		return restResult;
 	}
+   
     /**
      * 修改溯源模板
      * @param traceFunTemplateconfigUpdateParam
@@ -94,6 +121,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			return restResult;
 		}
 		String templateConfigName=traceFunTemplateconfigUpdateParam.getTraceTemplateName();
+		
 		String templateConfigId=traceFunTemplateconfigUpdateParam.getTraceTemplateId();
 		if (StringUtils.isBlank(templateConfigId) || StringUtils.isBlank(templateConfigName)) {
 			restResult.setState(500);
@@ -108,6 +136,14 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			restResult.setMsg("模板id错误不存在此模板");
 			return restResult;
 		}
+        //检查是否有其它名称与修改名称相同
+        String templateName=templateConfigName.replaceAll(" ", "");
+        Integer count=traceFuntemplateStatisticalDao.countOtherTemplateNameByTemplateId(templateName,templateConfigId);
+        if (null!=count && count>0) {
+        	restResult.setState(500);
+			restResult.setMsg("该名称已存在");
+			return restResult;
+		}
 		//新增节点数量
 		int addNodeCount=0;
 		//删除节点数量
@@ -116,6 +152,54 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		//获取新增节点或新增节点字段数据
 		List<TraceFunTemplateconfigUpdateSubParam> templateList=traceFunTemplateconfigUpdateParam.getTemplateList();
 		if (null!=templateList && !templateList.isEmpty()) {
+			for (TraceFunTemplateconfigUpdateSubParam traceFunTemplateconfigUpdateSubParam : templateList) {
+				Integer operateType=traceFunTemplateconfigUpdateSubParam.getOperateType();
+				switch (operateType) {
+				case 1:
+					//新增节点
+					TraceFunFieldConfigDelegate.checkAddParam(traceFunTemplateconfigUpdateSubParam.getFieldConfigList());
+					break;
+		        case 2:
+		        	String nodeFunctionName=traceFunTemplateconfigUpdateSubParam.getNodeFunctionName();
+		        	String nodeFunctionId=traceFunTemplateconfigUpdateSubParam.getNodeFunctionId();
+		        	if (StringUtils.isBlank(nodeFunctionId) || StringUtils.isBlank(nodeFunctionName)) {
+		        		throw new SuperCodeTraceException("修改节点 nodeFunctionId和nodeFunctionName不能为空", 500);
+					}
+		
+		    		List<TraceFunFieldConfig> fields=traceFunFieldConfigService.selectPartTraceTemplateIdAndNodeFunctionId(templateConfigId,nodeFunctionId);
+		    		if (null==fields || fields.isEmpty()) {
+		    			throw new SuperCodeTraceException("修改节点 -"+nodeFunctionName+"不存在", 500);
+					}
+		    		
+		         	//更新节点 新增节点字段新校验新增的字段
+		    		List<TraceFunFieldConfigParam> params=traceFunTemplateconfigUpdateSubParam.getFieldConfigList();
+		    		if (null!=params && !params.isEmpty()) {
+		    			TraceFunFieldConfigDelegate.checkAddParam(traceFunTemplateconfigUpdateSubParam.getFieldConfigList());
+		    			Map<String, Integer> doubleFieldCodeMap=new HashMap<String, Integer>();
+		    			for (TraceFunFieldConfig field : fields) {
+		    				doubleFieldCodeMap.put(field.getFieldCode(), 1);
+		    			}
+		    			
+		    			List<TraceFunFieldConfigParam> fieldsParam=traceFunTemplateconfigUpdateSubParam.getFieldConfigList();
+		    			for (TraceFunFieldConfigParam traceFunFieldConfigParam : fieldsParam) {
+		    				if (doubleFieldCodeMap.containsKey(traceFunFieldConfigParam.getFieldCode())) {
+		    					throw new SuperCodeTraceException("修改节点-"+nodeFunctionName+"，新增的字段与之前字段 存在重复字段："+traceFunFieldConfigParam.getFieldCode(), 500);
+		    				}
+		    			}
+					}
+		    		break;
+		        case 3:
+		        	 nodeFunctionId=traceFunTemplateconfigUpdateSubParam.getNodeFunctionId();
+		        	if (StringUtils.isBlank(nodeFunctionId)) {
+		        		throw new SuperCodeTraceException("修删除节点 nodeFunctionId不能为空", 500);
+					}
+		        	break;
+				default:
+					break;
+				}
+			}
+			
+			
 			String organizationId=commonUtil.getOrganizationId();
 			List<String> functionIds=new ArrayList<String>();
 			
@@ -126,25 +210,45 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 				case 1:
 					//新增节点--新增节点配置，新建企业路由关系，动态创建功能表，新增模板配置表记录
 					TraceFunTemplateconfigParam tftf=new TraceFunTemplateconfigParam();
-					tftf.setBusinessTypes(traceFunTemplateconfigUpdateSubParam.getBusinessTypes());
+					tftf.setBusinessType(traceFunTemplateconfigUpdateSubParam.getBusinessType());
 					tftf.setFieldConfigList(traceFunTemplateconfigUpdateSubParam.getFieldConfigList());
 					tftf.setNodeFunctionName(traceFunTemplateconfigUpdateSubParam.getNodeFunctionName());
 					tftf.setTraceTemplateId(templateConfigId);
 					tftf.setNodeFunctionId(traceFunTemplateconfigUpdateSubParam.getNodeFunctionId());
-					tftf.setTraceTemplateName(templateConfigName);
+					tftf.setTraceTemplateName(templateName);
 					templateList2.add(tftf);
 					break;
 		        case 2:
-		        	//新增节点字段--更新节点配置表及修改节点表结构
-		        	String tableName=traceFunTemplateconfigUpdateSubParam.getFieldConfigList().get(0).getEnTableName();
-		        	String businessType=traceFunTemplateconfigUpdateSubParam.getBusinessTypes();
-		        	String templateId=traceFunTemplateconfigUpdateParam.getTraceTemplateId();
-		        	String nodeFunctionId=traceFunTemplateconfigUpdateSubParam.getNodeFunctionId();
+		        	//更新节点 新增节点字段--配置表及修改节点表结构
+		        	List<TraceFunFieldConfigParam> fields=traceFunTemplateconfigUpdateSubParam.getFieldConfigList();
 		        	String nodeFunctionName=traceFunTemplateconfigUpdateSubParam.getNodeFunctionName();
-		        	RestResult<String> result=traceFunFieldConfigDelegate.updateAbstract(traceFunTemplateconfigUpdateSubParam.getFieldConfigList(), tableName, false, true,nodeFunctionId,nodeFunctionName,templateId ,businessType);
-					if (result.getState()!=200) {
-						return result;
+		        	String nodeFunctionId=traceFunTemplateconfigUpdateSubParam.getNodeFunctionId();
+		        	
+					TraceFunTemplateconfig traceFunTemplateconfig=traceFunTemplateconfigDao.selectByTemplateIdAndNodeFunctionId(templateConfigId,nodeFunctionId);
+					if (null==traceFunTemplateconfig) {
+						throw new SuperCodeTraceException("修改节点操作，节点nodeFunctionName="+nodeFunctionName+"不存在", 500);
 					}
+					traceFunTemplateconfig.setNodeFunctionName(nodeFunctionName);
+					traceFunTemplateconfig.setNodeWeight(traceFunTemplateconfigUpdateSubParam.getNodeWeight());
+					traceFunTemplateconfigDao.update(traceFunTemplateconfig);
+					
+		        	if (null!=fields && !fields.isEmpty()) {
+		        		TraceOrgFunRoute orgroute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(templateConfigId, nodeFunctionId);
+		        		if (null==orgroute) {
+		        			throw new SuperCodeTraceException("修改节点操作，节点nodeFunctionName="+nodeFunctionName+"不存在节点路由信息", 500);
+						}
+		        		
+		        		String tableName=orgroute.getTableName();
+		        		String businessType=traceFunTemplateconfigUpdateSubParam.getBusinessType();
+		        		String templateId=traceFunTemplateconfigUpdateParam.getTraceTemplateId();
+		        		RestResult<String> result=traceFunFieldConfigDelegate.addNewFields(traceFunTemplateconfigUpdateSubParam.getFieldConfigList(), tableName, false, true,nodeFunctionId,nodeFunctionName,templateId ,businessType);
+		        		if (result.getState()!=200) {
+		        			return result;
+		        		}
+		    			//TODO 新增后刷新模板节点字段信息缓存
+		    			//functionFieldCache.flush(templateId, nodeFunctionId, 2);
+					}
+
 		        	break;
 		        case 3:
 		        	//删除节点
@@ -184,11 +288,11 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 //			}
 			
 			//更新统计表
-			saveOrUpdateTemplateStatistical(templateConfigId, templateConfigName,organizationId,addNodeCount-deleteFunctionNum);
+			saveOrUpdateTemplateStatistical(templateConfigId, templateName,organizationId,addNodeCount-deleteFunctionNum);
 		}else {
 			//没有模板节点数据则默认跟新模板名称
 			TraceFuntemplateStatistical traceFuntemplateStatistical=traceFuntemplateStatisticalDao.selectByTemplateId(templateConfigId);
-			traceFuntemplateStatistical.setTraceTemplateName(templateConfigName);
+			traceFuntemplateStatistical.setTraceTemplateName(templateName);
 			traceFuntemplateStatisticalDao.update(traceFuntemplateStatistical);
 		}
 		restResult.setState(200);
@@ -205,11 +309,24 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 	 * @throws Exception 
 	 */
 	private void save(List<TraceFunTemplateconfigParam> templateList, String templateId,String organizationId) throws Exception {
+		//先循环校验参数非空
+		for (TraceFunTemplateconfigParam traceFunTemplateconfigParam : templateList) {
+			List<TraceFunFieldConfigParam> list=traceFunTemplateconfigParam.getFieldConfigList();
+			if (null==list || list.isEmpty()) {
+				throw new SuperCodeTraceException("新增模板节点"+traceFunTemplateconfigParam.getNodeFunctionName()+"字段不能为空", 500);
+			}
+			
+			if (StringUtils.isBlank(traceFunTemplateconfigParam.getBusinessType())) {
+				throw new SuperCodeTraceException("新增溯源模板，节点类型不能为空", 500);
+			}
+			TraceFunFieldConfigDelegate.checkAddParam(list);
+		}
+		
 		for (TraceFunTemplateconfigParam traceFunTemplateconfigParam : templateList) {
 			String nodeFunctionId=null;
 			//如果是自动节点，那么节点功能id使用定制功能的功能id否则生成新的节点功能id
-			if ("1".equals(traceFunTemplateconfigParam.getBusinessTypes())) {
-				nodeFunctionId=templateList.get(0).getFieldConfigList().get(0).getFunctionId();
+			if ("1".equals(traceFunTemplateconfigParam.getBusinessType())) {
+				nodeFunctionId=traceFunTemplateconfigParam.getFieldConfigList().get(0).getFunctionId();
 			}else {
 				nodeFunctionId=commonUtil.StringFilter(getUUID());
 			}
@@ -217,8 +334,10 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			//节点对应马平台创建出来的功能id
 			//创建字段及新建功能表，创建企业路由关系，动态创建表
 			List<TraceFunFieldConfigParam> fieldConfigList=traceFunTemplateconfigParam.getFieldConfigList();
-			traceFunFieldConfigDelegate.createTableAndGerenteOrgFunRouteAndSaveFields(fieldConfigList,organizationId,true,true,nodeFunctionId,traceFunTemplateconfigParam.getNodeFunctionName(),traceFunTemplateconfigParam.getBusinessTypes(),templateId);
+			traceFunFieldConfigDelegate.tempalteCreateTableAndGerenteOrgFunRouteAndSaveFields(fieldConfigList,true,nodeFunctionId,traceFunTemplateconfigParam.getNodeFunctionName(),traceFunTemplateconfigParam.getBusinessType(),templateId);
 			
+			//新增后刷新模板节点字段信息缓存
+			//functionFieldCache.flush(templateId, nodeFunctionId, 2);
 			//保存模板配置表
 			saveTraceTemplateConfig(traceFunTemplateconfigParam,templateId,organizationId,nodeFunctionId);
 		}
@@ -260,7 +379,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 	 */
 	private void saveTraceTemplateConfig(TraceFunTemplateconfigParam traceFunTemplateconfigParam, String templateId, String organizationId, String functionId) {
 		TraceFunTemplateconfig tftc=new TraceFunTemplateconfig();
-		tftc.setBusinessTypes(traceFunTemplateconfigParam.getBusinessTypes());
+		tftc.setBusinessType(traceFunTemplateconfigParam.getBusinessType());
 		tftc.setNodeFunctionId(functionId);
 		tftc.setNodeWeight(traceFunTemplateconfigParam.getNodeWeight());
 		tftc.setNodeFunctionName(traceFunTemplateconfigParam.getNodeFunctionName());
@@ -371,10 +490,12 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 	/**
 	 * 根据追溯模板id排序查询模板下节点业务数据
 	 * @param traceTemplateId
+	 * @param fromH5 
+	 * @param orgnizationId 
 	 * @throws Exception 
 	 */
-	public RestResult<List<TemplateconfigAndNodeVO>> queryNodeInfo(String traceBatchInfoId,String traceTemplateId) throws Exception {
-		RestResult<List<TemplateconfigAndNodeVO>> restResult=new RestResult<List<TemplateconfigAndNodeVO>>();
+	public RestResult<List<Map<String, Object>>> queryNodeInfo(String traceBatchInfoId,String traceTemplateId, boolean fromH5, String orgnizationId) throws Exception {
+		RestResult<List<Map<String, Object>>> restResult=new RestResult<List<Map<String, Object>>>();
 		//查询顺序节点信息拼装对应动态表名用于查询节点业务数据
 		List<TraceFunTemplateconfigVO> templateConfigList=traceFunTemplateconfigDao.getTemplateAndFieldInfoByTemplateId(traceTemplateId);
 		if (null==templateConfigList || templateConfigList.isEmpty()) {
@@ -383,33 +504,64 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			return restResult;
 		}
 		
-		List<TemplateconfigAndNodeVO> nodeDataList=new ArrayList<TemplateconfigAndNodeVO>();
+		Field field;
+		List<Map<String, Object>> allNodeData=new ArrayList<Map<String, Object>>();
 		for (TraceFunTemplateconfigVO traceFunTemplateconfigVO : templateConfigList) {
-			List<Map<String, Object>> nodeData=dynamicTableService.queryTemplateNodeBatchData(traceBatchInfoId,traceTemplateId,traceFunTemplateconfigVO.getNodeFunctionId(),traceFunTemplateconfigVO.getEnTableName(),traceFunTemplateconfigVO.getBusinessTypes());
+			String nodeFunctionId=traceFunTemplateconfigVO.getNodeFunctionId();
+			String businessType=traceFunTemplateconfigVO.getBusinessType();
+			List<LinkedHashMap<String, Object>> nodeData=dynamicTableService.queryTemplateNodeBatchData(traceBatchInfoId,traceTemplateId,nodeFunctionId,traceFunTemplateconfigVO.getEnTableName(),businessType,fromH5,orgnizationId);
+			Map<String, TraceFunFieldConfig> fieldCacheMap=functionFieldCache.getFunctionIdFields(traceTemplateId, nodeFunctionId, 2);
+			
 			if (null!=nodeData && !nodeData.isEmpty()) {
-				TemplateconfigAndNodeVO tn=new TemplateconfigAndNodeVO();
-				tn.setBusinessTypes(traceFunTemplateconfigVO.getBusinessTypes());
-				tn.setNodeFunctionId(traceFunTemplateconfigVO.getNodeFunctionId());
-				tn.setNodeFunctionName(traceFunTemplateconfigVO.getFunctionName());
-				tn.setNodeData(nodeData);
-				nodeDataList.add(tn);
+				for (Map<String, Object> map : nodeData) {
+					Map<String, Object> lineData=new LinkedHashMap<String, Object>();
+					lineData.put("nodeFunctionName", traceFunTemplateconfigVO.getNodeFunctionName());
+					lineData.put("businessType", businessType);
+					lineData.put("nodeFunctionId", nodeFunctionId);
+					lineData.put("deleteStatus", map.get("DeleteStatus"));
+					List<Field> fieldList=new ArrayList<Field>();
+					List<Field> defualtfieldList=new ArrayList<Field>();
+					for(String key:map.keySet()) {
+						field=new Field();
+						field.setFieldCode(key);
+						field.setFieldValue(map.get(key));
+						field.setFieldWeight(fieldCacheMap.get(key).getFieldWeight());
+						try {
+							field.setTypeClass(fieldCacheMap.get(key).getTypeClass());
+							field.setFieldName(fieldCacheMap.get(key).getFieldName());
+							field.setFieldType(fieldCacheMap.get(key).getFieldType());
+						} catch (Exception e) {
+							logger.error(e.getMessage());
+							e.printStackTrace();
+						}
+						if (FunctionFieldCache.defaultCreateFields.contains(key)) {
+							defualtfieldList.add(field);	
+						}else {
+							fieldList.add(field);
+						}
+					}
+					lineData.put("lineData", fieldList);
+					lineData.put("defaultLineData", defualtfieldList);
+					allNodeData.add(lineData);
+				}
 			}
 		}
 		//判断节点数据集合是否为空，为空则表示该模板下的节点无业务数据
-		if (nodeDataList.isEmpty()) {
-			restResult.setState(500);
-			restResult.setMsg("该模板下的节点无数据");
-		}else {
-			restResult.setState(200);
-			restResult.setResults(nodeDataList);
-			restResult.setMsg("成功");
+		if (null!=allNodeData && !allNodeData.isEmpty()) {
+			allNodeData.sort((Map<String, Object> h1, Map<String, Object> h2) -> ((Long)(h1.get("SortDateTime")==null?0l:h1.get("SortDateTime"))).compareTo(((Long)(h2.get("SortDateTime")==null?0L:h2.get("SortDateTime")))));
+			restResult.setResults(allNodeData);
+		}else{
+			List<Map<String, Object>> allND=new ArrayList<Map<String, Object>>();
+			restResult.setResults(allND);
 		}
+		restResult.setState(200);
+		restResult.setMsg("成功");
 		return restResult;
 	}
+
 	@Transactional
 	public RestResult<String> deleteById(Long id) throws SuperCodeException {
 		RestResult<String> restResult=new RestResult<String>();
-		String organizationId=commonUtil.getOrganizationId();
 		TraceFunTemplateconfig traceFunTemplateconfig=traceFunTemplateconfigDao.selectById(id);
 		if (null==traceFunTemplateconfig) {
 			restResult.setState(500);

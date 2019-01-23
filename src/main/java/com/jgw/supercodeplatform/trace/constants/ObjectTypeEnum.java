@@ -3,7 +3,7 @@ package com.jgw.supercodeplatform.trace.constants;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 
 public enum ObjectTypeEnum {
-	USER(13001, "员工"),PRODUCT(13002, "产品"),  TRACE_BATCH(13003, "批次");
+	USER(13001,"UserId", "员工"),PRODUCT(13002, "ProductId","产品"),  TRACE_BATCH(13003,"TraceBatchInfoId", "批次");
 
 	public static ObjectTypeEnum getType(Integer codeTypeId) throws SuperCodeTraceException {
 		if (null==codeTypeId) {
@@ -21,7 +21,7 @@ public enum ObjectTypeEnum {
 		}
 	}
 	private int code;
-
+    private String fieldCode;
 	private String desc;
 
 	public int getCode() {
@@ -32,6 +32,14 @@ public enum ObjectTypeEnum {
 		this.code = code;
 	}
 
+	public String getFieldCode() {
+		return fieldCode;
+	}
+
+	public void setFieldCode(String fieldCode) {
+		this.fieldCode = fieldCode;
+	}
+
 	public String getDesc() {
 		return desc;
 	}
@@ -40,9 +48,11 @@ public enum ObjectTypeEnum {
 		this.desc = desc;
 	}
 
-	private ObjectTypeEnum(int code, String desc) {
+	private ObjectTypeEnum(int code, String fieldCode, String desc) {
 		this.code = code;
+		this.fieldCode = fieldCode;
 		this.desc = desc;
 	}
+
 
 }

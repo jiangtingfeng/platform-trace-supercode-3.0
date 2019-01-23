@@ -7,7 +7,7 @@ import javax.validation.constraints.NotEmpty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(value = "数据库一行记录业务数据")
+@ApiModel(value = "数据库一行记录业务数据，请求参数model")
 public class LineBusinessData {
 	
 	@NotEmpty
