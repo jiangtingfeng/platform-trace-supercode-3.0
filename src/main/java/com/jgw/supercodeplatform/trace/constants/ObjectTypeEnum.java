@@ -7,7 +7,7 @@ public enum ObjectTypeEnum {
 
 	public static ObjectTypeEnum getType(Integer codeTypeId) throws SuperCodeTraceException {
 		if (null==codeTypeId) {
-			return null;
+			throw new SuperCodeTraceException("ObjectTypeEnum.getType参数codeTypeId不能为空", 500);
 		}
 		switch (codeTypeId) {
 		case 13001:

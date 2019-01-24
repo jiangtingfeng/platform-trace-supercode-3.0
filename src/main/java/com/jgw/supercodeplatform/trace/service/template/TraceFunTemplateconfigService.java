@@ -24,6 +24,7 @@ import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
 import com.jgw.supercodeplatform.trace.dao.mapper1.TraceOrgFunRouteMapper;
+import com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo.TraceBatchInfoMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFuntemplateStatisticalMapper;
 import com.jgw.supercodeplatform.trace.dto.TraceFunFieldConfigParam;
@@ -66,6 +67,9 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
     
     @Autowired
     private FunctionFieldCache functionFieldCache;
+    
+	@Autowired
+	private TraceBatchInfoMapper traceBatchInfoDao;
     
 	@Autowired
 	private TraceApplicationContextAware applicationAware;
@@ -294,6 +298,13 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			TraceFuntemplateStatistical traceFuntemplateStatistical=traceFuntemplateStatisticalDao.selectByTemplateId(templateConfigId);
 			traceFuntemplateStatistical.setTraceTemplateName(templateName);
 			traceFuntemplateStatisticalDao.update(traceFuntemplateStatistical);
+		}
+		
+		try {
+			//级联修改批次里的模板名称
+			traceBatchInfoDao.updateTemplateNameByTemplateId(templateName,templateConfigId);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		restResult.setState(200);
 		restResult.setMsg("操作成功");

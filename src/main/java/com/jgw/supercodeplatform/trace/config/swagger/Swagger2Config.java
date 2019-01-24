@@ -34,7 +34,17 @@ public class Swagger2Config {
                  .apiInfo(apiInfo())
                  .enable(enable);
      }
-
+     @Bean("区块链模块")
+     public Docket blockchainApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("溯源区块链")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.blockchain"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
      @Bean("动态表增删改查")
      public Docket dynamicApis() {
          return new Docket(DocumentationType.SWAGGER_2)

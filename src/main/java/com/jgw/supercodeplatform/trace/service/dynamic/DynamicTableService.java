@@ -31,7 +31,7 @@ import com.jgw.supercodeplatform.trace.dto.dynamictable.node.DynamicDeleteNodePa
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
-import com.jgw.supercodeplatform.trace.service.blockchain.BlockChainService;
+import com.jgw.supercodeplatform.trace.service.blockchain.NodeBlockChainInfoService;
 import com.jgw.supercodeplatform.trace.service.template.TraceFunFieldConfigService;
 import com.jgw.supercodeplatform.trace.service.template.TraceFunTemplateconfigService;
 import com.jgw.supercodeplatform.trace.service.tracebatch.TraceBatchInfoService;
@@ -60,7 +60,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	private DynamicServiceDelegate dynamicServiceDelegate;
 	
 	@Autowired
-	private BlockChainService blockChainService;
+	private NodeBlockChainInfoService blockChainService;
 
 	@Autowired
 	private TraceApplicationContextAware applicationAware;
@@ -93,7 +93,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		StringBuilder sqlFieldNameBuilder=new StringBuilder();
 		StringBuilder sqlFieldValueBuilder=new StringBuilder();
 		
-		boolean containObj=dynamicServiceDelegate.funAddOrUpdateSqlBuilder(param.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,false);
+		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(param.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,false);
 		
 		String organizationId=null;
 		try {
@@ -110,7 +110,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		
 		//更新批次节点数据条数
 		try {
-			blockChainService.coChain(param.getLineData(),containObj);
+			Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,functionId,1);
+			if (null == fieldsMap || fieldsMap.isEmpty()) {
+				throw new SuperCodeTraceException("无此功能字段", 500);
+			}
+			blockChainService.coChain(param.getLineData(),false,null,fieldsMap);
 			Integer nodeDataCount=traceBatchInfo.getNodeDataCount();
 			if (null==nodeDataCount) {
 				traceBatchInfo.setNodeDataCount(1);
@@ -169,13 +173,13 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		StringBuilder sqlFieldValueBuilder=new StringBuilder();
 		
 		//拼装sql
-		boolean containObj=dynamicServiceDelegate.funAddOrUpdateSqlBuilder(adDataModel.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,true);
+		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(adDataModel.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,true);
 		
 		//判断当前sql里是否包含批次信息
 		int batchInfoId=sqlFieldNameBuilder.indexOf("TraceBatchInfoId");
 		if (batchInfoId<0) {
 			sqlFieldNameBuilder.append(" TraceBatchInfoId,");
-			sqlFieldValueBuilder.append("'").append(adDataModel.getTraceBatchInfoId()).append("',");
+			sqlFieldValueBuilder.append("'").append(traceBatchInfoId).append("',");
 		}
 		
 		String organizationId=commonUtil.getOrganizationId();
@@ -188,16 +192,24 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		//插入
 		dao.insert(insertSql);
 		
-		//数据上链
-		blockChainService.coChain(param.getLineData(),containObj);
-		//插入成功更新批次节点数据条数
-		Integer nodeDataCount = traceBatchInfo.getNodeDataCount();
-		if (null == nodeDataCount) {
-			traceBatchInfo.setNodeDataCount(1);
-		} else {
-			traceBatchInfo.setNodeDataCount(nodeDataCount + 1);
+		try {
+			//数据上链
+			Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(traceTemplateId,functionId,2);
+			if (null == fieldsMap || fieldsMap.isEmpty()) {
+				throw new SuperCodeTraceException("无此功能字段", 500);
+			}
+			blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap);
+			//插入成功更新批次节点数据条数
+			Integer nodeDataCount = traceBatchInfo.getNodeDataCount();
+			if (null == nodeDataCount) {
+				traceBatchInfo.setNodeDataCount(1);
+			} else {
+				traceBatchInfo.setNodeDataCount(nodeDataCount + 1);
+			}
+			traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
 		
 		backResult.setState(200);
 		backResult.setMsg("操作成功");
@@ -288,12 +300,23 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		dao.update(sql);
 		
 		try {
-			
+			Map<String, TraceFunFieldConfig> fieldsMap =null;
+			if (isNode) {
+				if (StringUtils.isBlank(traceTemplateId)) {
+					throw new SuperCodeTraceException("节点业务数据查询必须传模板id", 500);
+				}
+				fieldsMap = functionFieldManageService.getFunctionIdFields(traceTemplateId,functionId,2);
+			} else {
+				fieldsMap = functionFieldManageService.getFunctionIdFields(null,functionId,1);
+			}
+			if (null == fieldsMap || fieldsMap.isEmpty()) {
+				throw new SuperCodeTraceException("无此功能字段", 500);
+			}
 			//获取当前节点或功能的字段
-			NodeOrFunFields nodeOrFunFields=dynamicServiceDelegate.selectFields(functionId, isNode, traceTemplateId);
+			NodeOrFunFields nodeOrFunFields=dynamicServiceDelegate.selectFields(fieldsMap);
 			String querySQL="select "+nodeOrFunFields.getFields()+" from "+tableName+sqlFieldValueBuilder.toString();
 			List<LinkedHashMap<String, Object>> listDdata=dao.select(querySQL);
-			blockChainService.coChain(listDdata,nodeOrFunFields.isContainObj());
+			blockChainService.updateCoChain(listDdata,nodeOrFunFields.isContainObj(),fieldsMap);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

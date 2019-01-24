@@ -20,6 +20,16 @@ public class NodeInsertBlockChainStruct {
     @ApiModelProperty(name = "objectUniqueValue", value = "对象类型中唯一值，不是对象类型不需要传", example = "唯一主键id")
     private String objectUniqueValue;
     
+    private Integer extraCreate;  //是否是后台额外新增的字段而不是页面创建的 1表示是
+    
+	public Integer getExtraCreate() {
+		return extraCreate;
+	}
+
+	public void setExtraCreate(Integer extraCreate) {
+		this.extraCreate = extraCreate;
+	}
+
 	public String getFieldCode() {
 		return fieldCode;
 	}

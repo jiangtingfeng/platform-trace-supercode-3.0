@@ -102,7 +102,7 @@ public class TraceFunFieldConfigDelegate {
 
 			
 			//默认添加主键即系统id和组织id为了区分不同系统和组织下的数据，创建的时候前端会根据字段顺序排列好，所以建表时字段是有序的不需要查询的时候再次排序，在修改表结构时要对顺序重新处理
-			build.append("create table ").append(tableName).append(" (Id bigint primary key auto_increment,SysId varchar(50),OrganizationId varchar(50),TraceTemplateId varchar(50),DeleteStatus int(2),TraceBatchInfoId varchar(50),SortDateTime bigint(100),");
+			build.append("create table ").append(tableName).append(" (Id bigint primary key auto_increment,SysId varchar(50),OrganizationId varchar(50),TraceTemplateId varchar(50),DeleteStatus int(2),TraceBatchInfoId varchar(50),ProductId varchar(50),UserId varchar(50),SortDateTime bigint(100),");
 			
 			//封装字段表行数据，顺序必须在dynamicCreateTable之前因为sql拼装依赖这个方法
 			List<TraceFunFieldConfig> tffcList=buildFunFieldConfig(param,nodeFunctionId,nodeFunctionName,tableName,2,traceTemplateId,true, build);
@@ -198,7 +198,7 @@ public class TraceFunFieldConfigDelegate {
 			String tableName="trace_dynamic_"+time+"_"+"fun_"+param.get(0).getFunctionId();
 			
 			//默认添加主键即系统id和组织id为了区分不同系统和组织下的数据，创建的时候前端会根据字段顺序排列好，所以建表时字段是有序的不需要查询的时候再次排序，在修改表结构时要对顺序重新处理
-			build.append("create table ").append(tableName).append(" (Id bigint primary key auto_increment,SysId varchar(50),OrganizationId varchar(50),TraceTemplateId varchar(50),DeleteStatus int(2),TraceBatchInfoId varchar(50),SortDateTime bigint(100),");
+			build.append("create table ").append(tableName).append(" (Id bigint primary key auto_increment,SysId varchar(50),OrganizationId varchar(50),TraceTemplateId varchar(50),DeleteStatus int(2),TraceBatchInfoId varchar(50),ProductId varchar(50),UserId varchar(50),SortDateTime bigint(100),");
 			
 			//封装字段表行数据，顺序必须在dynamicCreateTable之前因为sql拼装依赖这个方法
 			List<TraceFunFieldConfig> tffcList=buildFunFieldConfig(param,functionId,functionName,tableName,1,null,true, build);
