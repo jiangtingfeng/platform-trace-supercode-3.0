@@ -25,9 +25,22 @@ public class NodeBlockChainInfoListVO {
 	@ApiModelProperty(value = "溯源数量")
 	private Integer blockNum;
 
+	@ApiModelProperty(value = "是否有权限查看具体节点信息,1有权限，0 无权限")
+	private String authFlag;
+	
 	public Long getBlockChainId() {
 		return blockChainId;
 	}
+
+	public String getAuthFlag() {
+		return authFlag;
+	}
+
+
+	public void setAuthFlag(String authFlag) {
+		this.authFlag = authFlag;
+	}
+
 
 	public void setBlockChainId(Long blockChainId) {
 		this.blockChainId = blockChainId;
