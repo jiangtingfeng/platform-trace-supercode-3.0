@@ -48,7 +48,7 @@ public class AbstractPageService<E extends DaoSearch> extends CommonUtil {
         private T list; 
         @ApiModelProperty("分页信息")
         private Page pagination;
-        @ApiModelProperty("额外信息")
+        @ApiModelProperty("额外信息,没有特别声明不需要关注")
         private Object other;
         
 		public PageResults(T list, Page pagination) {

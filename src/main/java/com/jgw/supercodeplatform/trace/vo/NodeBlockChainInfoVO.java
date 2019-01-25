@@ -1,70 +1,60 @@
 package com.jgw.supercodeplatform.trace.vo;
 
-import java.util.Date;
 import java.util.List;
 
 import com.jgw.supercodeplatform.trace.dto.blockchain.NodeInsertBlockChainStruct;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-@ApiModel(value = "区块链返回前端数据model")
+@ApiModel(value = "区块链返回前端节点数据详情model")
 public class NodeBlockChainInfoVO {
-	//主键id
+	
+	@ApiModelProperty(value = "主键id")
     private Long blockChainId;
-	
-	private String productId;
-	
-	private String productName;
-	
-	private String traceBatchInfoId;
-	
-	private String traceBatchName;
-	
+
+	@ApiModelProperty(value = "功能节点id")
 	private String functionId;
 	
+	@ApiModelProperty(value = "功能节点名称")
 	private String functionName;
 	
-	private Long interfaceId;
 	// 上链节点信息
+	@ApiModelProperty(value = "当前业务系统节点对象数据",hidden=true)
 	private List<NodeInsertBlockChainStruct> currentNodeInfoList;
+	
 	// 上链节点信息
+	@ApiModelProperty(value = "上链业务系统节点对象数据",hidden=true)
 	private List<NodeInsertBlockChainStruct> lastNodeInfoList;
 	
+	@ApiModelProperty(value = "当前业务系统节点数据")
 	private String currentNodeInfo;
 	
+	@ApiModelProperty(value = "上链节点数据")
 	private String lastNodeInfo;
 	// 区块号
+	@ApiModelProperty(value = "区块号")
 	private Long blockNo;
 	
+	@ApiModelProperty(value = "区块hash--所在区块链位置")
 	private String blockHash;
 	
+	@ApiModelProperty(value = "交易hash--全球唯一区块链hash编号")
 	private String transactionHash;
 	
-	private Date transactionTime;
-	
-	private Date cmtTime;
-	
-	private String organizationId;
-	
-	private String organizationName;
-	
-	// 上链节点信息种是否包含对象
-	private Integer containObj;
-
-	// 当前批次上链数量
-	private Integer blockNum;
+	@ApiModelProperty(value = "交易时间")
+	private String transactionTime;
 	/**
 	 * 1上链 2 疑视串改 3未上链
 	 */
 	@ApiModelProperty(value = "上链状态 ，1：验证通过，2 校验不通过")
-	private Integer blockChainStatus;
-	
-	public Integer getBlockChainStatus() {
-		return blockChainStatus;
+	private Integer check;
+
+	public Integer getCheck() {
+		return check;
 	}
 
-	public void setBlockChainStatus(Integer blockChainStatus) {
-		this.blockChainStatus = blockChainStatus;
+	public void setCheck(Integer check) {
+		this.check = check;
 	}
 
 	public Long getBlockChainId() {
@@ -75,9 +65,6 @@ public class NodeBlockChainInfoVO {
 		this.blockChainId = blockChainId;
 	}
 
-	public Integer getBlockNum() {
-		return blockNum;
-	}
 
 	public String getCurrentNodeInfo() {
 		return currentNodeInfo;
@@ -95,42 +82,6 @@ public class NodeBlockChainInfoVO {
 		this.lastNodeInfo = lastNodeInfo;
 	}
 
-	public void setBlockNum(Integer blockNum) {
-		this.blockNum = blockNum;
-	}
-
-	public String getProductId() {
-		return productId;
-	}
-
-	public void setProductId(String productId) {
-		this.productId = productId;
-	}
-
-	public String getProductName() {
-		return productName;
-	}
-
-	public void setProductName(String productName) {
-		this.productName = productName;
-	}
-
-	public String getTraceBatchInfoId() {
-		return traceBatchInfoId;
-	}
-
-	public void setTraceBatchInfoId(String traceBatchInfoId) {
-		this.traceBatchInfoId = traceBatchInfoId;
-	}
-
-	public String getTraceBatchName() {
-		return traceBatchName;
-	}
-
-	public void setTraceBatchName(String traceBatchName) {
-		this.traceBatchName = traceBatchName;
-	}
-
 	public String getFunctionId() {
 		return functionId;
 	}
@@ -146,15 +97,6 @@ public class NodeBlockChainInfoVO {
 	public void setFunctionName(String functionName) {
 		this.functionName = functionName;
 	}
-
-	public Long getInterfaceId() {
-		return interfaceId;
-	}
-
-	public void setInterfaceId(Long interfaceId) {
-		this.interfaceId = interfaceId;
-	}
-
 	public List<NodeInsertBlockChainStruct> getCurrentNodeInfoList() {
 		return currentNodeInfoList;
 	}
@@ -195,43 +137,12 @@ public class NodeBlockChainInfoVO {
 		this.transactionHash = transactionHash;
 	}
 
-	public Date getTransactionTime() {
+	public String getTransactionTime() {
 		return transactionTime;
 	}
 
-	public void setTransactionTime(Date transactionTime) {
+	public void setTransactionTime(String transactionTime) {
 		this.transactionTime = transactionTime;
 	}
 
-	public Date getCmtTime() {
-		return cmtTime;
-	}
-
-	public void setCmtTime(Date cmtTime) {
-		this.cmtTime = cmtTime;
-	}
-
-	public String getOrganizationId() {
-		return organizationId;
-	}
-
-	public void setOrganizationId(String organizationId) {
-		this.organizationId = organizationId;
-	}
-
-	public String getOrganizationName() {
-		return organizationName;
-	}
-
-	public void setOrganizationName(String organizationName) {
-		this.organizationName = organizationName;
-	}
-
-	public Integer getContainObj() {
-		return containObj;
-	}
-
-	public void setContainObj(Integer containObj) {
-		this.containObj = containObj;
-	}
 }

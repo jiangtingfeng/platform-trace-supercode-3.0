@@ -15,9 +15,9 @@ import com.jgw.supercodeplatform.trace.pojo.blockchain.NodeBlockChainInfo;
 public interface NodeBlockChainInfoMapper extends CommonSql{
     static String allFields="BlockChainId blockChainId,ProductId productId,ProductName productName,TraceBatchInfoId traceBatchInfoId,TraceBatchName traceBatchName"
     		+ ",FunctionId functionId,FunctionName functionName,InterfaceId interfaceId,NodeInfo nodeInfo,BlockNo blockNo,BlockHash blockHash,TransactionHash transactionHash"
-    		+ ",TransactionTime transactionTime,CmtTime cmtTime,OrganizationId organizationId,OrganizationName organizationName";
+    		+ ",DATE_FORMAT(TransactionTime,'%Y-%m-%d %H:%i:%S') transactionTime,DATE_FORMAT(CmtTime,'%Y-%m-%d %H:%i:%S') cmtTime,OrganizationId organizationId,OrganizationName organizationName";
     
-    static String listFields="ProductName productName,TraceBatchInfoId traceBatchInfoId,TraceBatchName traceBatchName,CmtTime cmtTime";
+    static String listFields="ProductName productName,TraceBatchInfoId traceBatchInfoId,TraceBatchName traceBatchName,DATE_FORMAT(CmtTime,'%Y-%m-%d %H:%i:%S') cmtTime";
 	
     static String whereSelectTraceFunTemplate =
 			"<where>" +
@@ -101,7 +101,7 @@ public interface NodeBlockChainInfoMapper extends CommonSql{
 			+ " </script>")
 	int count(@Param("daoSearch")DaoSearch searchParams, @Param("organizationId")String organizationId);
     
-	@Select("select "+allFields+" from  trace_blockchain_transaction where TraceBatchInfoId=#{traceBatchInfoId}")
+	@Select("select "+allFields+" from  trace_blockchain_transaction where TraceBatchInfoId=#{traceBatchInfoId} order by CmtTime desc")
 	List<NodeBlockChainInfo> queryByTraceBatchInfoId(@Param("traceBatchInfoId")String traceBatchInfoId);
 
 }

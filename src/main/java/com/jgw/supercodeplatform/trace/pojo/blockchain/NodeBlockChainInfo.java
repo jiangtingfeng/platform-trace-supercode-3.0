@@ -1,7 +1,5 @@
 package com.jgw.supercodeplatform.trace.pojo.blockchain;
 
-import java.util.Date;
-
 public class NodeBlockChainInfo {
 	private Long blockChainId;
 	
@@ -27,9 +25,9 @@ public class NodeBlockChainInfo {
 	
 	private String transactionHash;
 	
-	private Date transactionTime;
+	private String transactionTime;
 	
-	private Date cmtTime;
+	private String cmtTime;
 	
 	private String organizationId;
 	
@@ -137,19 +135,19 @@ public class NodeBlockChainInfo {
 		this.transactionHash = transactionHash;
 	}
 
-	public Date getTransactionTime() {
+	public String getTransactionTime() {
 		return transactionTime;
 	}
 
-	public void setTransactionTime(Date transactionTime) {
+	public void setTransactionTime(String transactionTime) {
 		this.transactionTime = transactionTime;
 	}
 
-	public Date getCmtTime() {
+	public String getCmtTime() {
 		return cmtTime;
 	}
 
-	public void setCmtTime(Date cmtTime) {
+	public void setCmtTime(String cmtTime) {
 		this.cmtTime = cmtTime;
 	}
 

@@ -30,6 +30,7 @@ import com.jgw.supercodeplatform.trace.dto.dynamictable.common.LineBusinessData;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 import com.jgw.supercodeplatform.trace.pojo.blockchain.NodeBlockChainInfo;
+import com.jgw.supercodeplatform.trace.vo.NodeBlockChainInfoListVO;
 import com.jgw.supercodeplatform.trace.vo.NodeBlockChainInfoVO;
 
 @Component
@@ -47,16 +48,16 @@ public class NodeBlockChainInfoService extends AbstractPageService{
     private static  long interfaceId=63L;
     
     @Override
-	protected List<NodeBlockChainInfoVO> searchResult(DaoSearch searchParams) throws Exception {
+	protected List<NodeBlockChainInfoListVO> searchResult(DaoSearch searchParams) throws Exception {
     	String organizationId=commonUtil.getOrganizationId();
 		int startNumber = (searchParams.getCurrent()-1)*searchParams.getPageSize();
 		searchParams.setStartNumber(startNumber);
 		List<NodeBlockChainInfo>list=nodeBlockChainInfoDao.list(searchParams,organizationId);
-		List<NodeBlockChainInfoVO> nodeBlockChainInfoVOs=null;
+		List<NodeBlockChainInfoListVO> nodeBlockChainInfoVOs=null;
 		if (null!=list && !list.isEmpty()) {
-			nodeBlockChainInfoVOs=new ArrayList<NodeBlockChainInfoVO>(list.size());
+			nodeBlockChainInfoVOs=new ArrayList<NodeBlockChainInfoListVO>(list.size());
 			for (NodeBlockChainInfo nodeBlockChainInfo : list) {
-				NodeBlockChainInfoVO vo=new NodeBlockChainInfoVO();
+				NodeBlockChainInfoListVO vo=new NodeBlockChainInfoListVO();
 				vo.setBlockNum(nodeBlockChainInfo.getBlockNum());
 				vo.setCmtTime(nodeBlockChainInfo.getCmtTime());
 				vo.setProductName(nodeBlockChainInfo.getProductName());
@@ -65,7 +66,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 				nodeBlockChainInfoVOs.add(vo);
 			}
 		}else {
-			nodeBlockChainInfoVOs=new ArrayList<NodeBlockChainInfoVO>(0);
+			nodeBlockChainInfoVOs=new ArrayList<NodeBlockChainInfoListVO>(0);
 		}
 		return nodeBlockChainInfoVOs;
 	}
@@ -93,29 +94,20 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			vo.setBlockChainId(nodeBlockChainInfo.getBlockChainId());
 			vo.setBlockHash(nodeBlockChainInfo.getBlockHash());
 			vo.setBlockNo(nodeBlockChainInfo.getBlockNo());
-			vo.setBlockNum(nodeBlockChainInfo.getBlockNum());
-			vo.setCmtTime(nodeBlockChainInfo.getCmtTime());
 			vo.setFunctionId(nodeBlockChainInfo.getFunctionId());
 			vo.setFunctionName(nodeBlockChainInfo.getFunctionName());
-			vo.setInterfaceId(nodeBlockChainInfo.getInterfaceId());
-			vo.setOrganizationId(nodeBlockChainInfo.getOrganizationId());
-			vo.setOrganizationName(nodeBlockChainInfo.getOrganizationName());
-			vo.setProductId(nodeBlockChainInfo.getProductId());
-			vo.setProductName(nodeBlockChainInfo.getProductName());
-			vo.setTraceBatchInfoId(nodeBlockChainInfo.getTraceBatchInfoId());
-			vo.setTraceBatchName(nodeBlockChainInfo.getTraceBatchName());
 			vo.setTransactionHash(transactionHash);
 			vo.setTransactionTime(nodeBlockChainInfo.getTransactionTime());
 		
 			BlockChainResultInfo blockChainResultInfo=blockChainPlatformService.getBlockChainInfo(interfaceId, transactionHash);
 			if (null==blockChainResultInfo) {
-				vo.setBlockChainStatus(2);
+				vo.setCheck(2);
 			}else {
 				String blockNodeInfo=blockChainResultInfo.getData();
 				if (nodeInfo.equals(blockNodeInfo)) {
-					vo.setBlockChainStatus(1);
+					vo.setCheck(1);
 				}else {
-					vo.setBlockChainStatus(2);
+					vo.setCheck(2);
 				}
 				NodeInsertBlockChainStructWrapper lastnoWrapper=JSONObject.parseObject(nodeInfo, NodeInsertBlockChainStructWrapper.class);
 				vo.setLastNodeInfo(lastnoWrapper.getNodeInfo());
@@ -141,7 +133,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 		if (null==list || list.isEmpty()) {
 			restResult.setState(200);
 			restResult.setMsg("该批次未上链");
-			data.put("blockChainStatus", 3);
+			data.put("check", 3);
 			restResult.setResults(data);
 			return restResult;
 		}
@@ -160,7 +152,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 				}
 			}
 		}
-		data.put("blockChainStatus", blockChainStatus);
+		data.put("check", blockChainStatus);
 		restResult.setState(200);
 		restResult.setMsg("成功");
 		restResult.setResults(data);
@@ -384,7 +376,8 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			String wrappercoChainData=JSONObject.toJSONString(wrapper);
 			nodeBlockChainInfo.setNodeInfo(wrappercoChainData);
 			nodeBlockChainInfo.setTransactionHash(blockChainResultInfo.getTransactionHash());
-			nodeBlockChainInfo.setTransactionTime(new Date(blockChainResultInfo.getTransactionTime()));
+			SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			nodeBlockChainInfo.setTransactionTime(format.format(new Date(blockChainResultInfo.getTransactionTime())));
 			int len=nodeBlockChainInfoDao.insert(nodeBlockChainInfo);
 			return len;
 		}

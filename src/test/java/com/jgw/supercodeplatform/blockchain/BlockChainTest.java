@@ -105,17 +105,10 @@ public class BlockChainTest {
 				vo.setBlockChainId(nodeBlockChainInfo.getBlockChainId());
 				vo.setBlockHash(nodeBlockChainInfo.getBlockHash());
 				vo.setBlockNo(nodeBlockChainInfo.getBlockNo());
-				vo.setBlockNum(nodeBlockChainInfo.getBlockNum());
-				vo.setCmtTime(nodeBlockChainInfo.getCmtTime());
+			
 				vo.setFunctionId(nodeBlockChainInfo.getFunctionId());
 				vo.setFunctionName(nodeBlockChainInfo.getFunctionName());
-				vo.setInterfaceId(nodeBlockChainInfo.getInterfaceId());
-				vo.setOrganizationId(nodeBlockChainInfo.getOrganizationId());
-				vo.setOrganizationName(nodeBlockChainInfo.getOrganizationName());
-				vo.setProductId(nodeBlockChainInfo.getProductId());
-				vo.setProductName(nodeBlockChainInfo.getProductName());
-				vo.setTraceBatchInfoId(nodeBlockChainInfo.getTraceBatchInfoId());
-				vo.setTraceBatchName(nodeBlockChainInfo.getTraceBatchName());
+				
 				vo.setTransactionHash(nodeBlockChainInfo.getTransactionHash());
 				vo.setTransactionTime(nodeBlockChainInfo.getTransactionTime());
 				nodeBlockChainInfoVOs.add(vo);

@@ -14,6 +14,7 @@ import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService.PageResults;
 import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
 import com.jgw.supercodeplatform.trace.service.blockchain.NodeBlockChainInfoService;
+import com.jgw.supercodeplatform.trace.vo.NodeBlockChainInfoListVO;
 import com.jgw.supercodeplatform.trace.vo.NodeBlockChainInfoVO;
 
 import io.swagger.annotations.Api;
@@ -33,9 +34,9 @@ public class NodeBlockChainInfoController {
 	@RequestMapping(value="/page",method=RequestMethod.GET)
 	@ApiOperation(value = "区块链列表接口", notes = "")
 	@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")
-	public RestResult<PageResults<List<NodeBlockChainInfoVO>>> page(DaoSearch searchParams) throws Exception {
-		PageResults<List<NodeBlockChainInfoVO>> listPageResults = service.listSearchViewLike(searchParams);
-		RestResult<PageResults<List<NodeBlockChainInfoVO>>> reslt=new RestResult<PageResults<List<NodeBlockChainInfoVO>>>();
+	public RestResult<PageResults<List<NodeBlockChainInfoListVO>>> page(DaoSearch searchParams) throws Exception {
+		PageResults<List<NodeBlockChainInfoListVO>> listPageResults = service.listSearchViewLike(searchParams);
+		RestResult<PageResults<List<NodeBlockChainInfoListVO>>> reslt=new RestResult<PageResults<List<NodeBlockChainInfoListVO>>>();
 		reslt.setResults(listPageResults);
 		reslt.setMsg("成功");
 		reslt.setState(200);
