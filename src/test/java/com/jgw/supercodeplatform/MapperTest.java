@@ -253,14 +253,9 @@ public class MapperTest {
 		System.out.println(templateConfigList.size());
 	}
 	
-public static void main(String[] args) {
-	List<TraceFunTemplateconfigVO>templateConfigList2=new ArrayList<>();
-	List<TraceFunTemplateconfigVO>templateConfigList3=templateConfigList2;
-	
-	TraceFunTemplateconfigVO v1=new TraceFunTemplateconfigVO();
-	templateConfigList2.add(v1);
-	
-	templateConfigList3.remove(0);
-	System.out.println(templateConfigList2.size());
-}
+	public static void main(String[] args) {
+		if ("https://account.aliyun.com/login/login.htm".equals("https://account.aliyun.com/login/login.htm")) {
+			System.out.println(1);
+		}
+	}
 }

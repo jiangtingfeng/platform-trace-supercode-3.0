@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,10 +51,10 @@ public class NodeBlockChainInfoController {
 		return service.queryByTraceBatchInfoId(traceBatchInfoId);
 	}
 	
-	@RequestMapping(value="/checkNodeBlockInfo",method=RequestMethod.GET)
+	@RequestMapping(value="/checkNodeBlockInfo",method=RequestMethod.POST)
 	@ApiOperation(value = "根据批次唯一id校验上链信息接口", notes = "")
-	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="query",value = "批次唯一id",name="traceBatchInfoId",required=true),@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
-	public RestResult<Map<String, Integer>> checkNodeBlockInfo(@RequestParam(required=true) String traceBatchInfoId) throws Exception {
-		return service.checkNodeBlockInfo(traceBatchInfoId);
+	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="body",value = "批次唯一id,请求格式--[\"d41sad\",\"dde2drff\"]",name="traceBatchInfoIds",required=true,example="[\"b8de8dc14ea24ce1b68d0f775207eb9d\"]"),@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
+	public RestResult<Map<String, String>> checkNodeBlockInfo(@RequestBody List<String> traceBatchInfoIds) throws Exception {
+		return service.checkNodeBlockInfo(traceBatchInfoIds);
 	}
 }

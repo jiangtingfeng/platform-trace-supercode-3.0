@@ -47,13 +47,13 @@ public class NodeBlockChainInfoVO {
 	 * 1上链 2 疑视串改 3未上链
 	 */
 	@ApiModelProperty(value = "上链状态 ，1：验证通过，2 校验不通过")
-	private Integer check;
+	private boolean check;
 
-	public Integer getCheck() {
+	public boolean getCheck() {
 		return check;
 	}
 
-	public void setCheck(Integer check) {
+	public void setCheck(boolean check) {
 		this.check = check;
 	}
 

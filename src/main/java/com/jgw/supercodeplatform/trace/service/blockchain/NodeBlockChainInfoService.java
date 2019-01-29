@@ -3,7 +3,6 @@ package com.jgw.supercodeplatform.trace.service.blockchain;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
     
     private static  long interfaceId=63L;
     
+    //TODO 
     @Override
 	protected List<NodeBlockChainInfoListVO> searchResult(DaoSearch searchParams) throws Exception {
     	String organizationId=commonUtil.getOrganizationId();
@@ -112,13 +112,13 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 		
 			BlockChainResultInfo blockChainResultInfo=blockChainPlatformService.getBlockChainInfo(interfaceId, transactionHash);
 			if (null==blockChainResultInfo) {
-				vo.setCheck(2);
+				vo.setCheck(false);
 			}else {
 				String blockNodeInfo=blockChainResultInfo.getData();
 				if (nodeInfo.equals(blockNodeInfo)) {
-					vo.setCheck(1);
+					vo.setCheck(true);
 				}else {
-					vo.setCheck(2);
+					vo.setCheck(false);
 				}
 				NodeInsertBlockChainStructWrapper lastnoWrapper=JSONObject.parseObject(nodeInfo, NodeInsertBlockChainStructWrapper.class);
 				vo.setLastNodeInfo(lastnoWrapper.getNodeInfo());
@@ -133,40 +133,45 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 
     /**
      * 根据批次id校验当前批次溯源信息上链状态
-     * @param traceBatchInfoId
+     * @param traceBatchInfoIds
      * @return
      */
-	public RestResult<Map<String, Integer>> checkNodeBlockInfo(String traceBatchInfoId) {
-		RestResult<Map<String, Integer>> restResult=new RestResult<Map<String, Integer>>();
-		List<NodeBlockChainInfo>list=nodeBlockChainInfoDao.queryByTraceBatchInfoId(traceBatchInfoId);
-		Map<String, Integer> data=new HashMap<String, Integer>();
-		//blockChainStatus
-		if (null==list || list.isEmpty()) {
-			restResult.setState(200);
-			restResult.setMsg("该批次未上链");
-			data.put("check", 3);
-			restResult.setResults(data);
+	public RestResult<Map<String, String>> checkNodeBlockInfo(List<String> traceBatchInfoIds) {
+		RestResult<Map<String, String>> restResult=new RestResult<Map<String, String>>();
+		if (null==traceBatchInfoIds || traceBatchInfoIds.isEmpty()) {
+			restResult.setState(500);
+			restResult.setMsg("参数不能为空");
 			return restResult;
 		}
-		int blockChainStatus=1;
-		for (NodeBlockChainInfo nodeBlockChainInfo : list) {
-			String transactionHash=nodeBlockChainInfo.getTransactionHash();
-			String nodeInfo=nodeBlockChainInfo.getNodeInfo();
-
-			BlockChainResultInfo blockChainResultInfo=blockChainPlatformService.getBlockChainInfo(interfaceId, transactionHash);
-			if (null==blockChainResultInfo) {
-				blockChainStatus=2;
-			}else {
-				String blockNodeInfo=blockChainResultInfo.getData();
-				if (!nodeInfo.equals(blockNodeInfo)) {
-					blockChainStatus=2;
+		Map<String, String>dataMap=new LinkedHashMap<String, String>(traceBatchInfoIds.size());
+		
+		outer:for (String traceBatchInfoId : traceBatchInfoIds) {
+			List<NodeBlockChainInfo>list=nodeBlockChainInfoDao.queryByTraceBatchInfoId(traceBatchInfoId);
+			if (null==list || list.isEmpty()) {
+				dataMap.put(traceBatchInfoId, "未上链");
+				continue;
+			}
+			for (NodeBlockChainInfo nodeBlockChainInfo : list) {
+				String transactionHash=nodeBlockChainInfo.getTransactionHash();
+				String nodeInfo=nodeBlockChainInfo.getNodeInfo();
+				
+				BlockChainResultInfo blockChainResultInfo=blockChainPlatformService.getBlockChainInfo(interfaceId, transactionHash);
+				if (null==blockChainResultInfo) {
+					dataMap.put(traceBatchInfoId, "校验不通过");
+					continue outer;
+				}else {
+					String blockNodeInfo=blockChainResultInfo.getData();
+					if (!nodeInfo.equals(blockNodeInfo)) {
+						dataMap.put(traceBatchInfoId, "校验不通过");
+						continue outer;
+					}
 				}
 			}
+			dataMap.put(traceBatchInfoId, "校验通过");
 		}
-		data.put("check", blockChainStatus);
 		restResult.setState(200);
 		restResult.setMsg("成功");
-		restResult.setResults(data);
+		restResult.setResults(dataMap);
 		return restResult;
 	}
 	
@@ -379,9 +384,14 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 		
 		//设置上链数据
 		if (null!=blockChainResultInfo) {
-			OrganizationCache organizationCache=commonUtil.getOrganization();
-			nodeBlockChainInfo.setOrganizationId(organizationCache.getOrganizationId());
-			nodeBlockChainInfo.setOrganizationName(organizationCache.getOrganizationFullName());
+			try {
+				//TODO 
+				OrganizationCache organizationCache=commonUtil.getOrganization();
+				nodeBlockChainInfo.setOrganizationId(organizationCache.getOrganizationId());
+				nodeBlockChainInfo.setOrganizationName(organizationCache.getOrganizationFullName());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			nodeBlockChainInfo.setBlockHash(blockChainResultInfo.getBlockHash());
 			nodeBlockChainInfo.setBlockNo(blockChainResultInfo.getBlockNo());
 			String wrappercoChainData=JSONObject.toJSONString(wrapper);
