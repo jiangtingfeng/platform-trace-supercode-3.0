@@ -82,12 +82,13 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 	public RestResult<List<NodeBlockChainInfoVO>> queryByTraceBatchInfoId(String traceBatchInfoId) throws SuperCodeException {
 		RestResult<List<NodeBlockChainInfoVO>> restResult=new RestResult<List<NodeBlockChainInfoVO>>();
 		
-		String flag=commonUtil.getSeniorFunFlag();
-		if (StringUtils.isBlank(flag) || !"1".equals(flag)) {
-			restResult.setState(500);
-			restResult.setMsg("该组织无权限查看上链节点信息");
-			return restResult;
-		}
+		//TODO 待用户平台组织信息发布好要打开这个
+//		String flag=commonUtil.getSeniorFunFlag();
+//		if (StringUtils.isBlank(flag) || !"1".equals(flag)) {
+//			restResult.setState(500);
+//			restResult.setMsg("该组织无权限查看上链节点信息");
+//			return restResult;
+//		}
 		
 		List<NodeBlockChainInfo>list=nodeBlockChainInfoDao.queryByTraceBatchInfoId(traceBatchInfoId);
 		if (null==list || list.isEmpty()) {
@@ -101,7 +102,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			NodeBlockChainInfoVO vo=new NodeBlockChainInfoVO();
 			String nodeInfo=nodeBlockChainInfo.getNodeInfo();
 			NodeInsertBlockChainStructWrapper noWrapper=JSONObject.parseObject(nodeInfo, NodeInsertBlockChainStructWrapper.class);
-			vo.setCurrentNodeInfo(noWrapper.getNodeInfo());
+			vo.setLocalDataJson(noWrapper.getNodeInfo());
 			vo.setBlockChainId(nodeBlockChainInfo.getBlockChainId());
 			vo.setBlockHash(nodeBlockChainInfo.getBlockHash());
 			vo.setBlockNo(nodeBlockChainInfo.getBlockNo());
@@ -121,7 +122,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 					vo.setCheck(false);
 				}
 				NodeInsertBlockChainStructWrapper lastnoWrapper=JSONObject.parseObject(nodeInfo, NodeInsertBlockChainStructWrapper.class);
-				vo.setLastNodeInfo(lastnoWrapper.getNodeInfo());
+				vo.setBlockchainDataJson(lastnoWrapper.getNodeInfo());
 			}
 			nodeBlockChainInfoVOs.add(vo);
 		}

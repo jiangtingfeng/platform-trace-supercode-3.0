@@ -27,10 +27,10 @@ public class NodeBlockChainInfoVO {
 	private List<NodeInsertBlockChainStruct> lastNodeInfoList;
 	
 	@ApiModelProperty(value = "当前业务系统节点数据")
-	private String currentNodeInfo;
+	private String localDataJson;
 	
 	@ApiModelProperty(value = "上链节点数据")
-	private String lastNodeInfo;
+	private String blockchainDataJson;
 	// 区块号
 	@ApiModelProperty(value = "区块号")
 	private Long blockNo;
@@ -65,21 +65,20 @@ public class NodeBlockChainInfoVO {
 		this.blockChainId = blockChainId;
 	}
 
-
-	public String getCurrentNodeInfo() {
-		return currentNodeInfo;
+	public String getLocalDataJson() {
+		return localDataJson;
 	}
 
-	public void setCurrentNodeInfo(String currentNodeInfo) {
-		this.currentNodeInfo = currentNodeInfo;
+	public void setLocalDataJson(String localDataJson) {
+		this.localDataJson = localDataJson;
 	}
 
-	public String getLastNodeInfo() {
-		return lastNodeInfo;
+	public String getBlockchainDataJson() {
+		return blockchainDataJson;
 	}
 
-	public void setLastNodeInfo(String lastNodeInfo) {
-		this.lastNodeInfo = lastNodeInfo;
+	public void setBlockchainDataJson(String blockchainDataJson) {
+		this.blockchainDataJson = blockchainDataJson;
 	}
 
 	public String getFunctionId() {
