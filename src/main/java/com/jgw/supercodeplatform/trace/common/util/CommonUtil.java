@@ -508,16 +508,13 @@ public class CommonUtil extends UserInfoUtil {
 		}
 	}
 
-	//TODO 需要抛出异常
 	@Override
 	public String getOrganizationId() throws SuperCodeException {
 		try {
 			return super.getOrganizationId();
 		} catch (Exception e) {
-			e.printStackTrace();
-//			throw new SuperCodeException("无组织信息，请确认当前用户为普通角色用户", 500);
+			throw new SuperCodeException("无组织信息，请确认当前用户为普通角色用户", 500);
 		}
-		return null;
 	}
 
 	

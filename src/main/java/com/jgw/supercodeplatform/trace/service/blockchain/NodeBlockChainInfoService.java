@@ -22,6 +22,7 @@ import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
 import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 import com.jgw.supercodeplatform.trace.dao.mapper1.blockchain.NodeBlockChainInfoMapper;
+import com.jgw.supercodeplatform.trace.dto.blockchain.CheckNodeBlockInfoParam;
 import com.jgw.supercodeplatform.trace.dto.blockchain.NodeInsertBlockChainStruct;
 import com.jgw.supercodeplatform.trace.dto.blockchain.NodeInsertBlockChainStructWrapper;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.FieldBusinessParam;
@@ -82,7 +83,6 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 	public RestResult<List<NodeBlockChainInfoVO>> queryByTraceBatchInfoId(String traceBatchInfoId) throws SuperCodeException {
 		RestResult<List<NodeBlockChainInfoVO>> restResult=new RestResult<List<NodeBlockChainInfoVO>>();
 		
-		//TODO 待用户平台组织信息发布好要打开这个
 //		String flag=commonUtil.getSeniorFunFlag();
 //		if (StringUtils.isBlank(flag) || !"1".equals(flag)) {
 //			restResult.setState(500);
@@ -134,19 +134,22 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 
     /**
      * 根据批次id校验当前批次溯源信息上链状态
-     * @param traceBatchInfoIds
+     * @param checkNodeBlockInfoParam
      * @return
      */
-	public RestResult<Map<String, String>> checkNodeBlockInfo(List<String> traceBatchInfoIds) {
+	public RestResult<Map<String, String>> checkNodeBlockInfo(CheckNodeBlockInfoParam checkNodeBlockInfoParam) {
 		RestResult<Map<String, String>> restResult=new RestResult<Map<String, String>>();
-		if (null==traceBatchInfoIds || traceBatchInfoIds.isEmpty()) {
+		
+		
+		if (null==checkNodeBlockInfoParam || null==checkNodeBlockInfoParam.getTraceBatchInfoIds() || checkNodeBlockInfoParam.getTraceBatchInfoIds().isEmpty()) {
 			restResult.setState(500);
 			restResult.setMsg("参数不能为空");
 			return restResult;
 		}
-		Map<String, String>dataMap=new LinkedHashMap<String, String>(traceBatchInfoIds.size());
+		List<String> traceBatchInfoIdS= checkNodeBlockInfoParam.getTraceBatchInfoIds();
+		Map<String, String>dataMap=new LinkedHashMap<String, String>(traceBatchInfoIdS.size());
 		
-		outer:for (String traceBatchInfoId : traceBatchInfoIds) {
+		outer:for (String traceBatchInfoId : traceBatchInfoIdS) {
 			List<NodeBlockChainInfo>list=nodeBlockChainInfoDao.queryByTraceBatchInfoId(traceBatchInfoId);
 			if (null==list || list.isEmpty()) {
 				dataMap.put(traceBatchInfoId, "未上链");

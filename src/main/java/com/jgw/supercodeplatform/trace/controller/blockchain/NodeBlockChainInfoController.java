@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService.PageResults;
 import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
+import com.jgw.supercodeplatform.trace.dto.blockchain.CheckNodeBlockInfoParam;
 import com.jgw.supercodeplatform.trace.service.blockchain.NodeBlockChainInfoService;
 import com.jgw.supercodeplatform.trace.vo.NodeBlockChainInfoListVO;
 import com.jgw.supercodeplatform.trace.vo.NodeBlockChainInfoVO;
@@ -53,8 +54,8 @@ public class NodeBlockChainInfoController {
 	
 	@RequestMapping(value="/checkNodeBlockInfo",method=RequestMethod.POST)
 	@ApiOperation(value = "根据批次唯一id校验上链信息接口", notes = "")
-	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="body",value = "批次唯一id,请求格式--[\"d41sad\",\"dde2drff\"]",name="traceBatchInfoIds",required=true,example="[\"b8de8dc14ea24ce1b68d0f775207eb9d\"]"),@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
-	public RestResult<Map<String, String>> checkNodeBlockInfo(@RequestBody List<String> traceBatchInfoIds) throws Exception {
-		return service.checkNodeBlockInfo(traceBatchInfoIds);
+	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
+	public RestResult<Map<String, String>> checkNodeBlockInfo(@RequestBody CheckNodeBlockInfoParam checkNodeBlockInfoParam) throws Exception {
+		return service.checkNodeBlockInfo(checkNodeBlockInfoParam);
 	}
 }
