@@ -364,6 +364,7 @@ public class TraceFunFieldConfigDelegate {
 				throw new SuperCodeTraceException("字段名："+fieldName+" 长度大于10，且结构化名："+fieldCode+"长度不能超过30", 500);
 			}
 			String objectType=traceFunConfigParam.getObjectType();
+			//如果是修改增加字段则append “add column”
 			if (!isadd) {
 				build.append(" ADD COLUMN ");
 			}
@@ -408,10 +409,10 @@ public class TraceFunFieldConfigDelegate {
 			if (null==isrequired) {
 				isrequired=0;
 			}
-			//非空必填参数
-			if (1==isrequired) {
-				build.append(" not null ");
-			}
+			//已和产品沟通过，非空必填参数由前端控制，后台不控制
+//			if (1==isrequired) {
+//				build.append(" not null ");
+//			}
 			
 			if (StringUtils.isNotBlank(defaultValue)) {
 				build.append(" default '").append(defaultValue).append("'");

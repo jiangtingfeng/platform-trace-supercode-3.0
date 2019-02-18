@@ -121,8 +121,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 				}else {
 					vo.setCheck(false);
 				}
-				NodeInsertBlockChainStructWrapper lastnoWrapper=JSONObject.parseObject(nodeInfo, NodeInsertBlockChainStructWrapper.class);
-				vo.setBlockchainDataJson(lastnoWrapper.getNodeInfo());
+				vo.setBlockchainDataJson(blockNodeInfo);
 			}
 			nodeBlockChainInfoVOs.add(vo);
 		}
