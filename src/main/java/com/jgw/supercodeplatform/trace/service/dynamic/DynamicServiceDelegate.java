@@ -257,18 +257,24 @@ public class DynamicServiceDelegate {
 					switch (objectTypeEnum) {
 					case TRACE_BATCH:
 						String traceBatchInfoId=fieldBusinessParam.getObjectUniqueValue();
-						sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append("=").append("'").append(traceBatchInfoId).append("'")
-						.append(",");
+						if (StringUtils.isNotBlank(traceBatchInfoId)) {
+							sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append("=").append("'").append(traceBatchInfoId).append("'")
+							.append(",");
+						}
 						break;
 					case PRODUCT:
 						String productId=fieldBusinessParam.getObjectUniqueValue();
-						sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append("=").append("'").append(productId).append("'")
-						.append(",");
+						if (StringUtils.isNotBlank(productId)) {
+							sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append("=").append("'").append(productId).append("'")
+							.append(",");
+						}
 						break;
 					case USER:
 						String userId=fieldBusinessParam.getObjectUniqueValue();
-						sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append("=").append("'").append(userId).append("'")
-						.append(",");
+						if (StringUtils.isNotBlank(userId)) {
+							sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append("=").append("'").append(userId).append("'")
+							.append(",");
+						}
 						break;
 					default:
 						break;

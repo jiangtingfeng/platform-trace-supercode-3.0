@@ -306,6 +306,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 		
 		//拼装上链对象
 		boolean functionNotSet=true;
+		boolean hasBatch=false;
 		List<NodeInsertBlockChainStruct> list=new ArrayList<NodeInsertBlockChainStruct>();
      	for(String fieldCode:lineMap.keySet()) {
      		TraceFunFieldConfig traceFunFieldConfig=fieldsMap.get(fieldCode);
@@ -351,6 +352,8 @@ public class NodeBlockChainInfoService extends AbstractPageService{
     								logger.error("溯源信息更新时上链失败，批次id："+s_traceBatchInfoId+"记录不存在");
     								return;
 								}
+    							//只有批次的数据才上链
+    							hasBatch=true;
     							nodeBlockChainInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
     							nodeBlockChainInfo.setTraceBatchName(traceBatchInfo.getTraceBatchName());
     							nodeBlockChainInfo.setProductId(traceBatchInfo.getProductId());
@@ -391,7 +394,9 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			}
 
      	}
-     	int len=realCoChain(nodeBlockChainInfo, list);
+     	if (hasBatch) {
+     		int len=realCoChain(nodeBlockChainInfo, list);
+		}
      	
 	}
 	/**
