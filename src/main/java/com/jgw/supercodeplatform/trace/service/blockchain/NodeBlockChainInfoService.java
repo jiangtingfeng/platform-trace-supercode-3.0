@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +23,7 @@ import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
 import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
+import com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo.TraceBatchInfoMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.blockchain.NodeBlockChainInfoMapper;
 import com.jgw.supercodeplatform.trace.dto.blockchain.CheckNodeBlockInfoParam;
 import com.jgw.supercodeplatform.trace.dto.blockchain.NodeInsertBlockChainStruct;
@@ -30,17 +33,24 @@ import com.jgw.supercodeplatform.trace.dto.dynamictable.common.LineBusinessData;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 import com.jgw.supercodeplatform.trace.pojo.blockchain.NodeBlockChainInfo;
+import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
+import com.jgw.supercodeplatform.trace.service.template.TraceFunFieldConfigDelegate;
 import com.jgw.supercodeplatform.trace.vo.NodeBlockChainInfoListVO;
 import com.jgw.supercodeplatform.trace.vo.NodeBlockChainInfoVO;
 
 @Component
 public class NodeBlockChainInfoService extends AbstractPageService{
+	private static Logger logger = LoggerFactory.getLogger(NodeBlockChainInfoService.class);
+	
     @Autowired
     private BlockChainPlatformService blockChainPlatformService;
     
     
     @Autowired
     private NodeBlockChainInfoMapper nodeBlockChainInfoDao;
+    
+    @Autowired
+    private TraceBatchInfoMapper traceBatchInfoDao;
     
     @Autowired
     private CommonUtil commonUtil;
@@ -173,6 +183,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			}
 			dataMap.put(traceBatchInfoId, "校验通过");
 		}
+		
 		restResult.setState(200);
 		restResult.setMsg("成功");
 		restResult.setResults(dataMap);
@@ -193,10 +204,11 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 	 * @param traceBatchInfoId 
      * @param containObj
      * @param fieldsMap 
+	 * @param traceBatchInfo 
      * @throws SuperCodeException 
      * @throws SuperCodeTraceException 
      */
-	public void coChain(LineBusinessData lineData, boolean isNode, String traceBatchInfoId, Map<String, TraceFunFieldConfig> fieldsMap) throws SuperCodeException, SuperCodeTraceException {
+	public void coChain(LineBusinessData lineData, boolean isNode, String traceBatchInfoId, Map<String, TraceFunFieldConfig> fieldsMap, TraceBatchInfo traceBatchInfo) throws SuperCodeException, SuperCodeTraceException {
 		List<FieldBusinessParam> fields=lineData.getFields();
 		if (null==fields || fields.isEmpty()) {
 			throw new SuperCodeException("新增溯源记录时入链参数不能为空", 500);
@@ -239,9 +251,12 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				//如果是新增节点溯源信息则使用参数的批次id
+				//如果是新增节点溯源信息则使用参数的批次实体填充数据
 				if (isNode) {
-					nodeBlockChainInfo.setTraceBatchInfoId(traceBatchInfoId);
+					nodeBlockChainInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
+					nodeBlockChainInfo.setTraceBatchName(traceBatchInfo.getTraceBatchName());
+					nodeBlockChainInfo.setProductId(traceBatchInfo.getProductId());
+					nodeBlockChainInfo.setProductName(traceBatchInfo.getProductName());
 				}
 				if (null!=objectType) {
 					noStruct.setObjectUniqueValue(objectUniqueValue);
@@ -330,9 +345,17 @@ public class NodeBlockChainInfoService extends AbstractPageService{
     					case TRACE_BATCH:
     						Object traceBatchInfoId=lineMap.get(objectTypeEnum.getFieldCode());
     						String s_traceBatchInfoId=(traceBatchInfoId==null?null:String.valueOf(traceBatchInfoId));
-    						nodeBlockChainInfo.setTraceBatchName(String.valueOf(fieldValue));
-    						nodeBlockChainInfo.setTraceBatchInfoId(s_traceBatchInfoId);
-    						
+    						if (StringUtils.isNotBlank(s_traceBatchInfoId)) {
+    							TraceBatchInfo traceBatchInfo =traceBatchInfoDao.selectByTraceBatchInfoId(s_traceBatchInfoId);
+    							if (null==traceBatchInfo) {
+    								logger.error("溯源信息更新时上链失败，批次id："+s_traceBatchInfoId+"记录不存在");
+    								return;
+								}
+    							nodeBlockChainInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
+    							nodeBlockChainInfo.setTraceBatchName(traceBatchInfo.getTraceBatchName());
+    							nodeBlockChainInfo.setProductId(traceBatchInfo.getProductId());
+    							nodeBlockChainInfo.setProductName(traceBatchInfo.getProductName());
+							}	
     						noStruct.setObjectUniqueValue(s_traceBatchInfoId);
     						break;
     					case PRODUCT:
