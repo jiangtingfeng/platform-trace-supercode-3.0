@@ -257,6 +257,7 @@ public class DynamicServiceDelegate {
 					switch (objectTypeEnum) {
 					case TRACE_BATCH:
 						String traceBatchInfoId=fieldBusinessParam.getObjectUniqueValue();
+						//修改时，如果没有修改对象字段，前端不会传对象类型的ObjectUniqueValue值
 						if (StringUtils.isNotBlank(traceBatchInfoId)) {
 							sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append("=").append("'").append(traceBatchInfoId).append("'")
 							.append(",");

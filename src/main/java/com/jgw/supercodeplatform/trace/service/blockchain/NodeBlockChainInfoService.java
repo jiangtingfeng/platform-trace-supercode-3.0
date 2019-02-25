@@ -61,7 +61,12 @@ public class NodeBlockChainInfoService extends AbstractPageService{
     @Override
 	protected List<NodeBlockChainInfoListVO> searchResult(DaoSearch searchParams) throws Exception {
     	String organizationId=commonUtil.getOrganizationId();
-    	String flag=commonUtil.getSeniorFunFlag();
+    	String strFlag="0";
+    	Boolean flag=commonUtil.getTraceSeniorFunFlag();
+    	if (null!=flag && flag) {
+    		strFlag="1";
+		}
+    	
 		int startNumber = (searchParams.getCurrent()-1)*searchParams.getPageSize();
 		searchParams.setStartNumber(startNumber);
 		List<NodeBlockChainInfo>list=nodeBlockChainInfoDao.list(searchParams,organizationId);
@@ -75,7 +80,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 				vo.setProductName(nodeBlockChainInfo.getProductName());
 				vo.setTraceBatchInfoId(nodeBlockChainInfo.getTraceBatchInfoId());
 				vo.setTraceBatchName(nodeBlockChainInfo.getTraceBatchName());
-				vo.setAuthFlag(flag==null?"0":"1");
+				vo.setAuthFlag(strFlag);
 				nodeBlockChainInfoVOs.add(vo);
 			}
 		}else {
@@ -93,12 +98,12 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 	public RestResult<List<NodeBlockChainInfoVO>> queryByTraceBatchInfoId(String traceBatchInfoId) throws SuperCodeException {
 		RestResult<List<NodeBlockChainInfoVO>> restResult=new RestResult<List<NodeBlockChainInfoVO>>();
 		
-//		String flag=commonUtil.getSeniorFunFlag();
-//		if (StringUtils.isBlank(flag) || !"1".equals(flag)) {
-//			restResult.setState(500);
-//			restResult.setMsg("该组织无权限查看上链节点信息");
-//			return restResult;
-//		}
+		Boolean flag=commonUtil.getTraceSeniorFunFlag();
+		if (null==flag || !flag) {
+			restResult.setState(500);
+			restResult.setMsg("该组织无权限查看上链节点信息");
+			return restResult;
+		}
 		
 		List<NodeBlockChainInfo>list=nodeBlockChainInfoDao.queryByTraceBatchInfoId(traceBatchInfoId);
 		if (null==list || list.isEmpty()) {
