@@ -114,7 +114,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			if (null == fieldsMap || fieldsMap.isEmpty()) {
 				throw new SuperCodeTraceException("无此功能字段", 500);
 			}
-			blockChainService.coChain(param.getLineData(),false,null,fieldsMap,null);
+
+			Boolean flag=commonUtil.getTraceSeniorFunFlag();
+			if (null!=flag && flag) {
+				blockChainService.coChain(param.getLineData(),false,null,fieldsMap,null);
+			}
+
 			Integer nodeDataCount=traceBatchInfo.getNodeDataCount();
 			if (null==nodeDataCount) {
 				traceBatchInfo.setNodeDataCount(1);
@@ -198,7 +203,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			if (null == fieldsMap || fieldsMap.isEmpty()) {
 				throw new SuperCodeTraceException("无此功能字段", 500);
 			}
-			blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
+
+			Boolean flag=commonUtil.getTraceSeniorFunFlag();
+			if (null!=flag && flag) {
+				blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
+			}
+
 			//插入成功更新批次节点数据条数
 			Integer nodeDataCount = traceBatchInfo.getNodeDataCount();
 			if (null == nodeDataCount) {
