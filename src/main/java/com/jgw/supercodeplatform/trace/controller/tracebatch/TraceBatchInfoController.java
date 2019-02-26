@@ -107,9 +107,9 @@ public class TraceBatchInfoController extends CommonUtil {
             @ApiImplicitParam(name = "traceBatchInfoId", paramType = "query", defaultValue = "64b379cd47c843458378f479a115c322", value = "批次表唯一id,必需", required = true),
             @ApiImplicitParam(name = "traceTemplateId", paramType = "query", defaultValue = "64b379cd47c843458378f479a115c322", value = "模板表唯一id,必需", required = true),
     })
-    public RestResult deleteTraceBatchInfo(@RequestParam Map<String, Object> params) throws SuperCodeTraceException {
+    public RestResult deleteTraceBatchInfo(@RequestParam Map<String, Object> params) throws Exception {
         validateRequestParamAndValueNotNull(params, "traceBatchInfoId", "traceTemplateId");
-        traceBatchInfoService.deleteTraceBatchInfo(params.get("traceBatchInfoId").toString(), params.get("traceTemplateId").toString());
+        traceBatchInfoService.deleteTraceBatch(params.get("traceBatchInfoId").toString(), params.get("traceTemplateId").toString());
         return new RestResult(200, "success", null);
     }
 

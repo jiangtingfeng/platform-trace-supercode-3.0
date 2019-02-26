@@ -559,7 +559,8 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		}
 		//判断节点数据集合是否为空，为空则表示该模板下的节点无业务数据
 		if (null!=allNodeData && !allNodeData.isEmpty()) {
-			allNodeData.sort((Map<String, Object> h1, Map<String, Object> h2) -> ((Long)(h1.get("SortDateTime")==null?0l:h1.get("SortDateTime"))).compareTo(((Long)(h2.get("SortDateTime")==null?0L:h2.get("SortDateTime")))));
+			//allNodeData.sort((Map<String, Object> h1, Map<String, Object> h2) -> ((Long)(h1.get("SortDateTime")==null?0l:h1.get("SortDateTime"))).compareTo(((Long)(h2.get("SortDateTime")==null?0L:h2.get("SortDateTime")))));
+			allNodeData.sort((Map<String, Object> h1, Map<String, Object> h2) -> GetSortDateTime(h1).compareTo(GetSortDateTime(h2)));
 			restResult.setResults(allNodeData);
 		}else{
 			List<Map<String, Object>> allND=new ArrayList<Map<String, Object>>();
@@ -568,6 +569,20 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		restResult.setState(200);
 		restResult.setMsg("成功");
 		return restResult;
+	}
+
+	Long GetSortDateTime(Map<String, Object> h1)
+	{
+		Long val=0l;
+		ArrayList<Field> list =(ArrayList) h1.get("defaultLineData");
+		for(Field node : list){
+			if (node.getFieldCode().equals("SortDateTime"))
+			{
+				val = (Long)node.getFieldValue();
+			}
+		}
+
+		return  val;
 	}
 
 	@Transactional

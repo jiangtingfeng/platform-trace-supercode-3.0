@@ -146,6 +146,23 @@ public class TraceBatchInfoService extends CommonUtil {
         }
     }
 
+    public void deleteTraceBatch(String traceBatchInfoId, String traceTemplateId) throws Exception
+    {
+        RestResult<List<Map<String, Object>>> result= listBusinessNodeData(traceBatchInfoId);
+        List<Map<String, Object>> nodeList =result.getResults();
+        boolean delete=true;
+        for(Map<String, Object> node:nodeList){
+            if (Integer.parseInt(node.get("businessType").toString()) == 1){
+                delete=false;
+            }
+        }
+        if(!delete){
+            throw  new SuperCodeTraceException("该批次在生产中已被使用（定制功能中使用），不能删除");
+        }
+
+        deleteTraceBatchInfo(traceBatchInfoId,traceTemplateId);
+    }
+
     /**
      * 根据条件获取分页溯源批次信息
      *
