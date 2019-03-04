@@ -1,8 +1,7 @@
 package com.jgw.supercodeplatform.trace.service.dynamic;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -420,6 +419,16 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				throw new SuperCodeTraceException("动态表查询querySqlBuilder方法，无法根据功能id：" + functionId + "获取表名", 500);
 			}
 		}
+
+		String sortFiled = "SortDateTime";
+
+		Map<String, TraceFunFieldConfig> sortFileds= fieldsMap.entrySet().stream().filter((e)->e.getValue().getFieldType().equals("6")).collect(Collectors.toMap(e->e.getKey(),e->e.getValue()));
+
+		if (sortFileds.size()>0){
+			Map.Entry<String, TraceFunFieldConfig> field= sortFileds.entrySet().iterator().next();
+			sortFiled = field.getValue().getFieldCode();
+		}
+
 		StringBuilder sqlFieldValueBuilder = new StringBuilder();
 		
 		//来源于h5过滤掉已被隐藏的记录
@@ -506,6 +515,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		if (isCount) {
 			sql = "select count(*) from " + tableName + sqlFieldValueBuilder.toString();
 		} else {
+			sqlFieldValueBuilder.append(" order by " + sortFiled+" desc ");
+
 			if (null !=searchParam.getStartNumber() && null != searchParam.getPageSize()) {
 				sqlFieldValueBuilder.append(" limit ").append(searchParam.getStartNumber()).append(",")
 						.append(searchParam.getPageSize());
