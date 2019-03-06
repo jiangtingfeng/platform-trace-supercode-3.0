@@ -186,7 +186,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		    			
 		    			List<TraceFunFieldConfigParam> fieldsParam=traceFunTemplateconfigUpdateSubParam.getFieldConfigList();
 		    			for (TraceFunFieldConfigParam traceFunFieldConfigParam : fieldsParam) {
-		    				if (doubleFieldCodeMap.containsKey(traceFunFieldConfigParam.getFieldCode())) {
+		    				if (doubleFieldCodeMap.containsKey(traceFunFieldConfigParam.getFieldCode()) && false) {
 		    					throw new SuperCodeTraceException("修改节点-"+nodeFunctionName+"，新增的字段与之前字段 存在重复字段："+traceFunFieldConfigParam.getFieldCode(), 500);
 		    				}
 		    			}
