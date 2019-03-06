@@ -508,7 +508,7 @@ public class TraceFunFieldConfigDelegate {
 	      }
     	  Integer flag=fieldMap.get(fieldCode);
     	  if (null!=flag) {
-    		  throw new SuperCodeTraceException("新增的字段存在重复的fieldCode-"+fieldCode, 500);
+    		  throw new SuperCodeTraceException("存在重复的结构化名称-"+fieldCode, 500);
 		  }
     	  
 		  //这里先检查下长度是否超过最大值，因为时间类型和金额等没有最大值所以需要加null!=maxSize
