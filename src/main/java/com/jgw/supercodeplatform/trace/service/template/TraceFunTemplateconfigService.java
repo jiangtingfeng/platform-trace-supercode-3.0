@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -179,16 +180,26 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		    		List<TraceFunFieldConfigParam> params=traceFunTemplateconfigUpdateSubParam.getFieldConfigList();
 		    		if (null!=params && !params.isEmpty()) {
 		    			TraceFunFieldConfigDelegate.checkAddParam(traceFunTemplateconfigUpdateSubParam.getFieldConfigList());
-		    			Map<String, Integer> doubleFieldCodeMap=new HashMap<String, Integer>();
+		    			Map<String, TraceFunFieldConfig> doubleFieldCodeMap=new HashMap<String, TraceFunFieldConfig>();
 		    			for (TraceFunFieldConfig field : fields) {
-		    				doubleFieldCodeMap.put(field.getFieldCode(), 1);
+		    				doubleFieldCodeMap.put(field.getFieldCode(), field);
 		    			}
 		    			
 		    			List<TraceFunFieldConfigParam> fieldsParam=traceFunTemplateconfigUpdateSubParam.getFieldConfigList();
 		    			for (TraceFunFieldConfigParam traceFunFieldConfigParam : fieldsParam) {
-		    				if (doubleFieldCodeMap.containsKey(traceFunFieldConfigParam.getFieldCode()) && false) {
-		    					throw new SuperCodeTraceException("修改节点-"+nodeFunctionName+"，新增的字段与之前字段 存在重复字段："+traceFunFieldConfigParam.getFieldCode(), 500);
-		    				}
+		    				if(traceFunFieldConfigParam.getId()==null){
+								if (doubleFieldCodeMap.containsKey(traceFunFieldConfigParam.getFieldCode())) {
+									throw new SuperCodeTraceException("修改节点-"+nodeFunctionName+"，新增的字段与之前字段 存在重复字段："+traceFunFieldConfigParam.getFieldCode(), 500);
+								}
+							} else {
+								if(doubleFieldCodeMap.containsKey(traceFunFieldConfigParam.getFieldCode())){
+									TraceFunFieldConfig fieldConfig = doubleFieldCodeMap.get(traceFunFieldConfigParam.getFieldCode());
+									if(!fieldConfig.getId().equals(traceFunFieldConfigParam.getId())){
+										throw new SuperCodeTraceException("修改节点-"+nodeFunctionName+"，修改的字段与之前字段 存在重复字段："+traceFunFieldConfigParam.getFieldCode(), 500);
+									}
+								}
+							}
+
 		    			}
 					}
 		    		break;
@@ -245,12 +256,26 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		        		String tableName=orgroute.getTableName();
 		        		String businessType=traceFunTemplateconfigUpdateSubParam.getBusinessType();
 		        		String templateId=traceFunTemplateconfigUpdateParam.getTraceTemplateId();
-		        		RestResult<String> result=traceFunFieldConfigDelegate.addNewFields(traceFunTemplateconfigUpdateSubParam.getFieldConfigList(), tableName, false, true,nodeFunctionId,nodeFunctionName,templateId ,businessType);
-		        		if (result.getState()!=200) {
-		        			return result;
-		        		}
-		    			//TODO 新增后刷新模板节点字段信息缓存
-		    			//functionFieldCache.flush(templateId, nodeFunctionId, 2);
+
+						List<TraceFunFieldConfigParam> insertFieldList= fields.stream().filter(e->e.getId()==null).collect(Collectors.toList());
+						if(insertFieldList!=null && !insertFieldList.isEmpty()){
+
+							RestResult<String> result=traceFunFieldConfigDelegate.addNewFields(insertFieldList, tableName, false, true,nodeFunctionId,nodeFunctionName,templateId ,businessType);
+							if (result.getState()!=200) {
+								return result;
+							}
+							//TODO 新增后刷新模板节点字段信息缓存
+							//functionFieldCache.flush(templateId, nodeFunctionId, 2);
+						}
+
+						List<TraceFunFieldConfigParam> updateFieldList= fields.stream().filter(e->e.getId()!=null).collect(Collectors.toList());
+						if(updateFieldList!=null && ! updateFieldList.isEmpty()){
+							RestResult<String> result=traceFunFieldConfigDelegate.updateFields(updateFieldList, tableName, false, true,nodeFunctionId,nodeFunctionName,templateId ,businessType);
+							if (result.getState()!=200) {
+								return result;
+							}
+						}
+
 					}
 
 		        	break;

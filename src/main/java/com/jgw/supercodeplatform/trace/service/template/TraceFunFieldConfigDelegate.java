@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jgw.supercodeplatform.trace.dto.TraceFunFieldSortCaram;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -240,6 +241,39 @@ public class TraceFunFieldConfigDelegate {
 				e.printStackTrace();
 			}
 		}
+	}
+
+
+	public RestResult<String> updateFields(List<TraceFunFieldConfigParam> param, String tableName, boolean isAdd,
+										   boolean formTemplate, String nodeFunctionId, String nodeFunctionName, String traceTemplateId,
+										   String businessType) throws SuperCodeTraceException {
+		List<TraceFunFieldConfig> fields=new ArrayList<TraceFunFieldConfig>();
+		RestResult<String> restResult=new RestResult<String>();
+		for (TraceFunFieldConfigParam traceFunFieldConfigParam : param) {
+			if (null==traceFunFieldConfigParam.getId()) {
+				throw new SuperCodeTraceException("主键id不能为空", 500);
+			}
+			TraceFunFieldConfig field=new TraceFunFieldConfig();
+
+			field.setDefaultValue(traceFunFieldConfigParam.getDefaultValue());
+			field.setIsRequired(traceFunFieldConfigParam.getIsRequired());
+			field.setShowHidden(traceFunFieldConfigParam.getShowHidden());
+
+			field.setId(traceFunFieldConfigParam.getId());
+
+			dao.updateField(field);
+
+			fields.add(field);
+		}
+		if (null==fields || fields.isEmpty()) {
+			restResult.setState(500);
+			restResult.setMsg("参数不能为空");
+		}else {
+			//dao.UpdateFields(fields);
+			restResult.setState(200);
+			restResult.setMsg("操作成功");
+		}
+		return restResult;
 	}
 	
 	/**

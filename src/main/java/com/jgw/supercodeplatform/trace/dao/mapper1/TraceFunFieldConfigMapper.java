@@ -55,6 +55,18 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
 		+"</script>"
 	})
 	void batchUpdate(@Param("list")List<TraceFunFieldConfig> update_tffcList);
+
+	@Update(startScript + " UPDATE trace_fun_config "
+			+ " <set>"
+			+ " <if test='showHidden !=null  '>  ShowHidden = #{showHidden} ,</if> "
+			+ " <if test='isRequired !=null  '>  IsRequired  = #{isRequired} ,</if> "
+			+ " <if test='defaultValue !=null  '>  DefaultValue  = #{defaultValue} ,</if> "
+			+ " </set>"
+			+ " WHERE Id = #{id} "
+			+ endScript
+	)
+	void updateField(TraceFunFieldConfig update_tffcList);
+
     
 	@Select("select "+PARTFields+" from trace_fun_config where FunctionId=#{functionId} and TypeClass=1 order by FieldWeight ")
 	List<TraceFunFieldConfig> selectDZFPartFieldsByFunctionId(@Param("functionId")String functionId);
