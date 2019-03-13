@@ -18,7 +18,6 @@ import com.jgw.supercodeplatform.trace.dto.antchain.TraceabilityMessage.Traceabi
 import com.jgw.supercodeplatform.trace.dto.antchain.TraceabilityQueryMessage;
 import com.jgw.supercodeplatform.trace.dto.blockchain.CheckNodeBlockInfoParam;
 import com.jgw.supercodeplatform.trace.dto.blockchain.NodeInsertBlockChainStruct;
-import com.jgw.supercodeplatform.trace.dto.blockchain.NodeInsertBlockChainStructWrapper;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.FieldBusinessParam;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.LineBusinessData;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
@@ -119,8 +118,7 @@ public class AntChainInfoService extends AbstractPageService {
 			String transactionHash=antchainInfo.getTransactionHash();
 			NodeBlockChainInfoVO vo=new NodeBlockChainInfoVO();
 			String nodeInfo=antchainInfo.getNodeInfo();
-			NodeInsertBlockChainStructWrapper noWrapper=JSONObject.parseObject(nodeInfo, NodeInsertBlockChainStructWrapper.class);
-			vo.setLocalDataJson(noWrapper.getNodeInfo());
+			vo.setLocalDataJson(nodeInfo);
 			vo.setBlockChainId(antchainInfo.getBlockChainId());
 			vo.setBlockHash(antchainInfo.getBlockHash());
 			vo.setBlockNo(antchainInfo.getBlockNo());
@@ -157,10 +155,21 @@ public class AntChainInfoService extends AbstractPageService {
 			nodeInsertBlockChainStruct.setFieldName(item.getTitle());
 			nodeInsertBlockChainStruct.setFieldValue(item.getValue());
 			nodeInsertBlockChainStruct.setFieldCode(item.getKey());
-			nodeInsertBlockChainStruct.setObjectType(Integer.valueOf(item.getType()));
-			nodeInsertBlockChainStruct.setObjectUniqueValue(item.getExtInfoOrThrow("objectUniqueValue"));
-			String extraCreate = item.getExtInfoOrThrow("extraCreate");
-			nodeInsertBlockChainStruct.setExtraCreate(Integer.valueOf(extraCreate));
+			try {
+				nodeInsertBlockChainStruct.setObjectType(Integer.valueOf(item.getType()));
+
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+			String extraCreate = item.getExtInfoOrDefault("extraCreate",  null);
+			if(extraCreate != null) {
+				try {
+					nodeInsertBlockChainStruct.setExtraCreate(Integer.valueOf(extraCreate));
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				}
+			}
+			nodeInsertBlockChainStruct.setObjectUniqueValue(item.getExtInfoOrDefault("objectUniqueValue",null));
 			list.add(nodeInsertBlockChainStruct);
 		}
 		return JSONObject.toJSONString(list);
