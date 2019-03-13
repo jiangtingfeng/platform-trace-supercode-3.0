@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.service.dynamic;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,10 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private TraceApplicationContextAware applicationAware;
-	
+
+	@Autowired
+	private AntChainInfoService antChainInfoService;
+
 	/**
 	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
 	 * @param param
@@ -119,6 +123,10 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				blockChainService.coChain(param.getLineData(),false,null,fieldsMap,null);
 			}
 
+			Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
+			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
+				antChainInfoService.coChain(param.getLineData(),false,null,fieldsMap,null);
+			}
 			Integer nodeDataCount=traceBatchInfo.getNodeDataCount();
 			if (null==nodeDataCount) {
 				traceBatchInfo.setNodeDataCount(1);
@@ -207,7 +215,10 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			if (null!=flag && flag) {
 				blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
 			}
-
+			Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
+			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
+				antChainInfoService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
+			}
 			//插入成功更新批次节点数据条数
 			Integer nodeDataCount = traceBatchInfo.getNodeDataCount();
 			if (null == nodeDataCount) {

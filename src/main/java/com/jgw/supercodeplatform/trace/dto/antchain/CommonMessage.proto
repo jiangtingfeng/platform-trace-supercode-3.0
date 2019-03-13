@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+option java_multiple_files = false;
+option java_package = "com.jgw.supercodeplatform.trace.dto.antchain";
+option java_outer_classname = "TraceabilityCommonMessage";
+import "google/protobuf/any.proto";
+
+//通用返回对象
+message CommonReply {
+    // 容易被客户端处理的简单错误码
+    int32 code = 1;
+
+    // 易于开发者阅读的错误信息，它应该解释错误并且提供可行的解决方法
+    string message = 2;
+
+    // 附加的错误信息，客户端能够通过它处理错误，例如重试的等待时间或者帮助页面链接
+    google.protobuf.Any payload = 3;
+}
+
+//通用请求对象
+message CommonRequest {
+    // 应用接入唯一标识
+    string appId = 1;
+
+    // 使用自己的私钥对payload内容签名
+    bytes sign = 2;
+
+    // 附加的错误信息，客户端能够通过它处理错误，例如重试的等待时间或者帮助页面链接
+    google.protobuf.Any payload = 4;
+}
+
+//二维码编号
+enum QrCodeTypeEnum {
+
+    //小码、 暗码、内码，扫码记录次数和用户来源
+    INNER_CODE = 0;
+    // 盒码、外码，贴在外包装上、扫码不做记录，只展示相关信息。
+    QR_CODE = 1;
+    // 箱码
+    PACKAGE_CODE = 2;
+    // 物流单号
+    TRACKING_CODE = 3;
+
+    //溯源批次号码
+    TRACE_BATCH_CODE=4;
+}
+
+// 一个溯源环节的交易内容
+message ItemGroup {
+    // group 的键值
+    string key = 1;
+    //标题信息
+    string title = 2;
+    // 副标题
+    string subTitle = 3;
+    // 提示信息
+    string comment = 4;
+    //溯源项内容
+    repeated Item items = 5;
+
+    UploadInfo uploadInfo = 6;
+};
+
+//溯源信息项
+message Item {
+
+    //key 如： itemName
+    string key = 1;
+    //中文标题 如：品名
+    string title = 2;
+    //内容类型 "text"，'image','region','link','longtext'
+    string type = 3;
+    //内容的值
+    string value = 4;
+
+    // 业务时间
+    uint64 bizTime = 6;
+    //扩展信息
+    map<string, string> extInfo = 5;
+};
+
+// 交易上传记录
+message UploadInfo {
+
+    //上传者身份证明
+    string uploader = 1;
+
+    // 上传者证书hash
+    string certHash = 2;
+
+    //上传时间
+    uint64 uploadTime = 3;
+
+    //经度
+    string longitude = 4;
+
+    //纬度
+    string latitude = 5;
+};
+

@@ -243,6 +243,25 @@
             <artifactId>blockchain-client-spring-boot-starter</artifactId>
             <version>1.0.0.RELEASE</version>
         </dependency>
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>3.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.protobuf-java-format</groupId>
+			<artifactId>protobuf-java-format</artifactId>
+			<version>1.2</version>
+		</dependency>
 	</dependencies>
 
 	<!-- 指定spring cloud版本， 新版本使用Finchley.SR2 -->
