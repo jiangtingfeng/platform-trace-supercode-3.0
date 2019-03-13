@@ -88,8 +88,9 @@ public interface AntChainMapper extends CommonSql {
     @Options(useGeneratedKeys = true, keyProperty = "blockChainId")
     int insert(AntChainInfo nodeBlockChainInfo);
 
-    @Update("UPDATE trace_antblockchain_transaction SET TransactionHash = #{txHash} WHERE BlockChainId = #{id}")
-    void updateTx(@Param("id") Long id, @Param("txHash") String txHash);
+    @Update("UPDATE trace_antblockchain_transaction SET TransactionHash = #{txHash},TransactionTime =  #{txTime}," +
+            "BlockNo = #{blockNo},BlockHash = #{blockHash}  WHERE BlockChainId = #{id}")
+    void updateTx(@Param("id") Long id, @Param("txHash") String txHash,  @Param("blockHash")String blockHash, @Param("txTime")Date txTime, @Param("blockNo")Long blockNo);
 
     @Select(" <script>"
             + " select "+allFields+",count(TraceBatchInfoId) blockNum  from  trace_antblockchain_transaction "

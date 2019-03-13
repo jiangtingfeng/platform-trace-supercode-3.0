@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.service.antchain;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.exception.SuperCodeException;
+import com.jgw.supercodeplatform.pojo.cache.OrganizationCache;
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
@@ -13,7 +14,7 @@ import com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo.TraceBatchInfoMappe
 import com.jgw.supercodeplatform.trace.dto.antchain.TraceabilityCommonMessage;
 import com.jgw.supercodeplatform.trace.dto.antchain.TraceabilityCommonMessage.Item;
 import com.jgw.supercodeplatform.trace.dto.antchain.TraceabilityCommonMessage.ItemGroup;
-import com.jgw.supercodeplatform.trace.dto.antchain.TraceabilityMessage;
+import com.jgw.supercodeplatform.trace.dto.antchain.TraceabilityMessage.TraceabilityPhaseReply;
 import com.jgw.supercodeplatform.trace.dto.antchain.TraceabilityQueryMessage;
 import com.jgw.supercodeplatform.trace.dto.blockchain.CheckNodeBlockInfoParam;
 import com.jgw.supercodeplatform.trace.dto.blockchain.NodeInsertBlockChainStruct;
@@ -308,6 +309,14 @@ public class AntChainInfoService extends AbstractPageService {
 		}
 		String coChainData=JSONObject.toJSONString(list);
 		antchainInfo.setNodeInfo(coChainData);
+		try {
+			//TODO
+			OrganizationCache organizationCache=commonUtil.getOrganization();
+			antchainInfo.setOrganizationId(organizationCache.getOrganizationId());
+			antchainInfo.setOrganizationName(organizationCache.getOrganizationFullName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		antChainMapper.insert(antchainInfo);
 		realCoChain(antchainInfo, list);
 	}
@@ -333,87 +342,85 @@ public class AntChainInfoService extends AbstractPageService {
      * @throws SuperCodeException 
      */
 	public void updateCoChain(List<LinkedHashMap<String, Object>> listData, boolean containObj, Map<String, TraceFunFieldConfig> fieldsMap) throws SuperCodeException {
-     	if (null==listData || listData.isEmpty() || listData.size()>1) {
-     		throw new SuperCodeException("修改溯源记录时入链参数不能为空且入链长度不能大于1", 500);
-		}	
-     	LinkedHashMap<String, Object> lineMap=listData.get(0);
+		if (null==listData || listData.isEmpty() || listData.size()>1) {
+			throw new SuperCodeException("修改溯源记录时入链参数不能为空且入链长度不能大于1", 500);
+		}
+		LinkedHashMap<String, Object> lineMap=listData.get(0);
 		//保存到数据库的节点上链业务数据实体
-		AntChainInfo antchainInfo=new AntChainInfo();
-		
+		AntChainInfo antChainInfo=new AntChainInfo();
 		//拼装上链对象
 		boolean functionNotSet=true;
 		boolean hasBatch=false;
 		List<NodeInsertBlockChainStruct> list=new ArrayList<NodeInsertBlockChainStruct>();
-     	for(String fieldCode:lineMap.keySet()) {
-     		TraceFunFieldConfig traceFunFieldConfig=fieldsMap.get(fieldCode);
-     		if (null==traceFunFieldConfig) {
-     			throw new SuperCodeException("修改溯源记录时入链时，从动态表查出的字段-"+fieldCode+"在字段配置表中不存在", 500);
+		for(String fieldCode:lineMap.keySet()) {
+			TraceFunFieldConfig traceFunFieldConfig=fieldsMap.get(fieldCode);
+			if (null==traceFunFieldConfig) {
+				throw new SuperCodeException("修改溯源记录时入链时，从动态表查出的字段-"+fieldCode+"在字段配置表中不存在", 500);
 			}
-     		
-     		Integer extraCreate=traceFunFieldConfig.getExtraCreate();
-     		String objectType=traceFunFieldConfig.getObjectType();
-     		//如果字段是前端选择的或者是对象的唯一值字段则入链，否则不入链因为前端展示不需要默认字段
-     		if (null==extraCreate || (1==extraCreate && null!=objectType)) {
-    			String fieldType=traceFunFieldConfig.getFieldType();
-    			String fieldName=traceFunFieldConfig.getFieldName();
-    			Object fieldValue=lineMap.get(fieldCode);
-    			
-    			NodeInsertBlockChainStruct noStruct=new NodeInsertBlockChainStruct();
-    			noStruct.setFieldCode(fieldCode);
-    			noStruct.setFieldName(fieldName);
-    			noStruct.setExtraCreate(extraCreate);
-    			try {
-    				//设置功能名称和功能id
-    				if (functionNotSet) {
-    					String functionId=traceFunFieldConfig.getFunctionId();
-    					String functionName=traceFunFieldConfig.getFunctionName();
-    					antchainInfo.setFunctionId(functionId);
-    					antchainInfo.setFunctionName(functionName);
-    					functionNotSet=false;
-    				}		
-    				if (StringUtils.isNotBlank(objectType)) {
-    					//设置对象类型
-    					Integer int_objectType=Integer.valueOf(objectType);
-    					noStruct.setObjectType(int_objectType);
-    					
-    					//设置nodeBlockChainInfo的产品和批次名称
-    					ObjectTypeEnum objectTypeEnum= ObjectTypeEnum.getType(int_objectType);
-    					switch (objectTypeEnum) {
-    					case TRACE_BATCH:
-    						Object traceBatchInfoId=lineMap.get(objectTypeEnum.getFieldCode());
-    						String s_traceBatchInfoId=(traceBatchInfoId==null?null:String.valueOf(traceBatchInfoId));
-    						if (StringUtils.isNotBlank(s_traceBatchInfoId)) {
-    							TraceBatchInfo traceBatchInfo =traceBatchInfoDao.selectByTraceBatchInfoId(s_traceBatchInfoId);
-    							if (null==traceBatchInfo) {
-    								logger.error("溯源信息更新时上链失败，批次id："+s_traceBatchInfoId+"记录不存在");
-    								return;
+			Integer extraCreate=traceFunFieldConfig.getExtraCreate();
+			String objectType=traceFunFieldConfig.getObjectType();
+			//如果字段是前端选择的或者是对象的唯一值字段则入链，否则不入链因为前端展示不需要默认字段
+			if (null==extraCreate || (1==extraCreate && null!=objectType)) {
+				String fieldType=traceFunFieldConfig.getFieldType();
+				String fieldName=traceFunFieldConfig.getFieldName();
+				Object fieldValue=lineMap.get(fieldCode);
+
+				NodeInsertBlockChainStruct noStruct=new NodeInsertBlockChainStruct();
+				noStruct.setFieldCode(fieldCode);
+				noStruct.setFieldName(fieldName);
+				noStruct.setExtraCreate(extraCreate);
+				try {
+					//设置功能名称和功能id
+					if (functionNotSet) {
+						String functionId=traceFunFieldConfig.getFunctionId();
+						String functionName=traceFunFieldConfig.getFunctionName();
+						antChainInfo.setFunctionId(functionId);
+						antChainInfo.setFunctionName(functionName);
+						functionNotSet=false;
+					}
+					if (StringUtils.isNotBlank(objectType)) {
+						//设置对象类型
+						Integer int_objectType=Integer.valueOf(objectType);
+						noStruct.setObjectType(int_objectType);
+
+						//设置nodeBlockChainInfo的产品和批次名称
+						ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(int_objectType);
+						switch (objectTypeEnum) {
+							case TRACE_BATCH:
+								Object traceBatchInfoId=lineMap.get(objectTypeEnum.getFieldCode());
+								String s_traceBatchInfoId=(traceBatchInfoId==null?null:String.valueOf(traceBatchInfoId));
+								if (StringUtils.isNotBlank(s_traceBatchInfoId)) {
+									TraceBatchInfo traceBatchInfo =traceBatchInfoDao.selectByTraceBatchInfoId(s_traceBatchInfoId);
+									if (null==traceBatchInfo) {
+										logger.error("溯源信息更新时上链失败，批次id："+s_traceBatchInfoId+"记录不存在");
+										return;
+									}
+									//只有批次的数据才上链
+									hasBatch=true;
+									antChainInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
+									antChainInfo.setTraceBatchName(traceBatchInfo.getTraceBatchName());
+									antChainInfo.setProductId(traceBatchInfo.getProductId());
+									antChainInfo.setProductName(traceBatchInfo.getProductName());
 								}
-    							//只有批次的数据才上链
-    							hasBatch=true;
-    							antchainInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
-    							antchainInfo.setTraceBatchName(traceBatchInfo.getTraceBatchName());
-    							antchainInfo.setProductId(traceBatchInfo.getProductId());
-    							antchainInfo.setProductName(traceBatchInfo.getProductName());
-							}	
-    						noStruct.setObjectUniqueValue(s_traceBatchInfoId);
-    						break;
-    					case PRODUCT:
-    						Object productId=lineMap.get(objectTypeEnum.getFieldCode());
-    						String s_productId=(productId==null?null:String.valueOf(productId));
-    						antchainInfo.setProductId(s_productId);
-    						antchainInfo.setProductName(String.valueOf(fieldValue));
-    						
-    						noStruct.setObjectUniqueValue(s_productId);
-    						break;
-    					case USER:
-    						Object userId=lineMap.get(objectTypeEnum.getFieldCode());
-    						String s_userId=(userId==null?null:String.valueOf(userId));
-    						noStruct.setObjectUniqueValue(s_userId);
-    						break;
-    					default:
-    						break;
-    					}
-    				}
+								noStruct.setObjectUniqueValue(s_traceBatchInfoId);
+								break;
+							case PRODUCT:
+								Object productId=lineMap.get(objectTypeEnum.getFieldCode());
+								String s_productId=(productId==null?null:String.valueOf(productId));
+								antChainInfo.setProductId(s_productId);
+								antChainInfo.setProductName(String.valueOf(fieldValue));
+
+								noStruct.setObjectUniqueValue(s_productId);
+								break;
+							case USER:
+								Object userId=lineMap.get(objectTypeEnum.getFieldCode());
+								String s_userId=(userId==null?null:String.valueOf(userId));
+								noStruct.setObjectUniqueValue(s_userId);
+								break;
+							default:
+								break;
+						}
+					}
 					if (null!=fieldValue) {
 						//如果是对象类型则不用存值只需存对象唯一值，否则存下字段值
 						if ("8".equals(fieldType)) {
@@ -423,18 +430,25 @@ public class AntChainInfoService extends AbstractPageService {
 							noStruct.setFieldValue(String.valueOf(fieldValue));
 						}
 					}
-    			} catch (Exception e) {
-    				e.printStackTrace();
-    			}
-    			list.add(noStruct);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				list.add(noStruct);
 			}
 
-     	}
+		}
      	if (hasBatch) {
 			String coChainData=JSONObject.toJSONString(list);
-			antchainInfo.setNodeInfo(coChainData);
-			antChainMapper.insert(antchainInfo);
-     		realCoChain(antchainInfo, list);
+			antChainInfo.setNodeInfo(coChainData);
+			try {
+				OrganizationCache organizationCache=commonUtil.getOrganization();
+				antChainInfo.setOrganizationId(organizationCache.getOrganizationId());
+				antChainInfo.setOrganizationName(organizationCache.getOrganizationFullName());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			antChainMapper.insert(antChainInfo);
+     		realCoChain(antChainInfo, list);
 		}
      	
 	}
@@ -467,18 +481,17 @@ public class AntChainInfoService extends AbstractPageService {
 			}
 			try {
 				AntChainUtils.regProductList(antchainInfo.getTraceBatchInfoId());
-				TraceabilityCommonMessage.CommonReply regReply = AntChainUtils.sendCoChain(antchainInfo.getTraceBatchInfoId(), group, antchainInfo.getBlockChainId());
+				long time = System.currentTimeMillis();
+				TraceabilityCommonMessage.CommonReply regReply = AntChainUtils.sendCoChain(antchainInfo.getTraceBatchInfoId(), group, antchainInfo.getBlockChainId(),time);
 				if (regReply.getCode() == AntChainUtils.SUCCESS_CODE) {
-					TraceabilityMessage.TraceabilityPhaseReply traceabilityPhaseReply = regReply.getPayload().unpack(TraceabilityMessage.TraceabilityPhaseReply.class);
-					TraceabilityQueryMessage.TraceInfo txByTxHash = AntChainUtils.getTxByTxHash(traceabilityPhaseReply.getTxHash());
-
-					antChainMapper.updateTx(antchainInfo.getBlockChainId(), traceabilityPhaseReply.getTxHash());
+					TraceabilityPhaseReply traceabilityPhaseReply = regReply.getPayload().unpack(TraceabilityPhaseReply.class);
+					updateTx(antchainInfo.getBlockChainId(), traceabilityPhaseReply,time);
 				}else if(regReply.getCode() == 512){
 					Thread.sleep(20000);
-					regReply = AntChainUtils.sendCoChain(antchainInfo.getTraceBatchInfoId(), group, antchainInfo.getBlockChainId());
+					regReply = AntChainUtils.sendCoChain(antchainInfo.getTraceBatchInfoId(), group, antchainInfo.getBlockChainId(), time);
 					if (regReply.getCode() == AntChainUtils.SUCCESS_CODE) {
-						TraceabilityMessage.TraceabilityPhaseReply traceabilityPhaseReply = regReply.getPayload().unpack(TraceabilityMessage.TraceabilityPhaseReply.class);
-						antChainMapper.updateTx(antchainInfo.getBlockChainId(), traceabilityPhaseReply.getTxHash());
+						TraceabilityPhaseReply traceabilityPhaseReply = regReply.getPayload().unpack(TraceabilityPhaseReply.class);
+						updateTx(antchainInfo.getBlockChainId(), traceabilityPhaseReply, time);
 					}
 				}
 			} catch (Exception e) {
@@ -488,4 +501,18 @@ public class AntChainInfoService extends AbstractPageService {
 	}
 
 
+	/**
+	 * 更新区块信息
+	 * @param id
+	 * @param traceabilityPhaseReply
+	 * @throws Exception
+	 */
+	public void updateTx(Long id, TraceabilityPhaseReply traceabilityPhaseReply,  Long time) throws Exception {
+		Thread.sleep(10000);// 需要等待一段时间才能查询到区块信息
+		TraceabilityQueryMessage.TraceInfo traceInfo = AntChainUtils.getTxByTxHash(traceabilityPhaseReply.getTxHash());
+		if(traceInfo == null){
+			return;
+		}
+		antChainMapper.updateTx(id, traceabilityPhaseReply.getTxHash(),traceInfo.getBlockInfo().getBlockHash(), new Date(time), traceInfo.getBlockInfo().getHeight());
+	}
 }

@@ -162,7 +162,7 @@ public class AntChainUtils {
      * 溯源上链
      */
 
-    public static CommonReply sendCoChain(String batchId, ItemGroup.Builder group, Long loadCategoryCode) throws Exception {
+    public static CommonReply sendCoChain(String batchId, ItemGroup.Builder group, Long loadCategoryCode, long txTime) throws Exception {
         // 设置一个产品批次码，这个值是
         CodeNum pgk001 = CodeNum.newBuilder()
                 .setCode(code + batchId)
@@ -171,7 +171,7 @@ public class AntChainUtils {
         List<CodeNum> codeNumList = new ArrayList<>();
         codeNumList.add(pgk001);
         TraceabilityPhaseRequest.Builder phaseRequest = TraceabilityPhaseRequest.newBuilder()
-                .setBizRequestTime(System.currentTimeMillis())
+                .setBizRequestTime(txTime)
                 .setBusinessCode(BUSSINESSCODE)
                 .setPayloadCategoryCode(loadCategoryCode)
                 .setCodesTotal(codeNumList.size())
@@ -239,9 +239,9 @@ public class AntChainUtils {
 
 //        RegBusinessReply regBusinessReply = regProductCode(batchId);
 //        System.out.println(regBusinessReply.toString());
-        RegProductListReply regProductListReply = regProductList(batchId);
-        System.out.println(regProductListReply.toString());
-        Thread.sleep(20000L);
+//        RegProductListReply regProductListReply = regProductList(batchId);
+//        System.out.println(regProductListReply.toString());
+//        Thread.sleep(20000L);
         Item.Builder item = Item.newBuilder()
                 .setKey("KUAQU")
                 .setTitle("品名")
@@ -264,11 +264,15 @@ public class AntChainUtils {
                 .setComment("")
                 .addItems(item.build())
                 .setUploadInfo(uploadInfo.build());
-        CommonReply commonReply = sendCoChain(batchId, group,System.currentTimeMillis());
+        CommonReply commonReply = sendCoChain(batchId, group,System.currentTimeMillis(),System.currentTimeMillis());
         System.out.println(commonReply.toString());
-
-        Thread.sleep(20000);
-        TraceabilityDetails traceabilityDetails = testQrCode(batchId);
-        System.out.println(traceabilityDetails.toString());
+        if (commonReply.getCode() == AntChainUtils.SUCCESS_CODE) {
+            TraceabilityPhaseReply traceabilityPhaseReply = commonReply.getPayload().unpack(TraceabilityPhaseReply.class);
+            Thread.sleep(10000);
+            TraceInfo txByTxHash = getTxByTxHash(traceabilityPhaseReply.getTxHash());
+            System.out.println(txByTxHash.toString());
+        }
+//        TraceabilityDetails traceabilityDetails = testQrCode(batchId);
+//        System.out.println(traceabilityDetails.toString());
     }
 }
