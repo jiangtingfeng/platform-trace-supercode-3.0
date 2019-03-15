@@ -26,7 +26,7 @@ public interface TraceBatchInfoMapper extends CommonSql{
 			+ "a.ProductName productName,a.TraceBatchName traceBatchName,a.TraceTemplateName traceTemplateName,"
 			+ "a.TraceBatchId traceBatchId,a.ListedTime listedTime,a.TraceTemplateId traceTemplateId,"
 			+"a.NodeDataCount nodeDataCount,"
-			+ "a.H5TrancePageId h5TrancePageId,a.H5TempleteName h5TempleteName,a.CreateId createId,a.CreateMan createMan"
+			+ "a.H5TrancePageId h5TrancePageId,a.H5TempleteName h5TempleteName,a.CreateId createId,a.CreateMan createMan, a.TraceBatchPlatformId traceBatchPlatformId"
 			+ createTime + updateTime ;
 	
 	/**
@@ -65,6 +65,7 @@ public interface TraceBatchInfoMapper extends CommonSql{
             + " <if test='h5TrancePageId !=null and h5TrancePageId != &apos;&apos; '>  H5TrancePageId = #{h5TrancePageId} ,</if> "
             + " <if test='h5TempleteName !=null and h5TempleteName != &apos;&apos; '>  H5TempleteName = #{h5TempleteName} ,</if> "
 			+ " <if test='nodeDataCount !=null and nodeDataCount != &apos;&apos; '>  NodeDataCount = #{nodeDataCount} ,</if> "
+			+ " <if test='traceBatchPlatformId !=null and traceBatchPlatformId != &apos;&apos; '>  TraceBatchPlatformId = #{traceBatchPlatformId} ,</if> "
             + " </set>"
             + " WHERE TraceBatchInfoId = #{traceBatchInfoId} "
             + endScript

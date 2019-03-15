@@ -27,6 +27,7 @@ public class TraceBatchInfo implements Serializable{
 	private String createTime;//创建时间
 	private String updateTime;//修改时间
 	private Integer nodeDataCount;
+	private String traceBatchPlatformId;
 	
 
 	public String getTraceBatchInfoId() {
@@ -126,5 +127,12 @@ public class TraceBatchInfo implements Serializable{
 	public void setCreateMan(String createMan) {
 		this.createMan = createMan;
 	}
-	
+
+	public String getTraceBatchPlatformId() {
+		return traceBatchPlatformId;
+	}
+
+	public void setTraceBatchPlatformId(String traceBatchPlatformId) {
+		this.traceBatchPlatformId = traceBatchPlatformId;
+	}
 }
