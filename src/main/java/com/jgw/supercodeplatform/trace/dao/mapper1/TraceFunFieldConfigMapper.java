@@ -25,7 +25,7 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
     		+ "IsRequired isRequired,ValidateFormat validateFormat,MinSize minSize,MaxSize maxSize,RequiredNumber requiredNumber,MinNumber minNumber,MaxNumber maxNumber,DataValue dataValue,IsRemarkEnable isRemarkEnable,ShowHidden showHidden,CreateBy createBy,DATE_FORMAT(CreateTime,'%Y-%m-%d %H:%i:%S') createTime,LastUpdateBy lastUpdateBy,DATE_FORMAT(LastUpdateTime,'%Y-%m-%d %H:%i:%S') lastUpdateTime";
     
 	@InsertProvider(type = TraceFunFieldConfigProvider.class, method = "batchInsert")
-	void batchInsert(@Param("list")List<TraceFunFieldConfig> tffcList);
+	void batchInsert(@Param("list")List<TraceFunFieldConfig> arg0);
 	
 	@Select("select EnTableName enTableName from trace_fun_config where FunctionId=#{functionId} limit 1")
 	String getEnTableNameByFunctionId(@Param("functionId") String functionId);

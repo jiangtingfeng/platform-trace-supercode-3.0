@@ -2,12 +2,15 @@ package com.jgw.supercodeplatform.trace.dao.sqlbuilder;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 
 public class TraceFunFieldConfigProvider {
-  public String batchInsert(List<TraceFunFieldConfig> list) {
-	  StringBuilder sb = new StringBuilder();  
+  public String batchInsert(Map arg0  ) {
+
+      List<TraceFunFieldConfig> list = (List<TraceFunFieldConfig>)arg0.get("list");
+	  StringBuilder sb = new StringBuilder();
       sb.append("INSERT INTO trace_fun_config ");  
       sb.append("(Id,FunctionId,ObjectFieldId,FunctionName,EnTableName,TypeClass,ObjectType,ExtraCreate,TraceTemplateId,FieldType,FieldWeight,FieldName,FieldCode,DefaultValue,IsRequired,ValidateFormat,MinSize,MaxSize,RequiredNumber,MinNumber,MaxNumber,DataValue,IsRemarkEnable,ShowHidden,CreateBy,CreateTime,LastUpdateBy,LastUpdateTime) ");  
       sb.append("VALUES ");  

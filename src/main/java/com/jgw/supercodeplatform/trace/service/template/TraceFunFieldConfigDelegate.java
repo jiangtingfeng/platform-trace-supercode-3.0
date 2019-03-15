@@ -114,6 +114,8 @@ public class TraceFunFieldConfigDelegate {
             	tffcList.addAll(extraFields);
 			}
 			//保存字段
+
+
 			dao.batchInsert(tffcList);
 			
 			//只在新建溯源模板能获取组织id时才能执行,如果该功能为自动节点可能已创建了企业路由关系，则不需要再建立

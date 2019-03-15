@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +48,11 @@ public class TraceFunFieldConfigService {
 	private TraceApplicationContextAware traceApplicationContextAware;
 	
 	@Transactional
-	public RestResult<List<String>> add(List<TraceFunFieldConfigParam> param) throws Exception {
+	public RestResult<List<String>> add(CustomizeFun customizeFun) throws Exception {
 		RestResult<List<String>> restResult=new RestResult<List<String>>();
-		
+
+		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
+
 		boolean containsBatch=TraceFunFieldConfigDelegate.checkAddParam(param);
 		if (!containsBatch) {
 			restResult.setState(500);

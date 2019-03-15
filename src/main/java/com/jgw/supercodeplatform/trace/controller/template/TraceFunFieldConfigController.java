@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -52,7 +53,7 @@ public class TraceFunFieldConfigController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ApiOperation(value = "新增功能字段接口", notes = "")
 	@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")
-	public RestResult<List<String>> add( @RequestBody @Valid  List<TraceFunFieldConfigParam> param, HttpServletRequest request) throws IOException, ParseException, SuperCodeTraceException {
+	public RestResult<List<String>> add(@RequestBody @Valid CustomizeFun param, HttpServletRequest request) throws IOException, ParseException, SuperCodeTraceException {
 		RestResult<List<String>> result=null;
 		try {
 			result =service.add(param);
