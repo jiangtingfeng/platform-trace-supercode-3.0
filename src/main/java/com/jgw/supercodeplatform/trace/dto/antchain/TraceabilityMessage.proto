@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+option java_multiple_files = false;
+option java_package = "com.jgw.supercodeplatform.trace.dto.antchain";
+option java_outer_classname = "TraceabilityMessage";
+
+import public "CommonMessage.proto";
+
+// 溯源环节名称定义
+message RegPhaseNameRequest {
+
+    //（必填) 溯源环节名称，如( '质检信息','产品认证信息')
+    string phaseName = 1;
+
+    //（必填) 对当前环节的描述
+    string memo = 2;
+}
+
+// 溯源环节名称定义回复
+message RegPhaseNameReply {
+
+    // 重要，上传 溯源信息 通过此码分类，见 TraceabilityPhaseRequest
+    uint64 payloadCategoryCode = 1;
+    //溯源环节名称，如( '质检信息','产品认证信息')
+    string phaseName = 2;
+}
+
+//溯源阶段信息, 可以传一批码，但是整个请求大小不能超过 512k
+message TraceabilityPhaseRequest {
+
+    //（必填)商家业务 标识
+    string businessCode = 1;
+    //（必填)  码相关组合
+    repeated CodeNum codes = 2;
+    // （必填) 码的总数，codes 集合总数，用于持久化二次确认
+    uint64 codesTotal = 3;
+    //  （必填）溯源环节码, 见RegPhaseNameReply定义
+    uint64 payloadCategoryCode = 4;
+    // （必填）对应的追溯阶段 traceabilityPhase，上链过程会对此进行加密
+    ItemGroup payload = 5;
+    // （必填） 业务请求时间，如果存在2条以上同一个payloadCategoryCode 下的记录，根据业务请求时间取最新记录，用于数据冲正。
+    uint64 bizRequestTime = 6;
+
+}
+
+// 交易业务信息
+message TraceabilityPhaseReply {
+
+    //（必填)商家业务 标识
+    string businessCode = 1;
+    //  上传的码包
+    repeated CodeNum codes = 2;
+    // 成功总数
+    uint64 successTotal = 3;
+    //  溯源环节码, 见RegPhaseNameReply定义
+    uint64 payloadCategoryCode = 4;
+    //交易hash
+    string txHash = 5;
+}
+
+// 某种产品下的码号
+message CodeNum {
+    // 码
+    string code = 1;
+    //码的类型
+    QrCodeTypeEnum codeType = 2;
+}
+
+// 登记 商家业务 标识信息
+message RegBusinessRequest {
+
+
+    //商家业务 名称（必填)
+    string businessName = 1;
+    //商家业务 名称(品类唯一标识，不填会产生一个UUID作为编码标识，大部分接口都依赖此码，特别重要)
+    string businessCode = 2;
+    // 码的规则
+    repeated CodeRuleConfig codeRuleConfig = 3;
+
+}
+
+// 码的规则配置
+message CodeRuleConfig {
+
+    //二维码的正则表达式 (比如： ^http://test.xxx.com:9090/(.*) )
+    string regExp = 1;
+    // 真实的二维码 ，用来校验正则表达式是否正确
+    string realCode = 2;
+    //码的类型，只支持： 0  暗码、内码 , 1 明码、一物一码
+    QrCodeTypeEnum codeType = 3;
+}
+
+// 登记商家业务 信息回复
+message RegBusinessReply {
+
+    // 商家业务 标识
+    string businessCode = 1;
+    // 商家业务 名称
+    string businessName = 2;
+    // 对此类商品加密用的密钥
+    string secretKey = 3;
+    // 注册码规则的数量
+    uint32 successCodeRules = 4;
+
+}
+
+// 注册产品码列表
+message RegProductListRequest {
+
+    //品类条形码 (品类唯一标识，不填会产生一个UUID作为编码标识，大部分接口都依赖此码，特别重要)
+    string businessCode = 1;
+    //批次码，用于重试和查询，可空，默认非必填。
+    string batchCode = 2;
+    // productList的总数，用于确认持久化数量，如果持久化数据不对，返回重试。
+    uint64 productTotal = 3;
+    //产品码列表
+    repeated ProductCode productList = 4;
+}
+
+// 物品码
+message ProductCode {
+
+    // 码号
+    string code = 1;
+    //码的类型
+    QrCodeTypeEnum codeType = 2;
+    //包装层数，小码 0，盒码 1，箱码 2...N
+    uint32 codeLevel = 3;
+    //父级码，比如 盒子的箱码，一层层上去，默认 -1，没有
+    string parentCode = 4;
+}
+
+//注册产品码列表回复
+message RegProductListReply {
+
+    // productList的总数，用于确认持久化数量，如果持久化数据不对，返回重试。
+    uint64 successTotal = 1;
+    //批次码，用于重试和查询
+    string batchCode = 2;
+    //品类条形码 (品类唯一标识，不填会产生一个UUID作为编码标识，大部分接口都依赖此码，特别重要)
+    string businessCode = 3;
+
+}

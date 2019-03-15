@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+option java_multiple_files = false;
+option java_package = "com.jgw.supercodeplatform.trace.dto.antchain";
+option java_outer_classname = "TraceabilityQueryMessage";
+
+import public "CommonMessage.proto";
+
+//溯源码
+message ScanCodeQuery {
+    //(必填) 溯源码
+    string qrCode = 1;
+    //扫码用户信息,可以为空
+    ScanUser scanUser = 2;
+}
+
+// 扫码用户
+message ScanUser {
+    // 用户来源，自定义信息统计来源,如 tmall,alipay,weixin
+    string srcType = 1;
+    // 用户id，可空（userId, authCode 二选一 填）
+    string userId = 2;
+    // 第三方登录 authCode，可空（userId, authCode 二选一 填）
+    string authCode=3;
+    //经度
+    string longitude = 4;
+    //纬度
+    string latitude = 5;
+    //扫码时间
+    int64 scanTime = 6;
+
+}
+
+// 区块链上的交易查询
+message TxCodeQuery {
+    //(必填) 交易hash
+    string txHash = 1;
+}
+
+// 溯源信息而
+message TraceabilityInfo {
+
+    // 溯源码
+    string qrCode = 1;
+
+    //溯源记录详情
+    repeated TraceInfo traceDetails = 3;
+}
+
+// 溯源信息详情
+message TraceabilityDetails {
+
+    // 溯源码
+    string qrCode = 1;
+    // 扫码信息，可能为空
+    ScanInfo scanInfo = 2;
+    // 溯源记录详情
+    repeated TraceInfo traceDetails = 3;
+
+}
+
+//溯源信息
+message TraceInfo {
+
+    // 区块链交易信息
+    TxBizInfo txBizInfo = 1;
+    // 区块信息
+    BlockInfo blockInfo = 2;
+
+    // 溯源内容
+    ItemGroup payload = 3;
+}
+
+// 交易业务信息
+message BlockInfo {
+
+
+    uint32 version = 1;
+
+    //区块高度，自然数连续单调递增
+    uint64 height = 2;
+
+    // 成块时间
+    uint64 timestamp = 3;
+
+    //前区块hash
+    string previousHash = 4;
+
+    //区块 hash
+    string blockHash = 5;
+
+}
+
+// 交易业务信息
+message TxBizInfo {
+
+
+    //区块链接入唯一id
+    string appKey = 1;
+
+    //商家业务标识
+    string businessCode=2;
+    // Payload的业务类型
+    uint64 payloadCategoryCode = 3;
+
+    //交易hash
+    string txHash = 4;
+}
+
+//扫码记录
+message ScanInfo {
+
+    //第一次扫码时间
+    string firstScanTime = 1;
+
+    // 扫码次数
+    uint64 scanCount = 2;
+
+    //当前用户id
+    string currUserId=3;
+}
