@@ -10,7 +10,7 @@ import lombok.Data;
 import java.util.List;
 
 @ApiModel(value = "添加功能model")
-@Data
+
 public  class CustomizeFun {
     //功能名
     @ApiModelProperty(name = "funName", value = "功能名", required = true)
@@ -79,7 +79,7 @@ public  class CustomizeFun {
     private String objectAssociatedType;
 
     @ApiModelProperty(value = "功能类型：过程节点/控制节点")
-    private int regulationType;
+    private String regulationType;
 
     @ApiModelProperty(value = "是否可多次输入")
     private boolean multipleInput;
@@ -102,12 +102,108 @@ public  class CustomizeFun {
     @ApiModelProperty(value = "命名规则字段数组")
     List<BatchNamedRuleField> batchNamedRuleFieldModels;
 
+    public String getFunName() {
+        return funName;
+    }
+
+    public void setFunName(String funName) {
+        this.funName = funName;
+    }
+
+    public String getFunId() {
+        return funId;
+    }
+
+    public void setFunId(String funId) {
+        this.funId = funId;
+    }
+
     public List<TraceFunFieldConfigParam> getTraceFunFieldConfigModel() {
         return traceFunFieldConfigModel;
     }
 
     public void setTraceFunFieldConfigModel(List<TraceFunFieldConfigParam> traceFunFieldConfigModel) {
         this.traceFunFieldConfigModel = traceFunFieldConfigModel;
+    }
+
+    public List<FunComponent> getFunComponentModels() {
+        return funComponentModels;
+    }
+
+    public void setFunComponentModels(List<FunComponent> funComponentModels) {
+        this.funComponentModels = funComponentModels;
+    }
+
+    public String getObjectAssociatedType() {
+        return objectAssociatedType;
+    }
+
+    public void setObjectAssociatedType(String objectAssociatedType) {
+        this.objectAssociatedType = objectAssociatedType;
+    }
+
+    public String getRegulationType() {
+        return regulationType;
+    }
+
+    public void setRegulationType(String regulationType) {
+        this.regulationType = regulationType;
+    }
+
+    public boolean isMultipleInput() {
+        return multipleInput;
+    }
+
+    public void setMultipleInput(boolean multipleInput) {
+        this.multipleInput = multipleInput;
+    }
+
+    public int getUseSceneType() {
+        return useSceneType;
+    }
+
+    public void setUseSceneType(int useSceneType) {
+        this.useSceneType = useSceneType;
+    }
+
+    public String getCreateBatchType() {
+        return createBatchType;
+    }
+
+    public void setCreateBatchType(String createBatchType) {
+        this.createBatchType = createBatchType;
+    }
+
+    public String getBatchNamedLinkCharacter() {
+        return batchNamedLinkCharacter;
+    }
+
+    public void setBatchNamedLinkCharacter(String batchNamedLinkCharacter) {
+        this.batchNamedLinkCharacter = batchNamedLinkCharacter;
+    }
+
+    public int getBatchTimeControl() {
+        return batchTimeControl;
+    }
+
+    public void setBatchTimeControl(int batchTimeControl) {
+        this.batchTimeControl = batchTimeControl;
+    }
+
+    public String getSplittingRule() {
+        return splittingRule;
+    }
+
+    public void setSplittingRule(String splittingRule) {
+        this.splittingRule = splittingRule;
+    }
+
+    public List<BatchNamedRuleField> getBatchNamedRuleFieldModels() {
+        return batchNamedRuleFieldModels;
+    }
+
+    public void setBatchNamedRuleFieldModels(List<BatchNamedRuleField> batchNamedRuleFieldModels) {
+        this.batchNamedRuleFieldModels = batchNamedRuleFieldModels;
     }
 }
 

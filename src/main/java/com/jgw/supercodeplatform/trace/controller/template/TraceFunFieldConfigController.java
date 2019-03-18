@@ -2,12 +2,17 @@ package com.jgw.supercodeplatform.trace.controller.template;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponent;
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponentModel;
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.TraceFunModel;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,7 +38,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/trace/traceFieldFunConfig")
 @CrossOrigin(origins = "*", maxAge = 3600)
-@Api(tags = "功能字段配置管理")
+@Api(tags = "定制功能配置管理")
 public class TraceFunFieldConfigController {
 
 	@Autowired
@@ -51,7 +56,7 @@ public class TraceFunFieldConfigController {
 	 * 
 	 */
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	@ApiOperation(value = "新增功能字段接口", notes = "")
+	@ApiOperation(value = "新增定制功能接口", notes = "")
 	@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")
 	public RestResult<List<String>> add(@RequestBody @Valid CustomizeFun param, HttpServletRequest request) throws IOException, ParseException, SuperCodeTraceException {
 		RestResult<List<String>> result=null;
@@ -128,10 +133,10 @@ public class TraceFunFieldConfigController {
 	 * 
 	 */
 	@RequestMapping(value = "/query", method = RequestMethod.POST)
-	@ApiOperation(value = "功能字段查询接口",consumes="application/json;charset=UTF-8")
+	@ApiOperation(value = "定制功能字段查询接口",consumes="application/json;charset=UTF-8")
 	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
-	public RestResult<List<TraceFunFieldConfig>> query(@RequestBody TraceFunTemplateconfigQueryParam param, HttpServletRequest request) throws IOException, ParseException {
-		RestResult<List<TraceFunFieldConfig>> result=new RestResult<List<TraceFunFieldConfig>>();
+	public RestResult<TraceFunModel> query(@RequestBody TraceFunTemplateconfigQueryParam param, HttpServletRequest request) throws IOException, ParseException {
+		RestResult<TraceFunModel> result=new RestResult<TraceFunModel>();
 		try {
 			if (StringUtils.isBlank(param.getFunctionId())) {
 				result.setState(500);
@@ -150,7 +155,29 @@ public class TraceFunFieldConfigController {
 				param.setTypeClass(1);	
 			}
 			List<TraceFunFieldConfig> set =service.query(param);
-			result.setResults(set);
+
+			TraceFunModel traceFunModel=new TraceFunModel();
+			traceFunModel.setTraceFunFieldConfigs(set);
+			List<FunComponentModel> funComponentModels=new ArrayList<FunComponentModel>();
+			traceFunModel.setFunComponentModels(funComponentModels);
+
+			List<TraceFunComponent> traceFunComponents= service.selectFunComponentByFunId(param.getFunctionId());
+			if (traceFunComponents!=null && traceFunComponents.size()>0){
+				for(TraceFunComponent traceFunComponent : traceFunComponents){
+					TraceFunTemplateconfigQueryParam queryParam=new TraceFunTemplateconfigQueryParam();
+					queryParam.setFunctionId(traceFunComponent.getFunId());
+					List<TraceFunFieldConfig> traceFunFieldConfigs =service.query(queryParam);
+
+					FunComponentModel funComponent=new FunComponentModel();
+					funComponent.setTraceFunFieldConfigs(traceFunFieldConfigs);
+					funComponent.setComponentId(traceFunComponent.getComponentId());
+					funComponent.setComponentName(traceFunComponent.getComponentName());
+					funComponent.setComponentType(traceFunComponent.getComponentType());
+					funComponentModels.add(funComponent);
+				}
+			}
+
+			result.setResults(traceFunModel);
 			result.setState(200);
 		} catch (Exception e) {
 			e.printStackTrace();

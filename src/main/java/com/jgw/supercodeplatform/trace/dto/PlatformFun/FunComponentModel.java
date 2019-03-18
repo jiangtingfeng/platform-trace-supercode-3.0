@@ -1,15 +1,14 @@
 package com.jgw.supercodeplatform.trace.dto.PlatformFun;
 
-
 import com.jgw.supercodeplatform.trace.dto.TraceFunFieldConfigParam;
+import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.util.List;
 
+public class FunComponentModel {
 
-public  class FunComponent
-{
+
     @ApiModelProperty(value="组件名称")
     private String componentName;
 
@@ -20,17 +19,7 @@ public  class FunComponent
     private String componentId;
 
     @ApiModelProperty(name = "traceFunFieldConfigModel", value = "功能溯源对象模型数组")
-    List<TraceFunFieldConfigParam> traceFunFieldConfigModel;
-
-
-
-    public String getComponentId() {
-        return componentId;
-    }
-
-    public void setComponentId(String componentId) {
-        this.componentId = componentId;
-    }
+    List<TraceFunFieldConfig> traceFunFieldConfigs;
 
 
     public String getComponentName() {
@@ -49,11 +38,19 @@ public  class FunComponent
         this.componentType = componentType;
     }
 
-    public List<TraceFunFieldConfigParam> getTraceFunFieldConfigModel() {
-        return traceFunFieldConfigModel;
+    public String getComponentId() {
+        return componentId;
     }
 
-    public void setTraceFunFieldConfigModel(List<TraceFunFieldConfigParam> traceFunFieldConfigModel) {
-        this.traceFunFieldConfigModel = traceFunFieldConfigModel;
+    public void setComponentId(String componentId) {
+        this.componentId = componentId;
+    }
+
+    public List<TraceFunFieldConfig> getTraceFunFieldConfigs() {
+        return traceFunFieldConfigs;
+    }
+
+    public void setTraceFunFieldConfigs(List<TraceFunFieldConfig> traceFunFieldConfigs) {
+        this.traceFunFieldConfigs = traceFunFieldConfigs;
     }
 }

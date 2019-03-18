@@ -7,7 +7,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunComponentMapper;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,10 @@ public class TraceFunFieldConfigService {
 	
 	@Autowired
 	private TraceApplicationContextAware traceApplicationContextAware;
+
+
+	@Autowired
+	private TraceFunComponentMapper traceFunComponentMapper;
 	
 	@Transactional
 	public RestResult<List<String>> add(CustomizeFun customizeFun) throws Exception {
@@ -69,6 +75,7 @@ public class TraceFunFieldConfigService {
 		
 		//动态创建定制功能表和保存字段
 		traceFunFieldConfigDelegate.createTableAndGerenteOrgFunRouteAndSaveFields(param, true,param.get(0).getFunctionId(),param.get(0).getFunctionName());
+		traceFunFieldConfigDelegate.saveFunComponentAndRegulation(customizeFun);
 		restResult.setState(200);
 		restResult.setMsg("操作成功");
 		return restResult;
@@ -156,6 +163,11 @@ public class TraceFunFieldConfigService {
 			}
 		}
 		return list;
+	}
+
+	public List<TraceFunComponent> selectFunComponentByFunId(String funId)
+	{
+		return traceFunComponentMapper.selectByFunId(funId);
 	}
 
 	public void deleteByTraceTemplateIdAndFunctionId(String traceTemplateId, String functionId) {
