@@ -13,6 +13,7 @@ import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponent;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponentModel;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.TraceFunModel;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,7 +39,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/trace/traceFieldFunConfig")
 @CrossOrigin(origins = "*", maxAge = 3600)
-@Api(tags = "定制功能配置管理")
+@Api(tags = "功能字段配置管理")
 public class TraceFunFieldConfigController {
 
 	@Autowired
@@ -56,7 +57,7 @@ public class TraceFunFieldConfigController {
 	 * 
 	 */
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	@ApiOperation(value = "新增定制功能接口", notes = "")
+	@ApiOperation(value = "新增功能字段接口", notes = "")
 	@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")
 	public RestResult<List<String>> add(@RequestBody @Valid CustomizeFun param, HttpServletRequest request) throws IOException, ParseException, SuperCodeTraceException {
 		RestResult<List<String>> result=null;
@@ -133,10 +134,10 @@ public class TraceFunFieldConfigController {
 	 * 
 	 */
 	@RequestMapping(value = "/query", method = RequestMethod.POST)
-	@ApiOperation(value = "定制功能字段查询接口",consumes="application/json;charset=UTF-8")
+	@ApiOperation(value = "功能字段查询接口",consumes="application/json;charset=UTF-8")
 	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
-	public RestResult<TraceFunModel> query(@RequestBody TraceFunTemplateconfigQueryParam param, HttpServletRequest request) throws IOException, ParseException {
-		RestResult<TraceFunModel> result=new RestResult<TraceFunModel>();
+	public RestResult<List<TraceFunFieldConfig>> query(@RequestBody TraceFunTemplateconfigQueryParam param, HttpServletRequest request) throws IOException, ParseException {
+		RestResult<List<TraceFunFieldConfig>> result=new RestResult<List<TraceFunFieldConfig>>();
 		try {
 			if (StringUtils.isBlank(param.getFunctionId())) {
 				result.setState(500);
@@ -153,6 +154,40 @@ public class TraceFunFieldConfigController {
 				}
 			}else {
 				param.setTypeClass(1);	
+			}
+			List<TraceFunFieldConfig> set =service.query(param);
+			result.setResults(set);
+			result.setState(200);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result=new RestResult<>();
+			result.setMsg(e.getMessage());
+			result.setState(500);
+		}
+		return result;
+	}
+
+	@RequestMapping(value = "/queryV3", method = RequestMethod.POST)
+	@ApiOperation(value = "定制功能字段查询接口",consumes="application/json;charset=UTF-8")
+	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
+	public RestResult<TraceFunModel> queryV3(@RequestBody TraceFunTemplateconfigQueryParam param, HttpServletRequest request) throws IOException, ParseException {
+		RestResult<TraceFunModel> result=new RestResult<TraceFunModel>();
+		try {
+			if (StringUtils.isBlank(param.getFunctionId())) {
+				result.setState(500);
+				result.setMsg("functionId不能为空");
+				return result;
+			}
+			//如果是查询节点字段属性则判断是否为自动节点 是的话则模板id不能为空
+			if (null!=param.getBusinessType()) {
+				param.setTypeClass(2);
+				if (param.getBusinessType().equals(1) && StringUtils.isBlank(param.getTraceTemplateId())) {
+					result.setState(500);
+					result.setMsg("自动节点则traceTemplateId不能为空");
+					return result;
+				}
+			}else {
+				param.setTypeClass(1);
 			}
 			List<TraceFunFieldConfig> set =service.query(param);
 
@@ -187,4 +222,5 @@ public class TraceFunFieldConfigController {
 		}
 		return result;
 	}
+
 }
