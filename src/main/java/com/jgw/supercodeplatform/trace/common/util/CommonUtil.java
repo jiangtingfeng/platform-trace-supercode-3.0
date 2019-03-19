@@ -81,6 +81,20 @@ public class CommonUtil extends UserInfoUtil {
         return result;
     }
 
+    /**
+     * 验证参数是否为空
+     * @author liujianqiang
+     * @data 2018年12月26日
+     * @param obj
+     * @param message
+     * @throws Exception
+     */
+    public void checkNull(Object obj, String message) throws SuperCodeException {
+        if (obj == null) {
+            throw new SuperCodeException(message);
+        }
+    }
+
 
     public boolean checkIsMailBox(String mail) {
         if (mail.indexOf("@") < 0) {
