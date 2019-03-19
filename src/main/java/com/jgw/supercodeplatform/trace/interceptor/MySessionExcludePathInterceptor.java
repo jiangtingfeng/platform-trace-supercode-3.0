@@ -31,6 +31,8 @@ public class MySessionExcludePathInterceptor implements WebMvcSessionInterceptor
                 "/trace/common/qrCode",
                 // 蚂蚁区块链定时任务
                 "/trace/node/antchain/reCoChain",
+                //测试代码
+                "/trace/batch/name/liushui1"
          };
         return Arrays.asList(add);
     }

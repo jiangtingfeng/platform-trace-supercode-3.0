@@ -24,6 +24,6 @@ public class RedisKey {
     public static String DATABASE1_TABLE_NUM_REDIS_KEY="trace:dynamic_database1_table_num";
     
     public static String DATABASE2_TABLE_NUM_REDIS_KEY="trace:dynamic_database2_table_num";
-
-    public static final String PACKAGE_INFO = "logistics:incr:package:info";//装箱产品信息redis自增
+    //分库分表自增  logistics:incr:
+    public static final String Dynamic_Batch = "trace:incr:dynamic:batch";//redis自增
 }

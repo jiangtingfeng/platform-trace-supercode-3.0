@@ -16,7 +16,7 @@ import java.util.List;
  * @date 2018年1月12日
  */
 @Mapper
-public interface LogisticsGlobalseqMapper {
+public interface TraceGlobalseqMapper {
 	/**
 	 * 全局序列编码表
 	 * @author liujianqiang
