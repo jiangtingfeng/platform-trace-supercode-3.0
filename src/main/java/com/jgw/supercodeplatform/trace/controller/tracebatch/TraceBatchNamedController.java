@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "流水生成")
 public class TraceBatchNamedController extends CommonUtil {
 
-    @Autowired
-    private TraceBatchNamedService traceBatchNamedService;
 
+   @Autowired
+   private TraceBatchNamedService traceBatchNamedService;
     /**
      * 流水批次名称
      * @return
@@ -28,8 +28,9 @@ public class TraceBatchNamedController extends CommonUtil {
      * @author wangwenzhang
      * @data 2018年3月18日
      */
+
     @RequestMapping("/liushui")
-    public String GetBatchName(String funId, String funName) throws Exception {
+    public String GetBatchName1(String funId, String funName) throws Exception {
         String str = traceBatchNamedService.queryOneTraceBatchnamed(funId, funName);
 
         return str;

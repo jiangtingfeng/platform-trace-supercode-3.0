@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jgw.supercodeplatform.exception.SuperCodeException;
 import com.jgw.supercodeplatform.trace.config.redis.RedisUtil;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
-import com.jgw.supercodeplatform.trace.dao.mapper1.batchglobalseq.LogisticsGlobalseqMapper;
+import com.jgw.supercodeplatform.trace.dao.mapper1.batchglobalseq.TraceGlobalseqMapper;
 import com.jgw.supercodeplatform.trace.exception.LogisticsException;
 import com.jgw.supercodeplatform.trace.pojo.globalseq.CodeGlobalseq;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class CommonUtilComponent extends CommonUtil {
     @Autowired
     private RedisUtil redisUtil;
     @Autowired
-    private LogisticsGlobalseqMapper logisticsGlobalseqMapper;
+    private TraceGlobalseqMapper traceGlobalseqMapper;
 
     /**
      * 获取自增值,并算计间隔值和当前值相加是否大于预期最大值，大于的话更新redis和数据的数据
@@ -63,7 +63,7 @@ public class CommonUtilComponent extends CommonUtil {
      * @throws Exception
      */
     public void putUniqSeqToRedis() throws LogisticsException{//将全局序列编码信息放入redis
-        List<CodeGlobalseq> list = logisticsGlobalseqMapper.getCodeGlobalseq();//将全局序列数据库数据存入redis
+        List<CodeGlobalseq> list = traceGlobalseqMapper.getCodeGlobalseq();//将全局序列数据库数据存入redis
         for(CodeGlobalseq codeGlobalseq:list){
             String keysType = codeGlobalseq.getKeysType();
             long currentMax = codeGlobalseq.getCurrentMax();
@@ -118,7 +118,7 @@ public class CommonUtilComponent extends CommonUtil {
         codeGlobalseq.setKeysType(keysType);
         codeGlobalseq.setCurrentMax(currentMax);
         codeGlobalseq.setExpectedMax(expectedMax);
-        Integer record = logisticsGlobalseqMapper.updateCodeGlobalseq(codeGlobalseq);
+        Integer record = traceGlobalseqMapper.updateCodeGlobalseq(codeGlobalseq);
         if(record != 1){
             throw new LogisticsException("修改数据库当前最大值和预期最大值失败");
         }
