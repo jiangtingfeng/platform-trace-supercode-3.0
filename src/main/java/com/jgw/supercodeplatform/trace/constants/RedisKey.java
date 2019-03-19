@@ -8,6 +8,7 @@ package com.jgw.supercodeplatform.trace.constants;
  */
 public class RedisKey {
 
+    public static final String GLOBAL_SYMBOL = "#1";//全局实体类的符号
     //登入业务
     public static final String USER_LOGIN = "user:login:";//邮箱验证码的key值前缀
 
@@ -23,4 +24,6 @@ public class RedisKey {
     public static String DATABASE1_TABLE_NUM_REDIS_KEY="trace:dynamic_database1_table_num";
     
     public static String DATABASE2_TABLE_NUM_REDIS_KEY="trace:dynamic_database2_table_num";
+
+    public static final String PACKAGE_INFO = "logistics:incr:package:info";//装箱产品信息redis自增
 }
