@@ -36,7 +36,7 @@ public class DynamicFunController {
 	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="header",value = "功能id",name="functionId",required=true),@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
 	public RestResult<String> add(@RequestBody DynamicAddFunParam param,@RequestHeader(value="functionId") String functionId) throws Exception {
 		param.setFunctionId(functionId);
-		return service.addFunData(param);
+		return service.addFunDataV3(param);
 	}	
 	
 	@RequestMapping(value="/list",method=RequestMethod.POST)

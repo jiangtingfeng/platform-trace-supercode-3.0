@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.service.dynamic;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.jgw.supercodeplatform.trace.dto.dynamictable.common.FunComponentDataModel;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -74,7 +75,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	 * @return
 	 * @throws Exception 
 	 */
-	public RestResult<String> addFunData(DynamicAddFunParam param)
+	public RestResult<String> addFunData(DynamicAddFunParam param, StringBuilder traceBatchInfoIdBuilder)
 			throws Exception {
 		String functionId = param.getFunctionId();
 		RestResult<String> backResult = new RestResult<String>();
@@ -109,7 +110,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,functionId);
 		dao.insert(insertSql);
-		
+
+		traceBatchInfoIdBuilder.append(traceBatchInfoId);
 		
 		//更新批次节点数据条数
 		try {
@@ -142,6 +144,54 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		backResult.setMsg("操作成功");
 		return backResult;
 	}
+
+
+	public void addFunData(DynamicAddFunParam param,String traceBatchInfoId) throws Exception {
+		String functionId = param.getFunctionId();
+		//校验参数
+		AddBusinessDataModel addBusinessDataModel = dynamicServiceDelegate.addMethodSqlBuilderParamValidate(param.getFunctionId(),param.getLineData(),false,null,null);
+
+		//获取到表名
+		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
+
+		StringBuilder sqlFieldNameBuilder=new StringBuilder();
+		StringBuilder sqlFieldValueBuilder=new StringBuilder();
+
+		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(param.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,false);
+
+		String organizationId=null;
+		try {
+			organizationId=commonUtil.getOrganizationId();
+		} catch (Exception e) {
+		}
+
+		String insertSql = addDefaultField(tableName, null,organizationId, sqlFieldNameBuilder,
+				sqlFieldValueBuilder);
+
+		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,functionId);
+		dao.insert(insertSql);
+	}
+
+	public RestResult<String> addFunDataV3(DynamicAddFunParam param) throws Exception
+	{
+		StringBuilder traceBatchInfoId=new StringBuilder();
+		RestResult<String> restResult=addFunData(param,traceBatchInfoId);
+
+		List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
+		if (componentDataModels!=null && componentDataModels.size()>0){
+			for(FunComponentDataModel funComponentDataModel:componentDataModels){
+				DynamicAddFunParam componentFunParam=new DynamicAddFunParam();
+				componentFunParam.setFunctionId(funComponentDataModel.getComponentId());
+				LineBusinessData lineBusinessData=new LineBusinessData();
+				lineBusinessData.setFields(funComponentDataModel.getFields());
+				componentFunParam.setLineData(lineBusinessData);
+				addFunData(param,traceBatchInfoId.toString());
+			}
+		}
+
+		return restResult;
+	}
+
     /**
      * 新增节点业务数据模板id和批次id都可以从前端获取
      * @param param

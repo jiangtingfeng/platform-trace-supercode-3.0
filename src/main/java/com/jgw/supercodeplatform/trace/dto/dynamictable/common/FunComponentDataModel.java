@@ -18,4 +18,35 @@ public class FunComponentDataModel {
     @ApiModelProperty(value = "组件id")
     private String componentId;
 
+    public List<FieldBusinessParam> getFields() {
+        return fields;
+    }
+
+    public void setFields(List<FieldBusinessParam> fields) {
+        this.fields = fields;
+    }
+
+    public String getComponentName() {
+        return componentName;
+    }
+
+    public void setComponentName(String componentName) {
+        this.componentName = componentName;
+    }
+
+    public String getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(String componentType) {
+        this.componentType = componentType;
+    }
+
+    public String getComponentId() {
+        return componentId;
+    }
+
+    public void setComponentId(String componentId) {
+        this.componentId = componentId;
+    }
 }

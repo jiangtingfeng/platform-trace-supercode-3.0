@@ -24,5 +24,12 @@ public class LineBusinessData {
 	public void setFields(List<FieldBusinessParam> fields) {
 		this.fields = fields;
 	}
-	
+
+	public List<FunComponentDataModel> getFunComponentDataModels() {
+		return funComponentDataModels;
+	}
+
+	public void setFunComponentDataModels(List<FunComponentDataModel> funComponentDataModels) {
+		this.funComponentDataModels = funComponentDataModels;
+	}
 }
