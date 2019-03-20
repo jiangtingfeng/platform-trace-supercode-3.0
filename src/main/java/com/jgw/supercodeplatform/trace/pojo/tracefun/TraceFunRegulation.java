@@ -19,6 +19,7 @@ public class TraceFunRegulation  implements Serializable {
     private String splittingRule;
     private String createDate;
     private String updateDate;
+    private String functionName;
 
 
     public String getRegulationId() {
@@ -123,5 +124,13 @@ public class TraceFunRegulation  implements Serializable {
 
     public void setUpdateDate(String updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
     }
 }

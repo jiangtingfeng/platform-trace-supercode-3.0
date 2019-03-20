@@ -1,10 +1,19 @@
 package com.jgw.supercodeplatform.trace.service.dynamic;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.jgw.supercodeplatform.trace.dto.dynamictable.common.FunComponentDataModel;
+import com.jgw.supercodeplatform.pojo.cache.AccountCache;
+import com.jgw.supercodeplatform.trace.common.util.CommonUtilComponent;
+import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
+import com.jgw.supercodeplatform.trace.constants.RedisKey;
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.*;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.common.*;
+import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
+import com.jgw.supercodeplatform.trace.service.tracefun.TraceObjectBatchInfoService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +31,6 @@ import com.jgw.supercodeplatform.trace.common.model.page.DaoSearch;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
 import com.jgw.supercodeplatform.trace.dao.DynamicBaseMapper;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.DynamicTableRequestParam;
-import com.jgw.supercodeplatform.trace.dto.dynamictable.common.AddBusinessDataModel;
-import com.jgw.supercodeplatform.trace.dto.dynamictable.common.DynamicHideParam;
-import com.jgw.supercodeplatform.trace.dto.dynamictable.common.LineBusinessData;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.fun.DynamicAddFunParam;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.fun.DynamicDeleteFunParam;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.node.DynamicAddNodeParam;
@@ -69,13 +75,35 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	@Autowired
 	private AntChainInfoService antChainInfoService;
 
+	@Autowired
+	private TraceFunComponentMapper traceFunComponentMapper;
+
+	@Autowired
+	private TraceFunRegulationMapper traceFunRegulationMapper;
+
+	@Autowired
+	private TraceBatchNamedMapper traceBatchNamedMapper;
+
+
+	@Autowired
+	private CommonUtilComponent commonUtilComponent;
+
+	@Autowired
+	private TraceBatchRelationMapper traceBatchRelationMapper;
+
+	@Autowired
+	private TraceObjectBatchInfoMapper traceObjectBatchInfoMapper;
+
+	@Autowired
+	private TraceObjectBatchInfoService traceObjectBatchInfoService;
+
 	/**
 	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
 	 * @param param
 	 * @return
 	 * @throws Exception 
 	 */
-	public RestResult<String> addFunData(DynamicAddFunParam param, StringBuilder traceBatchInfoIdBuilder)
+	public RestResult<String> addFunData(DynamicAddFunParam param, LinkedHashMap<String, Object> identityMap)
 			throws Exception {
 		String functionId = param.getFunctionId();
 		RestResult<String> backResult = new RestResult<String>();
@@ -111,8 +139,13 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,functionId);
 		dao.insert(insertSql);
 
-		traceBatchInfoIdBuilder.append(traceBatchInfoId);
-		
+		List<LinkedHashMap<String, Object>> identityRow= dao.select("select @@IDENTITY");
+		String parentId = identityRow.get(0).get("@@IDENTITY").toString();
+		identityMap.put("traceBatchInfoId",traceBatchInfoId);
+		identityMap.put("ParentId",parentId);
+		identityMap.put("ProductName",traceBatchInfo.getProductName());
+		identityMap.put("ProductId",traceBatchInfo.getProductId());
+
 		//更新批次节点数据条数
 		try {
 			Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,functionId,1);
@@ -146,10 +179,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	}
 
 
-	public void addFunData(DynamicAddFunParam param,String traceBatchInfoId) throws Exception {
+	public void addFunComponentData(DynamicAddFunParam param,LinkedHashMap<String, Object> identityMap) throws Exception {
 		String functionId = param.getFunctionId();
-		//校验参数
-		AddBusinessDataModel addBusinessDataModel = dynamicServiceDelegate.addMethodSqlBuilderParamValidate(param.getFunctionId(),param.getLineData(),false,null,null);
 
 		//获取到表名
 		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
@@ -158,6 +189,14 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		StringBuilder sqlFieldValueBuilder=new StringBuilder();
 
 		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(param.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,false);
+
+		String traceBatchInfoId= identityMap.get("traceBatchInfoId").toString();
+		sqlFieldNameBuilder.append(ObjectTypeEnum.TRACE_BATCH.getFieldCode()).append(",");
+		sqlFieldValueBuilder.append("'").append(traceBatchInfoId).append("'").append(",");
+
+		String parentId=identityMap.get("ParentId").toString();
+		sqlFieldNameBuilder.append("ParentId").append(",");
+		sqlFieldValueBuilder.append("'").append(parentId).append("'").append(",");
 
 		String organizationId=null;
 		try {
@@ -172,20 +211,95 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		dao.insert(insertSql);
 	}
 
+	private void CreateBatchInfoWithRelation(TraceFunRegulation traceFunRegulation, LinkedHashMap<String, Object> identityMap) throws Exception
+	{
+		StringBuilder traceBatchName=new StringBuilder();
+		String funId=traceFunRegulation.getFunId();
+		List<TraceBatchNamed> batchNameds= traceBatchNamedMapper.selectByFunId(funId);
+		for(int i=0;i<batchNameds.size();i++){
+			TraceBatchNamed traceBatchNamed=batchNameds.get(i);
+			String fieldCode= traceBatchNamed.getFieldCode();
+			switch (fieldCode){
+				case "ProductName":
+					traceBatchName.append(identityMap.get("ProductName").toString());
+					break;
+				case  "CreateDate":
+					Date date = new Date();
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+					traceBatchName.append(sdf.format(date));
+					break;
+				case "SerialNumber":
+					String incrKey=getOrganizationId()+":"+traceFunRegulation.getCreateBatchType();
+					long incr = commonUtilComponent.getIncr(RedisKey.BatchId);
+					traceBatchName.append(incr);
+					break;
+				case "FunName":
+					traceBatchName.append(traceFunRegulation.getFunctionName());
+					break;
+			}
+			if(i!=batchNameds.size()-1){
+				traceBatchName.append(traceFunRegulation.getBatchNamingLinkCharacter());
+			}
+		}
+
+		String traceTemplateId="62f05945b9164d589a995e181a4b6fd9";
+		String traceTemplateName="枣阳桃默认模板";
+
+		TraceBatchRelation traceBatchRelation=new TraceBatchRelation();
+		if(traceFunRegulation.getUseSceneType()>1) //
+		{
+			TraceBatchInfo traceBatchInfo=new TraceBatchInfo();
+			traceBatchInfo.setTraceBatchName(traceBatchName.toString());
+			traceBatchInfo.setProductId(identityMap.get("ProductId").toString());
+			traceBatchInfo.setProductName(identityMap.get("ProductName").toString());
+			traceBatchInfo.setTraceBatchId(traceBatchName.toString());
+			traceBatchInfo.setTraceTemplateId(traceTemplateId);
+			traceBatchInfo.setTraceTemplateName(traceTemplateName);
+			traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
+
+			traceBatchRelation.setParentBatchId(identityMap.get("traceBatchInfoId").toString());
+			traceBatchRelation.setCurrentBatchId(traceBatchInfo.getTraceBatchInfoId());
+		}else {
+			TraceObjectBatchInfo traceObjectBatchInfo=new TraceObjectBatchInfo();
+			traceObjectBatchInfo.setTraceBatchName(traceBatchName.toString());
+			traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
+
+			traceBatchRelation.setCurrentBatchId(traceObjectBatchInfo.getTraceBatchInfoId());
+		}
+
+		traceBatchRelation.setBatchRelationId(getUUID());
+		traceBatchRelationMapper.insertTraceBatchRelation(traceBatchRelation);
+	}
+
 	public RestResult<String> addFunDataV3(DynamicAddFunParam param) throws Exception
 	{
-		StringBuilder traceBatchInfoId=new StringBuilder();
-		RestResult<String> restResult=addFunData(param,traceBatchInfoId);
+		LinkedHashMap<String, Object> identityMap=new LinkedHashMap<String, Object>();
+
+		RestResult<String> restResult=addFunData(param,identityMap);
+
+		TraceFunRegulation traceFunRegulation= traceFunRegulationMapper.selectByFunId(param.getFunctionId());
+		if(traceFunRegulation.getRegulationType().equals("2")) //控制节点
+		{
+			CreateBatchInfoWithRelation(traceFunRegulation,identityMap);
+		}
 
 		List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
 		if (componentDataModels!=null && componentDataModels.size()>0){
 			for(FunComponentDataModel funComponentDataModel:componentDataModels){
-				DynamicAddFunParam componentFunParam=new DynamicAddFunParam();
-				componentFunParam.setFunctionId(funComponentDataModel.getComponentId());
-				LineBusinessData lineBusinessData=new LineBusinessData();
-				lineBusinessData.setFields(funComponentDataModel.getFields());
-				componentFunParam.setLineData(lineBusinessData);
-				addFunData(param,traceBatchInfoId.toString());
+				if(ComponentTypeEnum.isNestComponent(funComponentDataModel.getComponentType())){
+					List<List<FieldBusinessParam>> fieldRows= funComponentDataModel.getFieldRows();
+					if (fieldRows!=null && fieldRows.size()>0){
+						for(List<FieldBusinessParam> fields: fieldRows){
+							DynamicAddFunParam componentFunParam=new DynamicAddFunParam();
+							componentFunParam.setFunctionId(funComponentDataModel.getComponentId());
+							LineBusinessData lineBusinessData=new LineBusinessData();
+							lineBusinessData.setFields(fields);
+							componentFunParam.setLineData(lineBusinessData);
+
+							addFunComponentData(componentFunParam,identityMap);
+						}
+					}
+				}
 			}
 		}
 
@@ -424,6 +538,34 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String sql = querySqlBuilder(null,null,param.getFunctionId(), null,null, false,false,orgnizationId,param);
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,param.getFunctionId());
 		List<LinkedHashMap<String, Object>> list = dao.select(sql);
+
+		String funId=param.getFunctionId();
+		List<TraceFunComponent> traceFunComponents= traceFunComponentMapper.selectByFunId(funId);
+
+		for (TraceFunComponent traceFunComponent: traceFunComponents){
+			if(list!=null && list.size()>0){
+				List<String> ids= list.stream().map(e->e.get("Id").toString()).collect(Collectors.toList());
+				sql=queryComponentSqlBuilder(traceFunComponent.getComponentId(),orgnizationId,ids);
+				List<LinkedHashMap<String, Object>> componentDataList = dao.select(sql);
+				if (componentDataList!=null && componentDataList.size()>0){
+					for (LinkedHashMap<String, Object> rowMap:list){
+						List<LinkedHashMap<String, Object>> childRows= componentDataList.stream().filter(e-> e.get("ParentId").toString().equals(rowMap.get("Id").toString())).collect(Collectors.toList());
+						if(childRows!=null && childRows.size()>0){
+							ArrayList<HashMap<String,Object>> components=(ArrayList<HashMap<String,Object>>)rowMap.get("components");
+							if (components==null){
+								components=new ArrayList<HashMap<String, Object>>();
+								rowMap.put("components",components);
+							}
+							HashMap<String, Object> component= new HashMap<String, Object>();
+							component.put("componentId",traceFunComponent.getComponentId());
+							component.put("fields",childRows);
+							components.add(component);
+						}
+					}
+				}
+			}
+		}
+
 		return list;
 	}
     /**
@@ -587,6 +729,24 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 					
 			sql = "select " + nodeOrFunFields.getFields() + " from " + tableName + sqlFieldValueBuilder.toString();
 		}
+		return sql;
+	}
+
+	private String queryComponentSqlBuilder(String functionId,String orgnizationId, List<String> ids)
+			throws SuperCodeTraceException, SuperCodeException
+	{
+		Map<String, TraceFunFieldConfig> fieldsMap  = functionFieldManageService.getFunctionIdFields(null,functionId,1);
+
+		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
+
+		NodeOrFunFields nodeOrFunFields =dynamicServiceDelegate.selectFields(fieldsMap);
+
+		StringBuilder sqlFieldValueBuilder = new StringBuilder();
+		sqlFieldValueBuilder.append(" where OrganizationId='").append(orgnizationId).append("'");
+		sqlFieldValueBuilder.append(" and ");
+		sqlFieldValueBuilder.append( String.format("ParentId in (%s)",String.join(",", ids)));
+
+		String sql = "select " + nodeOrFunFields.getFields() + " from " + tableName + sqlFieldValueBuilder.toString();
 		return sql;
 	}
 

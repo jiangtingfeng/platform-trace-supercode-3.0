@@ -14,7 +14,7 @@ import java.util.List;
 public interface TraceFunRegulationMapper extends CommonSql {
 
     static String allFields="RegulationId regulationId, FunId funId, ObjectAssociatedType objectAssociatedType, RegulationType regulationType, MultipleInput multipleInput, UseSceneType useSceneType, BatchNamingLinkCharacter batchNamingLinkCharacter, "
-            +"BatchNamingRule batchNamingRule, BatchTimeControl batchTimeControl, CreateDate createDate, UpdateDate updateDate, CreateBatchType createBatchType, SplittingRule splittingRule";
+            +"BatchNamingRule batchNamingRule, BatchTimeControl batchTimeControl, CreateDate createDate, UpdateDate updateDate, CreateBatchType createBatchType, SplittingRule splittingRule, FunctionName functionName";
 
 
     @Insert(startScript
@@ -54,6 +54,6 @@ public interface TraceFunRegulationMapper extends CommonSql {
 
 
     @Select("SELECT "+allFields+" FROM trace_fun_regulation  where FunId=#{funId}")
-    List<TraceFunRegulation> selectByFunId(@Param("funId")String funId);
+    TraceFunRegulation selectByFunId(@Param("funId")String funId);
 
 }

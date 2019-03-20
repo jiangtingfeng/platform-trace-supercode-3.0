@@ -36,6 +36,7 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
     private String lastUpdateBy;  //修改人
     private String lastUpdateTime;  //修改时间
     private String objectFieldId;//对象字段表主键id
+
     
 	public String getObjectFieldId() {
 		return objectFieldId;

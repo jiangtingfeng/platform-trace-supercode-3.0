@@ -6,25 +6,27 @@ import java.util.List;
 
 public class FunComponentDataModel {
 
+    public List<List<FieldBusinessParam>> getFieldRows() {
+        return fieldRows;
+    }
+
+    public void setFieldRows(List<List<FieldBusinessParam>> fieldRows) {
+        this.fieldRows = fieldRows;
+    }
+
     @ApiModelProperty(name = "data", value = "新增或修改表实际字段数据--新增获取修改接口使用", example = "", required = false)
-    private List<FieldBusinessParam> fields;
+    private List<List<FieldBusinessParam>> fieldRows;
 
     @ApiModelProperty(value="组件名称")
     private String componentName;
 
     @ApiModelProperty(value = "组件类型")
-    private String componentType;
+    private int componentType;
 
     @ApiModelProperty(value = "组件id")
     private String componentId;
 
-    public List<FieldBusinessParam> getFields() {
-        return fields;
-    }
 
-    public void setFields(List<FieldBusinessParam> fields) {
-        this.fields = fields;
-    }
 
     public String getComponentName() {
         return componentName;
@@ -34,11 +36,11 @@ public class FunComponentDataModel {
         this.componentName = componentName;
     }
 
-    public String getComponentType() {
+    public int getComponentType() {
         return componentType;
     }
 
-    public void setComponentType(String componentType) {
+    public void setComponentType(int componentType) {
         this.componentType = componentType;
     }
 

@@ -200,7 +200,8 @@ public class TraceFunFieldConfigController {
 			if (traceFunComponents!=null && traceFunComponents.size()>0){
 				for(TraceFunComponent traceFunComponent : traceFunComponents){
 					TraceFunTemplateconfigQueryParam queryParam=new TraceFunTemplateconfigQueryParam();
-					queryParam.setFunctionId(traceFunComponent.getFunId());
+					queryParam.setFunctionId(traceFunComponent.getComponentId());
+					queryParam.setTypeClass(param.getTypeClass());
 					List<TraceFunFieldConfig> traceFunFieldConfigs =service.query(queryParam);
 
 					FunComponentModel funComponent=new FunComponentModel();
