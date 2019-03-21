@@ -1,9 +1,16 @@
 package com.jgw.supercodeplatform.trace.dao.mapper1.tracefun;
 
 import com.jgw.supercodeplatform.trace.dao.CommonSql;
+import com.jgw.supercodeplatform.trace.pojo.tracebatch.ReturnTraceBatchInfo;
+import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceObjectBatchInfo;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface TraceObjectBatchInfoMapper extends CommonSql {
@@ -25,5 +32,31 @@ public interface TraceObjectBatchInfoMapper extends CommonSql {
             + "#{traceBatchId},#{traceTemplateId},#{traceTemplateName},#{h5TrancePageId},"
             + "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}) ")
     int insertTraceObjectBatchInfo(TraceObjectBatchInfo traceBatchInfo);
+
+    @Select(selectSql+" from trace_objectbatchinfo a WHERE TraceBatchInfoId = #{traceBatchInfoId}")
+    TraceObjectBatchInfo selectByTraceBatchInfoId(String traceBatchInfoId);
+
+
+    @Select(startScript + " SELECT COUNT(1) FROM trace_objectbatchinfo a "
+            + startWhere
+            + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  OrganizationId = #{organizationId} </if> "
+            + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TraceBatchName LIKE CONCAT('%',#{search},'%') "
+            + " OR a.TraceTemplateName LIKE CONCAT('%',#{search},'%') OR a.H5TempleteName LIKE CONCAT('%',#{search},'%') OR a.CreateMan LIKE CONCAT('%',#{search},'%') )</if> "
+            + endWhere
+            + endScript)
+    int getCountByCondition(Map<String,Object> map);
+
+    @Select(startScript + selectSql
+            + " FROM trace_objectbatchinfo a LEFT JOIN trace_funtemplatestatistical b ON a.TraceTemplateId = b.TraceTemplateId "
+            + startWhere
+            + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
+
+            + " <if test='search !=null and search != &apos;&apos; '> AND (  a.TraceBatchName LIKE CONCAT('%',#{search},'%') "
+            + " OR a.TraceTemplateName LIKE CONCAT('%',#{search},'%') OR a.H5TempleteName LIKE CONCAT('%',#{search},'%') OR a.CreateMan LIKE CONCAT('%',#{search},'%') )</if> "
+            + endWhere
+            + orderBy
+            + page
+            + endScript)
+    List<TraceObjectBatchInfo> getTraceBatchInfo(Map<String,Object> map);
 
 }

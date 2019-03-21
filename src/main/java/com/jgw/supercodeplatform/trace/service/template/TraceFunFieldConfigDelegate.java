@@ -7,14 +7,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunComponentMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunRegulationMapper;
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.BatchNamedRuleField;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponent;
 import com.jgw.supercodeplatform.trace.dto.TraceFunFieldSortCaram;
+import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchNamed;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunRegulation;
+import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchNamedService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +71,9 @@ public class TraceFunFieldConfigDelegate {
 
 	@Autowired
 	private TraceFunRegulationMapper traceFunRegulationMapper;
+
+	@Autowired
+	private TraceBatchNamedService traceBatchNamedService;
 	
 	//字段默认值的最大长度
 	private static int defaultValueMaxSise;
@@ -259,34 +267,56 @@ public class TraceFunFieldConfigDelegate {
 		}
 	}
 
+	private List<TraceFunFieldConfigParam> getMaterielFieldConfigs()
+	{
+		String funId="Materiel_Compent_Field";
+		List<TraceFunFieldConfig> funFieldConfigs= dao.selectDZFPartFieldsByFunctionId(funId);
+		List<TraceFunFieldConfigParam> fieldConfigParams=funFieldConfigs.stream().map(e->new TraceFunFieldConfigParam(e.getFieldCode(),e.getFieldName(),
+				e.getFieldType(),e.getFieldWeight(),e.getIsRequired(),e.getMaxSize(),e.getMinSize(),e.getTypeClass())).collect(Collectors.toList());
+		return  fieldConfigParams;
+	}
+
 	public void saveFunComponentAndRegulation(CustomizeFun customizeFun) throws Exception
 	{
+		String funId=customizeFun.getFunId();
 		List<FunComponent> funComponentModels=customizeFun.getFunComponentModels();
 		if (funComponentModels!=null && funComponentModels.size()>0){
 
 			for (FunComponent funComponent:funComponentModels){
 				String traceFunComponentId= commonUtil.getUUID();
-				List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
-				if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
-					for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
-						fieldConfigParam.setFunctionId(traceFunComponentId);
-						fieldConfigParam.setFunctionName(funComponent.getComponentName());
+
+				if(ComponentTypeEnum.isNestComponent(funComponent.getComponentType())){
+					if(ComponentTypeEnum.MaterielCompent.getKey() == Integer.valueOf(funComponent.getComponentType())){
+						// 物料组件
+						List<TraceFunFieldConfigParam> fieldConfigParams= getMaterielFieldConfigs();
+						funComponent.setTraceFunFieldConfigModel(fieldConfigParams);
 					}
-					createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
+					List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
+					if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
+						for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
+							fieldConfigParam.setFunctionId(traceFunComponentId);
+							fieldConfigParam.setFunctionName(funComponent.getComponentName());
+						}
+						createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
+					}
+				}else {
+					List<TraceFunFieldConfigParam> fieldConfigParams=funComponent.getTraceFunFieldConfigModel();
+					if(fieldConfigParams!=null && fieldConfigParams.size()>0){
+						customizeFun.getTraceFunFieldConfigModel().addAll(fieldConfigParams);
+					}
 				}
-				//TODO 物料组件
 
 				TraceFunComponent traceFunComponent=new TraceFunComponent();
 				traceFunComponent.setComponentId(traceFunComponentId);
 				traceFunComponent.setComponentName(funComponent.getComponentName());
 				traceFunComponent.setComponentType(funComponent.getComponentType());
-				traceFunComponent.setFunId(customizeFun.getFunId());
+				traceFunComponent.setFunId(funId);
 				traceFunComponentMapper.insertTraceFunComponent(traceFunComponent);
 			}
 		}
 
 		TraceFunRegulation traceFunRegulation=new TraceFunRegulation();
-		traceFunRegulation.setFunId(customizeFun.getFunId());
+		traceFunRegulation.setFunId(funId);
 		traceFunRegulation.setObjectAssociatedType(customizeFun.getObjectAssociatedType());
 		traceFunRegulation.setRegulationType(customizeFun.getRegulationType());
 		traceFunRegulation.setMultipleInput(customizeFun.isMultipleInput());
@@ -296,6 +326,12 @@ public class TraceFunFieldConfigDelegate {
 		traceFunRegulation.setCreateBatchType(customizeFun.getCreateBatchType());
 		traceFunRegulation.setSplittingRule(customizeFun.getSplittingRule());
 		traceFunRegulationMapper.insertTraceFunRegulation(traceFunRegulation);
+
+		List<BatchNamedRuleField> batchNamedRuleFields= customizeFun.getBatchNamedRuleFieldModels();
+		if (batchNamedRuleFields!=null && batchNamedRuleFields.size()>0){
+			List<TraceBatchNamed> traceBatchNameds= batchNamedRuleFields.stream().map(e->new TraceBatchNamed(e.getFieldName(),e.getFieldCode(),funId)).collect(Collectors.toList());
+			traceBatchNamedService.insertTraceBatchNamed(traceBatchNameds);
+		}
 	}
 
 	public RestResult<String> updateFields(List<TraceFunFieldConfigParam> param, String tableName, boolean isAdd,

@@ -127,7 +127,8 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
             @ApiImplicitParam(name = "pageSize", paramType = "query", defaultValue = "30", value = "每页记录数,不传默认10条,非必需"),
-            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需")
+            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
+            @ApiImplicitParam(name = "batchType", paramType = "query", defaultValue = "1", value = "批次类型,产品批次为1/地块批次为2,非必需")
     })
     public RestResult listTraceBatchInfoByOrgPage(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
         return new RestResult(200, "success", traceBatchInfoService.listTraceBatchInfoByOrgPage(map));
@@ -304,8 +305,8 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true),
         @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
     })
-	public RestResult<Map<String, Object>> h5PageData(@RequestParam String traceBatchInfoId) throws Exception{
-		return traceBatchInfoService.h5PageData(traceBatchInfoId);
+	public RestResult<Map<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam Integer traceBatchType) throws Exception{
+		return traceBatchInfoService.h5PageData(traceBatchInfoId,traceBatchType);
 	}
 	
 }

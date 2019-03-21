@@ -13,7 +13,7 @@ public class FunComponentModel {
     private String componentName;
 
     @ApiModelProperty(value = "组件类型")
-    private String componentType;
+    private Integer componentType;
 
     @ApiModelProperty(value = "组件id")
     private String componentId;
@@ -30,11 +30,11 @@ public class FunComponentModel {
         this.componentName = componentName;
     }
 
-    public String getComponentType() {
+    public Integer getComponentType() {
         return componentType;
     }
 
-    public void setComponentType(String componentType) {
+    public void setComponentType(Integer componentType) {
         this.componentType = componentType;
     }
 

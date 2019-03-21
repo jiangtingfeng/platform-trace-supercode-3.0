@@ -3,10 +3,7 @@ package com.jgw.supercodeplatform.trace.dao.mapper1.tracefun;
 import com.jgw.supercodeplatform.trace.dao.CommonSql;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunRegulation;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -55,5 +52,8 @@ public interface TraceFunRegulationMapper extends CommonSql {
 
     @Select("SELECT "+allFields+" FROM trace_fun_regulation  where FunId=#{funId}")
     TraceFunRegulation selectByFunId(@Param("funId")String funId);
+
+    @Delete(" DELETE FROM trace_fun_regulation WHERE where FunId=#{funId}")
+    int deleteTraceFunRegulation(@Param("funId")String funId);
 
 }

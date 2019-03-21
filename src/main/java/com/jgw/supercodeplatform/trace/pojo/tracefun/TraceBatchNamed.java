@@ -14,6 +14,14 @@ public class TraceBatchNamed implements Serializable {
     private String updateDate;
     private String funId;
 
+    public TraceBatchNamed(){}
+
+    public TraceBatchNamed(String fieldName,String fieldCode,String funId){
+        this.fieldName=fieldName;
+        this.fieldCode=fieldCode;
+        this.funId=funId;
+    }
+
     public Long getId() {
         return id;
     }

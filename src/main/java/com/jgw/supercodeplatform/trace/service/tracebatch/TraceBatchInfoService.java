@@ -1,12 +1,17 @@
 package com.jgw.supercodeplatform.trace.service.tracebatch;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceObjectBatchInfoMapper;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchRelation;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceObjectBatchInfo;
+import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchRelationService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +54,12 @@ public class TraceBatchInfoService extends CommonUtil {
     private TraceFunTemplateconfigService traceFunTemplateconfigService;
     @Autowired
     private CommonUtil commonUtil;
+
+    @Autowired
+    private TraceObjectBatchInfoMapper traceObjectBatchInfoMapper;
+
+    @Autowired
+    private TraceBatchRelationService traceBatchRelationService;
 
     @Value("${rest.user.url}")
     private String restUserUrl;
@@ -278,15 +289,32 @@ public class TraceBatchInfoService extends CommonUtil {
      */
     public Map<String, Object> listTraceBatchInfoByOrgPage(Map<String, Object> map) throws Exception {
         map.put("organizationId", getOrganizationId());
-        Integer total = traceBatchInfoMapper.getCountByCondition(map);//获取总记录数
-        ReturnParamsMap returnParamsMap = getPageAndRetuanMap(map, total);
-        List<ReturnTraceBatchInfo> traceBatchInfoList = traceBatchInfoMapper.getTraceBatchInfo(returnParamsMap.getParamsMap());
-        Map<String, Object> dataMap = returnParamsMap.getReturnMap();
-
+        Integer total=null;
+        ReturnParamsMap returnParamsMap=null;
         StringBuilder idsBuilder = new StringBuilder();
-        for (ReturnTraceBatchInfo returnTraceBatchInfo : traceBatchInfoList) {
-            idsBuilder.append(returnTraceBatchInfo.getTraceTemplateId()).append(",");
+        Map<String, Object> dataMap=null;
+        Map<String, Object> resultMap=null;
+
+        if (map.get("batchType")!=null && map.get("batchType").toString().equals("2")){
+            total = traceObjectBatchInfoMapper.getCountByCondition(map);//获取总记录数
+            returnParamsMap = getPageAndRetuanMap(map, total);
+            List<TraceObjectBatchInfo> traceBatchInfoList = traceObjectBatchInfoMapper.getTraceBatchInfo(returnParamsMap.getParamsMap());
+            for (TraceObjectBatchInfo returnTraceBatchInfo : traceBatchInfoList) {
+                idsBuilder.append(returnTraceBatchInfo.getTraceTemplateId()).append(",");
+            }
+            dataMap = returnParamsMap.getReturnMap();
+            getRetunMap(dataMap, traceBatchInfoList);
+        }else {
+            total = traceBatchInfoMapper.getCountByCondition(map);//获取总记录数
+            returnParamsMap = getPageAndRetuanMap(map, total);
+            List<ReturnTraceBatchInfo> traceBatchInfoList = traceBatchInfoMapper.getTraceBatchInfo(returnParamsMap.getParamsMap());
+            for (ReturnTraceBatchInfo returnTraceBatchInfo : traceBatchInfoList) {
+                idsBuilder.append(returnTraceBatchInfo.getTraceTemplateId()).append(",");
+            }
+            dataMap = returnParamsMap.getReturnMap();
+            getRetunMap(dataMap, traceBatchInfoList);
         }
+
         JsonNode node;
         if (idsBuilder.length() > 0) {
             String ids = idsBuilder.substring(0, idsBuilder.length() - 1);
@@ -295,7 +323,7 @@ public class TraceBatchInfoService extends CommonUtil {
         }else {
             dataMap.put("addressWithTemplate", new ArrayList<>());
         }
-        return getRetunMap(dataMap, traceBatchInfoList);
+        return resultMap;
     }
 
     /**
@@ -396,6 +424,27 @@ public class TraceBatchInfoService extends CommonUtil {
         return traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
     }
 
+    private void GetParentBatchNodeInfo(List<TraceBatchRelation> traceBatchRelations, List<Map<String, Object>> nodeDatas)  throws Exception {
+        for(TraceBatchRelation traceBatchRelation:traceBatchRelations){
+            String traceBatchInfoId=traceBatchRelation.getParentBatchId();
+            String traceTemplateId=null;
+            if(StringUtils.isEmpty(traceBatchInfoId)){
+                if(Integer.valueOf(traceBatchRelation.getParentBatchType()).intValue()==2){
+                    TraceObjectBatchInfo traceBatchInfo=traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+                    traceTemplateId=traceBatchInfo.getTraceTemplateId();
+                }else {
+                    TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+                    traceTemplateId=traceBatchInfo.getTraceTemplateId();
+                }
+                RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, true, null);
+                List<Map<String,Object>> parentNodeData=nodeDataResult.getResults();
+                if(parentNodeData!=null && parentNodeData.size()>0) {
+                    nodeDatas.addAll(0,nodeDataResult.getResults());
+                }
+            }
+        }
+    }
+
     /**
      * h5页面数据查询接口
      *
@@ -403,19 +452,39 @@ public class TraceBatchInfoService extends CommonUtil {
      * @return
      * @throws Exception
      */
-    public RestResult<Map<String, Object>> h5PageData(String traceBatchInfoId) throws Exception {
+    public RestResult<Map<String, Object>> h5PageData(String traceBatchInfoId, Integer traceBatchType) throws Exception {
         RestResult<Map<String, Object>> backResult = new RestResult<Map<String, Object>>();
-        TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
-        if (null == traceBatchInfo) {
-            throw new SuperCodeTraceException("无此批次号记录", 500);
+        Map<String, Object> dataMap = new HashMap<String, Object>();
+
+        RestResult<List<Map<String, Object>>> nodeDataResult=null;
+
+        if(traceBatchType !=null && traceBatchType.intValue()==2){
+            TraceObjectBatchInfo traceBatchInfo=traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+            if (null == traceBatchInfo) {
+                throw new SuperCodeTraceException("无此批次号记录", 500);
+            }
+            nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null);
+
+        } else {
+            TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+            if (null == traceBatchInfo) {
+                throw new SuperCodeTraceException("无此批次号记录", 500);
+            }
+            //h5查询不需要登陆 没有组织id
+            nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null);
+
+            dataMap.put("productInfo", traceBatchInfo);
         }
-        //h5查询不需要登陆 没有组织id
-        RestResult<List<Map<String, Object>>> nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null);
+
+        //父节点
+        List<TraceBatchRelation> traceBatchRelations= traceBatchRelationService.selectByBatchId(traceBatchInfoId);
+        if (traceBatchRelations!=null && traceBatchRelations.size()>0){
+            GetParentBatchNodeInfo(traceBatchRelations, nodeDataResult.getResults());
+        }
+
         if (nodeDataResult.getState() != 200) {
             throw new SuperCodeTraceException(nodeDataResult.getMsg(), 500);
         }
-        Map<String, Object> dataMap = new HashMap<String, Object>();
-        dataMap.put("productInfo", traceBatchInfo);
         dataMap.put("nodeInfo", nodeDataResult.getResults());
         backResult.setState(200);
         backResult.setResults(dataMap);

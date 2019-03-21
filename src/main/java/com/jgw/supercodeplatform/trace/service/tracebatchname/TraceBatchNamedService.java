@@ -19,7 +19,7 @@ import java.util.List;
  * @author wangwenzhang
  * @date 2018年3月18日
  */
-@Service
+
 public class TraceBatchNamedService extends CommonUtil {
 
    @Autowired

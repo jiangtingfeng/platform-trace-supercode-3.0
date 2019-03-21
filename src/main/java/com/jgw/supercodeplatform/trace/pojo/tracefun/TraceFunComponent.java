@@ -10,7 +10,7 @@ public class TraceFunComponent implements Serializable {
     private String componentId;
     private String componentName;
     private String funId;
-    private String componentType;
+    private Integer componentType;
     private String organizationId;
     private String createDate;
     private String updateDate;
@@ -41,11 +41,11 @@ public class TraceFunComponent implements Serializable {
         this.funId = funId;
     }
 
-    public String getComponentType() {
+    public Integer getComponentType() {
         return componentType;
     }
 
-    public void setComponentType(String componentType) {
+    public void setComponentType(Integer componentType) {
         this.componentType = componentType;
     }
 

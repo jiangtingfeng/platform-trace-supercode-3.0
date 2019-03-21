@@ -85,7 +85,7 @@ public class TraceFunFieldConfigController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	@ApiOperation(value = "修改功能字段接口", notes = "传的字段只能是新增的字段，功能原字段不传")
 	@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")
-	public RestResult<String> update(@Valid  @RequestBody List<TraceFunFieldConfigParam> param, HttpServletRequest request) throws IOException, ParseException {
+	public RestResult<String> update(@Valid  @RequestBody CustomizeFun param, HttpServletRequest request) throws IOException, ParseException {
 		RestResult<String> result=null;
 		try {
 			result =service.update(param);

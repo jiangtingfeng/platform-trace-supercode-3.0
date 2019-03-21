@@ -86,6 +86,20 @@ public class TraceFunFieldConfigParam implements Comparable<TraceFunFieldConfigP
     @ApiModelProperty(value = "显示隐藏，1显示 0隐藏 不传默认显示")
     private Integer showHidden;  //显示隐藏
 
+	public TraceFunFieldConfigParam(){}
+
+	public TraceFunFieldConfigParam(String fieldCode,String fieldName,String fieldType, Integer fieldWeight,Integer isRequired,Integer maxSize,Integer minSize,Integer typeClass){
+		this.fieldCode=fieldCode;
+		this.fieldName=fieldName;
+		this.fieldType=fieldType;
+		this.fieldWeight=fieldWeight;
+		this.isRequired=isRequired;
+		this.maxSize=maxSize;
+		this.minSize=minSize;
+		this.typeClass=typeClass;
+
+	}
+
 	public String getFunctionId() {
 		return functionId;
 	}

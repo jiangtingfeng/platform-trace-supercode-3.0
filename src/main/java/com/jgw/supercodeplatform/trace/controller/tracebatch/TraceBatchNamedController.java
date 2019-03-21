@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TraceBatchNamedController extends CommonUtil {
 
 
-   @Autowired
+
    private TraceBatchNamedService traceBatchNamedService;
     /**
      * 流水批次名称

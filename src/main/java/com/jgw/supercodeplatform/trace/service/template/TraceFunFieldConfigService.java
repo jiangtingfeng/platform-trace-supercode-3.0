@@ -7,7 +7,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceBatchNamedMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunComponentMapper;
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunRegulationMapper;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +54,12 @@ public class TraceFunFieldConfigService {
 
 	@Autowired
 	private TraceFunComponentMapper traceFunComponentMapper;
+
+	@Autowired
+	private TraceFunRegulationMapper traceFunRegulationMapper;
+
+	@Autowired
+	private TraceBatchNamedMapper traceBatchNamedMapper;
 	
 	@Transactional
 	public RestResult<List<String>> add(CustomizeFun customizeFun) throws Exception {
@@ -72,10 +80,12 @@ public class TraceFunFieldConfigService {
 			restResult.setMsg("该功能已经存在如果要增加字段请通过编辑入口");
 			return restResult;
 		}
-		
+
+		traceFunFieldConfigDelegate.saveFunComponentAndRegulation(customizeFun);
+
 		//动态创建定制功能表和保存字段
 		traceFunFieldConfigDelegate.createTableAndGerenteOrgFunRouteAndSaveFields(param, true,param.get(0).getFunctionId(),param.get(0).getFunctionName());
-		traceFunFieldConfigDelegate.saveFunComponentAndRegulation(customizeFun);
+
 		restResult.setState(200);
 		restResult.setMsg("操作成功");
 		return restResult;
@@ -89,8 +99,11 @@ public class TraceFunFieldConfigService {
      * @return
      * @throws Exception 
      */
-	public RestResult<String> update(List<TraceFunFieldConfigParam> param) throws Exception {
+	public RestResult<String> update(CustomizeFun customizeFun) throws Exception {
 		RestResult<String> restResult=new RestResult<String>();
+
+		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
+
 		List<TraceFunFieldConfigParam> addConfigLlist=new ArrayList<TraceFunFieldConfigParam>();
 		boolean isJustAddField=traceFunFieldConfigDelegate.checkupdateFunParam(param, addConfigLlist);
 		if (isJustAddField) {
@@ -130,7 +143,7 @@ public class TraceFunFieldConfigService {
 				restResult.setMsg("ry修改定制功能必选产品和批次对象");
 				return restResult;
 			}
-			return arbitraryUpdate(param);
+			return arbitraryUpdate(customizeFun);
 		}
 		 
 	}
@@ -210,8 +223,11 @@ public class TraceFunFieldConfigService {
      * @return
      * @throws Exception 
      */
-	public RestResult<String> arbitraryUpdate(List<TraceFunFieldConfigParam> param) throws Exception {
+	public RestResult<String> arbitraryUpdate(CustomizeFun customizeFun) throws Exception {
 		RestResult<String> restResult=new RestResult<String>();
+
+		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
+
 		String functionId=param.get(0).getFunctionId();
 		
         TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
@@ -238,13 +254,21 @@ public class TraceFunFieldConfigService {
         
         //删除字段
         dao.deleteDzFieldsByFunctionId(functionId);
+
+
+		traceFunComponentMapper.deleteTraceFunComponent(functionId);
+		traceFunRegulationMapper.deleteTraceFunRegulation(functionId);
+		traceBatchNamedMapper.deleteTraceBatchNamed(functionId);
         
         //创建新的定制功能时依然校验
         
         TraceFunFieldConfigDelegate.checkAddParam(param);
+
+		traceFunFieldConfigDelegate.saveFunComponentAndRegulation(customizeFun);
+
     	//动态创建定制功能表和保存字段
         traceFunFieldConfigDelegate.createTableAndGerenteOrgFunRouteAndSaveFields(param, true,param.get(0).getFunctionId(),param.get(0).getFunctionName());
-		
+
         restResult.setState(200);
         restResult.setMsg("操作成功");
 		return restResult;

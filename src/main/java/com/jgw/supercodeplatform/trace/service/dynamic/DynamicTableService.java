@@ -13,6 +13,7 @@ import com.jgw.supercodeplatform.trace.dto.dynamictable.common.*;
 import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
+import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchNamedService;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceObjectBatchInfoService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -96,6 +97,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private TraceObjectBatchInfoService traceObjectBatchInfoService;
+
+	@Autowired
+	private TraceBatchNamedService traceBatchNamedService;
 
 	/**
 	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
@@ -213,37 +217,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	private void CreateBatchInfoWithRelation(TraceFunRegulation traceFunRegulation, LinkedHashMap<String, Object> identityMap) throws Exception
 	{
-		StringBuilder traceBatchName=new StringBuilder();
-		String funId=traceFunRegulation.getFunId();
-		List<TraceBatchNamed> batchNameds= traceBatchNamedMapper.selectByFunId(funId);
-		for(int i=0;i<batchNameds.size();i++){
-			TraceBatchNamed traceBatchNamed=batchNameds.get(i);
-			String fieldCode= traceBatchNamed.getFieldCode();
-			switch (fieldCode){
-				case "ProductName":
-					traceBatchName.append(identityMap.get("ProductName").toString());
-					break;
-				case  "CreateDate":
-					Date date = new Date();
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
-					traceBatchName.append(sdf.format(date));
-					break;
-				case "SerialNumber":
-					String incrKey=getOrganizationId()+":"+traceFunRegulation.getCreateBatchType();
-					long incr = commonUtilComponent.getIncr(RedisKey.BatchId);
-					traceBatchName.append(incr);
-					break;
-				case "FunName":
-					traceBatchName.append(traceFunRegulation.getFunctionName());
-					break;
-			}
-			if(i!=batchNameds.size()-1){
-				traceBatchName.append(traceFunRegulation.getBatchNamingLinkCharacter());
-			}
-		}
-
 		String traceTemplateId="62f05945b9164d589a995e181a4b6fd9";
 		String traceTemplateName="枣阳桃默认模板";
+		String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,identityMap);
 
 		TraceBatchRelation traceBatchRelation=new TraceBatchRelation();
 		if(traceFunRegulation.getUseSceneType()>1) //
