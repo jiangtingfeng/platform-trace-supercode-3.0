@@ -14,6 +14,7 @@ import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchNamedService;
+import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchRelationEsService;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceObjectBatchInfoService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -100,6 +101,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private TraceBatchNamedService traceBatchNamedService;
+
+	@Autowired
+	private TraceBatchRelationEsService traceBatchRelationEsService;
 
 	/**
 	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
@@ -244,7 +248,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		}
 
 		traceBatchRelation.setBatchRelationId(getUUID());
-		traceBatchRelationMapper.insertTraceBatchRelation(traceBatchRelation);
+		traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
 	}
 
 	public RestResult<String> addFunDataV3(DynamicAddFunParam param) throws Exception

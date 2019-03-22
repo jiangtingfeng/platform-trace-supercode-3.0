@@ -17,11 +17,14 @@ public class TraceBatchRelationService extends CommonUtil {
     @Autowired
     private TraceBatchRelationMapper traceBatchRelationMapper;
 
+    @Autowired
+    private TraceBatchRelationEsService traceBatchRelationEsService;
+
     public List<TraceBatchRelation> selectByBatchId(String batchId)
     {
         boolean showAllOnSameClass=false;
 
-        List<TraceBatchRelation> traceBatchRelations=traceBatchRelationMapper.selectByBatchId(batchId);
+        List<TraceBatchRelation> traceBatchRelations=traceBatchRelationEsService.selectByBatchId(batchId);
 
         if(traceBatchRelations!=null && traceBatchRelations.size()>0){
             if(traceBatchRelations.size()==1
