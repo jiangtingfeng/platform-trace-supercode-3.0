@@ -8,14 +8,14 @@ public class TraceFunRegulation  implements Serializable {
 
     private String regulationId;
     private String funId;
-    private String objectAssociatedType;
-    private String regulationType;
+    private int objectAssociatedType;
+    private int regulationType;
     private boolean multipleInput;
     private int useSceneType;
     private String batchNamingLinkCharacter;
     private String batchNamingRule;
     private int batchTimeControl;
-    private String createBatchType;
+    private int createBatchType;
     private String splittingRule;
     private String createDate;
     private String updateDate;
@@ -38,19 +38,19 @@ public class TraceFunRegulation  implements Serializable {
         this.funId = funId;
     }
 
-    public String getObjectAssociatedType() {
+    public int getObjectAssociatedType() {
         return objectAssociatedType;
     }
 
-    public void setObjectAssociatedType(String objectAssociatedType) {
+    public void setObjectAssociatedType(int objectAssociatedType) {
         this.objectAssociatedType = objectAssociatedType;
     }
 
-    public String getRegulationType() {
+    public int getRegulationType() {
         return regulationType;
     }
 
-    public void setRegulationType(String regulationType) {
+    public void setRegulationType(int regulationType) {
         this.regulationType = regulationType;
     }
 
@@ -94,11 +94,11 @@ public class TraceFunRegulation  implements Serializable {
         this.batchTimeControl = batchTimeControl;
     }
 
-    public String getCreateBatchType() {
+    public int getCreateBatchType() {
         return createBatchType;
     }
 
-    public void setCreateBatchType(String createBatchType) {
+    public void setCreateBatchType(int createBatchType) {
         this.createBatchType = createBatchType;
     }
 

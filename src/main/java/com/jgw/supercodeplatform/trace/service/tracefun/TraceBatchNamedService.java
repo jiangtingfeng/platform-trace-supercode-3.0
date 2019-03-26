@@ -34,7 +34,7 @@ public class TraceBatchNamedService extends CommonUtil {
         }
     }
 
-    public String buildBatchName(TraceFunRegulation traceFunRegulation, LinkedHashMap<String, Object> identityMap) throws Exception
+    public String buildBatchName(TraceFunRegulation traceFunRegulation,String productName) throws Exception
     {
         StringBuilder traceBatchName=new StringBuilder();
         String funId=traceFunRegulation.getFunId();
@@ -44,7 +44,7 @@ public class TraceBatchNamedService extends CommonUtil {
             String fieldCode= traceBatchNamed.getFieldCode();
             switch (fieldCode){
                 case "ProductName":
-                    traceBatchName.append(identityMap.get("ProductName").toString());
+                    traceBatchName.append(productName);
                     break;
                 case  "CreateDate":
                     Date date = new Date();

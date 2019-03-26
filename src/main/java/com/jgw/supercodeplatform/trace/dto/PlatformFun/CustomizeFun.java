@@ -6,6 +6,7 @@ import com.jgw.supercodeplatform.trace.dto.TraceFunFieldConfigParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
@@ -79,7 +80,7 @@ public  class CustomizeFun {
     private String objectAssociatedType;
 
     @ApiModelProperty(value = "功能类型：过程节点/控制节点")
-    private String regulationType;
+    private int regulationType;
 
     @ApiModelProperty(value = "是否可多次输入")
     private boolean multipleInput;
@@ -134,19 +135,23 @@ public  class CustomizeFun {
         this.funComponentModels = funComponentModels;
     }
 
-    public String getObjectAssociatedType() {
-        return objectAssociatedType;
+    public int getObjectAssociatedType() {
+        int val=0;
+        if(!StringUtils.isEmpty(objectAssociatedType))
+            val=Integer.parseInt(objectAssociatedType);
+        return val;
     }
 
     public void setObjectAssociatedType(String objectAssociatedType) {
         this.objectAssociatedType = objectAssociatedType;
     }
 
-    public String getRegulationType() {
+    public int getRegulationType() {
+
         return regulationType;
     }
 
-    public void setRegulationType(String regulationType) {
+    public void setRegulationType(int regulationType) {
         this.regulationType = regulationType;
     }
 
@@ -166,8 +171,11 @@ public  class CustomizeFun {
         this.useSceneType = useSceneType;
     }
 
-    public String getCreateBatchType() {
-        return createBatchType;
+    public int getCreateBatchType() {
+        int val=0;
+        if(!StringUtils.isEmpty(createBatchType))
+            val=Integer.parseInt(createBatchType);
+        return val;
     }
 
     public void setCreateBatchType(String createBatchType) {

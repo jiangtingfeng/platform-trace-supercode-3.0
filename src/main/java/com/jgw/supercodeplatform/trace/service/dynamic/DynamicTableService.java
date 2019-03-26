@@ -5,12 +5,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.jgw.supercodeplatform.pojo.cache.AccountCache;
+import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtilComponent;
 import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.*;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.*;
+import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
+import com.jgw.supercodeplatform.trace.enums.RegulationTypeEnum;
+import com.jgw.supercodeplatform.trace.enums.TraceUseSceneEnum;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchNamedService;
@@ -104,6 +108,32 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private TraceBatchRelationEsService traceBatchRelationEsService;
+
+
+	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
+	{
+		String batchInfoId=null;
+		List<FieldBusinessParam> fields=lineBusinessData.getFields();
+		for (FieldBusinessParam fieldParam : fields) {
+			Integer objectType=fieldParam.getObjectType();
+			if (null!=objectType) {
+				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
+				switch (objectTypeEnum) {
+					case TRACE_BATCH:
+					case MassifBatch:
+					case RecoveryBatch:
+					case PurchaseBatch:
+					case PackingBatch:
+					case SortingBatch:
+						batchInfoId = fieldParam.getObjectUniqueValue();
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return batchInfoId;
+	}
 
 	/**
 	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
@@ -219,64 +249,139 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		dao.insert(insertSql);
 	}
 
-	private void CreateBatchInfoWithRelation(TraceFunRegulation traceFunRegulation, LinkedHashMap<String, Object> identityMap) throws Exception
+
+	private List<BaseBatchInfo> CreateBatchInfoWithRelation(TraceFunRegulation traceFunRegulation, DynamicAddFunParam param,TraceBatchInfo parentTraceBatchInfo) throws Exception
 	{
 		String traceTemplateId="62f05945b9164d589a995e181a4b6fd9";
 		String traceTemplateName="枣阳桃默认模板";
-		String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,identityMap);
+		Integer userSceneType= traceFunRegulation.getUseSceneType();
+		String productName = parentTraceBatchInfo.getProductName();
+		String productId=parentTraceBatchInfo.getProductId();
+		String parentTraceBatchInfoId=parentTraceBatchInfo.getTraceBatchInfoId();
+		int createBatchType = traceFunRegulation.getCreateBatchType();
+		int objectAssociatedType= traceFunRegulation.getObjectAssociatedType();
 
-		TraceBatchRelation traceBatchRelation=new TraceBatchRelation();
-		if(traceFunRegulation.getUseSceneType()>1) //
-		{
-			TraceBatchInfo traceBatchInfo=new TraceBatchInfo();
-			traceBatchInfo.setTraceBatchName(traceBatchName.toString());
-			traceBatchInfo.setProductId(identityMap.get("ProductId").toString());
-			traceBatchInfo.setProductName(identityMap.get("ProductName").toString());
-			traceBatchInfo.setTraceBatchId(traceBatchName.toString());
-			traceBatchInfo.setTraceTemplateId(traceTemplateId);
-			traceBatchInfo.setTraceTemplateName(traceTemplateName);
+		ObjectTypeEnum objectTypeEnum= ObjectTypeEnum.getType(objectAssociatedType);
+		int parentBatchTableType=BatchTableType.getBatchTableType(objectTypeEnum).getKey();
+
+
+		List<BaseBatchInfo> baseBatchInfos=new ArrayList<BaseBatchInfo>();
+		if(userSceneType == TraceUseSceneEnum.CreateBatch.getKey()) {
+			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,productName);
+			String traceBatchInfoId=null;
+
+			if(objectAssociatedType == ObjectTypeEnum.MassifInfo.getCode())
+				createBatchType=ObjectTypeEnum.MassifBatch.getCode();
+
+			if(createBatchType==ObjectTypeEnum.MassifBatch.getCode()){
+				TraceObjectBatchInfo traceObjectBatchInfo=new TraceObjectBatchInfo();
+				traceObjectBatchInfo.setTraceBatchName(traceBatchName);
+				traceObjectBatchInfo.setBatchType(ObjectTypeEnum.MassifBatch.getCode());
+				traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
+				traceBatchInfoId = traceObjectBatchInfo.getTraceBatchInfoId();
+			}
+
+			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfoId,traceBatchName);
+			baseBatchInfos.add(baseBatchInfo);
+
+			TraceBatchRelation traceBatchRelation=new TraceBatchRelation();
+			traceBatchRelation.setCurrentBatchId(traceBatchInfoId);
+			traceBatchRelation.setBatchRelationId(getUUID());
+			traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
+		} else if(userSceneType==TraceUseSceneEnum.CreateBatchInheritNodeData.getKey()) {
+			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,productName);
+
+			TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType);
 			traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
-			traceBatchRelation.setParentBatchId(identityMap.get("traceBatchInfoId").toString());
-			traceBatchRelation.setCurrentBatchId(traceBatchInfo.getTraceBatchInfoId());
-		}else {
-			TraceObjectBatchInfo traceObjectBatchInfo=new TraceObjectBatchInfo();
-			traceObjectBatchInfo.setTraceBatchName(traceBatchName.toString());
-			traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
+			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchName);
+			baseBatchInfos.add(baseBatchInfo);
 
-			traceBatchRelation.setCurrentBatchId(traceObjectBatchInfo.getTraceBatchInfoId());
+			TraceBatchRelation traceBatchRelation=new TraceBatchRelation(getUUID(),traceBatchInfo.getTraceBatchInfoId(),parentTraceBatchInfoId,parentBatchTableType);
+			traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
+		} else if(userSceneType==TraceUseSceneEnum.BatchMixWithSameObject.getKey()){
+			if(parentTraceBatchInfoId.contains(",")){
+				String[] parentTraceBatchInfoIds= parentTraceBatchInfoId.split(",");
+				String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,productName);
+
+				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType);
+				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
+
+				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchName);
+				baseBatchInfos.add(baseBatchInfo);
+
+				for(String id : parentTraceBatchInfoIds){
+					TraceBatchRelation traceBatchRelation=new TraceBatchRelation(getUUID(),traceBatchInfo.getTraceBatchInfoId(),id,parentBatchTableType) ;
+					traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
+				}
+			}
+
+		} else if(userSceneType==TraceUseSceneEnum.BatchMixWithDistinctObject.getKey()){
+
+		}else if(userSceneType==TraceUseSceneEnum.BatchDivide.getKey()){
+			String divideRule= traceFunRegulation.getSplittingRule();
+			List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels().stream().filter(e->e.getComponentName().equals(divideRule)).collect(Collectors.toList());
+			if(componentDataModels!=null && componentDataModels.size()>0){
+				List<List<FieldBusinessParam>> dataModels=	componentDataModels.get(0).getFieldRows();
+				for(List<FieldBusinessParam> fieldBusinessParams:dataModels){
+					String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,productName);
+
+					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType);
+					traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
+
+					BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchName);
+					baseBatchInfos.add(baseBatchInfo);
+
+					TraceBatchRelation traceBatchRelation=new TraceBatchRelation(getUUID(),traceBatchInfo.getTraceBatchInfoId(),parentTraceBatchInfoId,parentBatchTableType) ;
+					traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
+				}
+			}
+
 		}
 
-		traceBatchRelation.setBatchRelationId(getUUID());
-		traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
+		return baseBatchInfos;
 	}
 
 	public RestResult<String> addFunDataV3(DynamicAddFunParam param) throws Exception
 	{
-		LinkedHashMap<String, Object> identityMap=new LinkedHashMap<String, Object>();
-
-		RestResult<String> restResult=addFunData(param,identityMap);
-
 		TraceFunRegulation traceFunRegulation= traceFunRegulationMapper.selectByFunId(param.getFunctionId());
-		if(traceFunRegulation.getRegulationType().equals("2")) //控制节点
-		{
-			CreateBatchInfoWithRelation(traceFunRegulation,identityMap);
+
+		String traceBatchInfoId= getBatchInfoId(param.getLineData());
+		TraceBatchInfo traceBatchInfo=null;
+		if(!StringUtils.isEmpty(traceBatchInfoId)){
+			traceBatchInfo=traceBatchInfoService.selectByTraceBatchInfoId(traceBatchInfoId);
 		}
 
-		List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
-		if (componentDataModels!=null && componentDataModels.size()>0){
-			for(FunComponentDataModel funComponentDataModel:componentDataModels){
-				if(ComponentTypeEnum.isNestComponent(funComponentDataModel.getComponentType())){
-					List<List<FieldBusinessParam>> fieldRows= funComponentDataModel.getFieldRows();
-					if (fieldRows!=null && fieldRows.size()>0){
-						for(List<FieldBusinessParam> fields: fieldRows){
-							DynamicAddFunParam componentFunParam=new DynamicAddFunParam();
-							componentFunParam.setFunctionId(funComponentDataModel.getComponentId());
-							LineBusinessData lineBusinessData=new LineBusinessData();
-							lineBusinessData.setFields(fields);
-							componentFunParam.setLineData(lineBusinessData);
+		List<BaseBatchInfo> baseBatchInfos=null;
+		if(traceFunRegulation.getRegulationType() == RegulationTypeEnum.ControlNode.getKey()) //控制节点
+		{
+			baseBatchInfos=CreateBatchInfoWithRelation(traceFunRegulation,param,traceBatchInfo);
+		}
 
-							addFunComponentData(componentFunParam,identityMap);
+		RestResult<String> restResult=null;
+		for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
+			List<FieldBusinessParam> fieldBusinessParams= param.getLineData().getFields();
+			fieldBusinessParams.add(new FieldBusinessParam("traceBatchInfoId", baseBatchInfo.getTraceBatchInfoId()));
+			fieldBusinessParams.add(new FieldBusinessParam("traceBatchName", baseBatchInfo.getTraceBatchName()));
+
+			LinkedHashMap<String, Object> identityMap=new LinkedHashMap<String, Object>();
+			restResult=addFunData(param,identityMap);
+
+			List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
+			if (componentDataModels!=null && componentDataModels.size()>0){
+				for(FunComponentDataModel funComponentDataModel:componentDataModels){
+					if(ComponentTypeEnum.isNestComponent(funComponentDataModel.getComponentType())){
+						List<List<FieldBusinessParam>> fieldRows= funComponentDataModel.getFieldRows();
+						if (fieldRows!=null && fieldRows.size()>0){
+							for(List<FieldBusinessParam> fields: fieldRows){
+								DynamicAddFunParam componentFunParam=new DynamicAddFunParam();
+								componentFunParam.setFunctionId(funComponentDataModel.getComponentId());
+								LineBusinessData lineBusinessData=new LineBusinessData();
+								lineBusinessData.setFields(fields);
+								componentFunParam.setLineData(lineBusinessData);
+
+								addFunComponentData(componentFunParam,identityMap);
+							}
 						}
 					}
 				}

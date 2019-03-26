@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceObjectBatchInfoMapper;
+import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchRelation;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceObjectBatchInfo;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchRelationService;
@@ -429,7 +430,7 @@ public class TraceBatchInfoService extends CommonUtil {
             String traceBatchInfoId=traceBatchRelation.getParentBatchId();
             String traceTemplateId=null;
             if(StringUtils.isEmpty(traceBatchInfoId)){
-                if(Integer.valueOf(traceBatchRelation.getParentBatchType()).intValue()==2){
+                if(traceBatchRelation.getParentBatchType()== BatchTableType.ObjectBatch.getKey()){
                     TraceObjectBatchInfo traceBatchInfo=traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
                     traceTemplateId=traceBatchInfo.getTraceTemplateId();
                 }else {

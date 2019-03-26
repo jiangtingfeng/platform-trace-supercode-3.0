@@ -3,7 +3,14 @@ package com.jgw.supercodeplatform.trace.constants;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 
 public enum ObjectTypeEnum {
-	USER(13001,"UserId", "员工"),PRODUCT(13002, "ProductId","产品"),  TRACE_BATCH(13003,"TraceBatchInfoId", "批次");
+	USER(13001,"UserId", "员工"),PRODUCT(13002, "ProductId","产品"),  TRACE_BATCH(13003,"TraceBatchInfoId", "批次"),
+
+	RecoveryBatch(13014,"TraceBatchId","采收批次"),
+	PurchaseBatch(13015,"TraceBatchId","收购批次"),
+	SortingBatch(13016,"TraceBatchId","分拣批次"),
+	PackingBatch(13017,"TraceBatchId","包装批次"),
+	MassifBatch(13018,"TraceBatchId","地块批次"),
+	MassifInfo(13019,"MassIfId","地块");
 
 	public static ObjectTypeEnum getType(Integer codeTypeId) throws SuperCodeTraceException {
 		if (null==codeTypeId) {
@@ -16,6 +23,19 @@ public enum ObjectTypeEnum {
 			return PRODUCT;
 		case 13003:
 			return TRACE_BATCH;
+
+		case 13014:
+			return RecoveryBatch;
+		case 13015:
+				return PurchaseBatch;
+		case 13016:
+			return SortingBatch;
+		case 13017:
+			return PackingBatch;
+		case 13018:
+			return MassifBatch;
+		case 13019:
+			return MassifInfo;
 		default:
 			throw new SuperCodeTraceException("无法根据对象类型codeTypeId="+codeTypeId+"获取到对象", 500);
 		}

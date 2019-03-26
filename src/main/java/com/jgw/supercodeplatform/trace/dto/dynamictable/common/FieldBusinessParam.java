@@ -20,6 +20,13 @@ public class FieldBusinessParam {
 
     @ApiModelProperty(name = "objectUniqueValue", value = "对象类型中唯一值，不是对象类型不需要传", example = "唯一主键id")
     private String objectUniqueValue;
+
+    public FieldBusinessParam(){}
+
+	public FieldBusinessParam(String fieldCode,String fieldValue){
+    	this.fieldCode=fieldCode;
+    	this.fieldValue=fieldValue;
+	}
     
 	public String getFieldCode() {
 		return fieldCode;

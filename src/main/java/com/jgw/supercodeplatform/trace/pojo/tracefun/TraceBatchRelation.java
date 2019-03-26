@@ -15,8 +15,16 @@ public class TraceBatchRelation implements Serializable {
     private String businessTableName;
     private String parentBusinessTableName;
     private String currentBatchType;
-    private String parentBatchType;
+    private int parentBatchType;
 
+    public TraceBatchRelation(){}
+
+    public TraceBatchRelation(String batchRelationId,String currentBatchId,String parentBatchId, int parentBatchType){
+        this.batchRelationId=batchRelationId;
+        this.currentBatchId=currentBatchId;
+        this.parentBatchId=parentBatchId;
+        this.parentBatchType=parentBatchType;
+    }
 
     public Long getId() {
         return id;
@@ -90,11 +98,11 @@ public class TraceBatchRelation implements Serializable {
         this.currentBatchType = currentBatchType;
     }
 
-    public String getParentBatchType() {
+    public int getParentBatchType() {
         return parentBatchType;
     }
 
-    public void setParentBatchType(String parentBatchType) {
+    public void setParentBatchType(int parentBatchType) {
         this.parentBatchType = parentBatchType;
     }
 }

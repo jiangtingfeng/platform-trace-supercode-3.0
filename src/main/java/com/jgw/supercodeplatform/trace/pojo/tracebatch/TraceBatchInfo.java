@@ -28,7 +28,28 @@ public class TraceBatchInfo implements Serializable{
 	private String updateTime;//修改时间
 	private Integer nodeDataCount;
 	private String traceBatchPlatformId;
-	
+
+	public int getBatchType() {
+		return batchType;
+	}
+
+	public void setBatchType(int batchType) {
+		this.batchType = batchType;
+	}
+
+	private int batchType;
+
+	public TraceBatchInfo(){}
+
+	public TraceBatchInfo(String traceBatchName,String productId,String productName,String traceBatchId,String traceTemplateId,String traceTemplateName,int batchType){
+		this.traceBatchName=traceBatchName;
+		this.productId=productId;
+		this.productName=productName;
+		this.traceBatchId=traceBatchId;
+		this.traceTemplateId=traceTemplateId;
+		this.traceBatchName=traceTemplateName;
+		this.batchType=batchType;
+	}
 
 	public String getTraceBatchInfoId() {
 		return traceBatchInfoId;

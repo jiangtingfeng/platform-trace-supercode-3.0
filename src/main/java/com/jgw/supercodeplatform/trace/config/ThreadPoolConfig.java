@@ -14,7 +14,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class ThreadPoolConfig {
 	
 	@Bean(name="taskExecutor")
-	public TaskExecutor taskExecutor(){
+	public ThreadPoolTaskExecutor taskExecutor(){
 		ThreadPoolTaskExecutor executor=new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(3);//线程池维护线程最小数量,线程池的大小
 		executor.setMaxPoolSize(20);//最大数量
