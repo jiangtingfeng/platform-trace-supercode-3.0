@@ -135,6 +135,26 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return batchInfoId;
 	}
 
+	private String getMassifId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
+	{
+		String massifId=null;
+		List<FieldBusinessParam> fields=lineBusinessData.getFields();
+		for (FieldBusinessParam fieldParam : fields) {
+			Integer objectType=fieldParam.getObjectType();
+			if (null!=objectType) {
+				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
+				switch (objectTypeEnum) {
+					case MassifInfo:
+						massifId = fieldParam.getObjectUniqueValue();
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return massifId;
+	}
+
 	/**
 	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
 	 * @param param
@@ -216,7 +236,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return backResult;
 	}
 
-
+	/**
+	 * 保存功能组件中的字段数据
+	 * @param param
+	 * @param identityMap
+	 * @throws Exception
+	 */
 	public void addFunComponentData(DynamicAddFunParam param,LinkedHashMap<String, Object> identityMap) throws Exception {
 		String functionId = param.getFunctionId();
 
@@ -250,6 +275,14 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	}
 
 
+	/**
+	 * 根据使用场景自动创建批次和批次关联数据
+	 * @param traceFunRegulation
+	 * @param param
+	 * @param parentTraceBatchInfo
+	 * @return
+	 * @throws Exception
+	 */
 	private List<BaseBatchInfo> CreateBatchInfoWithRelation(TraceFunRegulation traceFunRegulation, DynamicAddFunParam param,TraceBatchInfo parentTraceBatchInfo) throws Exception
 	{
 		String traceTemplateId="62f05945b9164d589a995e181a4b6fd9";
@@ -267,21 +300,29 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		List<BaseBatchInfo> baseBatchInfos=new ArrayList<BaseBatchInfo>();
 		if(userSceneType == TraceUseSceneEnum.CreateBatch.getKey()) {
-			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,productName);
+			//创建关联对象批次
+			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 			String traceBatchInfoId=null;
 
 			if(objectAssociatedType == ObjectTypeEnum.MassifInfo.getCode())
 				createBatchType=ObjectTypeEnum.MassifBatch.getCode();
 
 			if(createBatchType==ObjectTypeEnum.MassifBatch.getCode()){
+				String massifId= getMassifId(param.getLineData());
+
 				TraceObjectBatchInfo traceObjectBatchInfo=new TraceObjectBatchInfo();
 				traceObjectBatchInfo.setTraceBatchName(traceBatchName);
 				traceObjectBatchInfo.setBatchType(ObjectTypeEnum.MassifBatch.getCode());
+				traceObjectBatchInfo.setSerialNumber(baseBatchInfo.getSerialNumber());
+				traceObjectBatchInfo.setObjectId(massifId);
 				traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
 				traceBatchInfoId = traceObjectBatchInfo.getTraceBatchInfoId();
 			}
 
-			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfoId,traceBatchName);
+
+			baseBatchInfo.setTraceBatchName(traceBatchName);
+			baseBatchInfo.setTraceBatchInfoId(traceBatchInfoId);
 			baseBatchInfos.add(baseBatchInfo);
 
 			TraceBatchRelation traceBatchRelation=new TraceBatchRelation();
@@ -289,25 +330,31 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			traceBatchRelation.setBatchRelationId(getUUID());
 			traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
 		} else if(userSceneType==TraceUseSceneEnum.CreateBatchInheritNodeData.getKey()) {
-			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,productName);
+			//批次继承，创建新批次并继承溯源信息
+			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-			TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType);
+			TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
 			traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
-			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchName);
+			baseBatchInfo.setTraceBatchName(traceBatchName);
+			baseBatchInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
 			baseBatchInfos.add(baseBatchInfo);
 
 			TraceBatchRelation traceBatchRelation=new TraceBatchRelation(getUUID(),traceBatchInfo.getTraceBatchInfoId(),parentTraceBatchInfoId,parentBatchTableType);
 			traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
 		} else if(userSceneType==TraceUseSceneEnum.BatchMixWithSameObject.getKey()){
+			//批次混合，多个相同关联对象批次混合并创建新对象批次
 			if(parentTraceBatchInfoId.contains(",")){
 				String[] parentTraceBatchInfoIds= parentTraceBatchInfoId.split(",");
-				String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,productName);
+				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+				String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType);
+				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
 				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
-				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchName);
+				baseBatchInfo.setTraceBatchName(traceBatchName);
+				baseBatchInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
 				baseBatchInfos.add(baseBatchInfo);
 
 				for(String id : parentTraceBatchInfoIds){
@@ -319,17 +366,20 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		} else if(userSceneType==TraceUseSceneEnum.BatchMixWithDistinctObject.getKey()){
 
 		}else if(userSceneType==TraceUseSceneEnum.BatchDivide.getKey()){
+			//批次分裂，由关联对象分裂成为多个嵌套对象的批次
 			String divideRule= traceFunRegulation.getSplittingRule();
 			List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels().stream().filter(e->e.getComponentName().equals(divideRule)).collect(Collectors.toList());
 			if(componentDataModels!=null && componentDataModels.size()>0){
 				List<List<FieldBusinessParam>> dataModels=	componentDataModels.get(0).getFieldRows();
 				for(List<FieldBusinessParam> fieldBusinessParams:dataModels){
-					String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,productName);
+					BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+					String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType);
+					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
 					traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
-					BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchName);
+					baseBatchInfo.setTraceBatchName(traceBatchName);
+					baseBatchInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
 					baseBatchInfos.add(baseBatchInfo);
 
 					TraceBatchRelation traceBatchRelation=new TraceBatchRelation(getUUID(),traceBatchInfo.getTraceBatchInfoId(),parentTraceBatchInfoId,parentBatchTableType) ;
@@ -342,6 +392,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return baseBatchInfos;
 	}
 
+	/**
+	 * 定制功能保存数据
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
 	public RestResult<String> addFunDataV3(DynamicAddFunParam param) throws Exception
 	{
 		TraceFunRegulation traceFunRegulation= traceFunRegulationMapper.selectByFunId(param.getFunctionId());
@@ -355,6 +411,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		List<BaseBatchInfo> baseBatchInfos=null;
 		if(traceFunRegulation.getRegulationType() == RegulationTypeEnum.ControlNode.getKey()) //控制节点
 		{
+			//根据使用场景自动创建批次和批次关联数据
 			baseBatchInfos=CreateBatchInfoWithRelation(traceFunRegulation,param,traceBatchInfo);
 		}
 
@@ -365,6 +422,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			fieldBusinessParams.add(new FieldBusinessParam("traceBatchName", baseBatchInfo.getTraceBatchName()));
 
 			LinkedHashMap<String, Object> identityMap=new LinkedHashMap<String, Object>();
+			//保存定制功能主表中的字段数据
 			restResult=addFunData(param,identityMap);
 
 			List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
@@ -380,6 +438,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 								lineBusinessData.setFields(fields);
 								componentFunParam.setLineData(lineBusinessData);
 
+								//保存功能组件中的字段数据
 								addFunComponentData(componentFunParam,identityMap);
 							}
 						}
@@ -627,6 +686,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String funId=param.getFunctionId();
 		List<TraceFunComponent> traceFunComponents= traceFunComponentMapper.selectByFunId(funId);
 
+		//遍历定制功能列表数据，根据主表Id到功能组件数据表中查询组件数据
 		for (TraceFunComponent traceFunComponent: traceFunComponents){
 			if(list!=null && list.size()>0){
 				List<String> ids= list.stream().map(e->e.get("Id").toString()).collect(Collectors.toList());

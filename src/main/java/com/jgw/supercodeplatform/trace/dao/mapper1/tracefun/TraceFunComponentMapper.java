@@ -37,7 +37,11 @@ public interface TraceFunComponentMapper extends CommonSql {
             + endScript)
     int insertTraceFunComponent(TraceFunComponent traceFunComponent);
 
-
+    /**
+     * 根据功能id获取功能组件
+     * @param funId
+     * @return
+     */
     @Select("SELECT "+allFields+" FROM trace_fun_component where FunId=#{funId}")
     List<TraceFunComponent> selectByFunId(@Param("funId")String funId);
 

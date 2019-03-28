@@ -11,7 +11,11 @@ import java.util.List;
 @Mapper
 public interface TraceBatchNamedMapper  extends CommonSql {
 
-
+    /**
+     * 根据功能id获取批次命名规则
+     * @param funId
+     * @return
+     */
     @Select("SELECT * FROM trace_batchnamed where FunId=#{funId}")
     List<TraceBatchNamed> selectByFunId(@Param("funId")String funId);
 

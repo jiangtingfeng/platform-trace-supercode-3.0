@@ -7,9 +7,9 @@ public class TraceBatchNamed implements Serializable {
     private static final long serialVersionUID = -1358934963927254074L;
 
     private Long id;
-    private String fieldId;
-    private String fieldName;
-    private String fieldCode;
+    private String fieldId; //命名规则字段Id
+    private String fieldName; //命名规则字段名称
+    private String fieldCode; //命名规则字段代码
     private String createDate;
     private String updateDate;
     private String funId;

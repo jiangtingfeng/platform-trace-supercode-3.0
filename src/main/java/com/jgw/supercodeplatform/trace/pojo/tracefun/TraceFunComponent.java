@@ -7,10 +7,10 @@ public class TraceFunComponent implements Serializable {
 
     private static final long serialVersionUID = -3706822710364692430L;
 
-    private String componentId;
-    private String componentName;
+    private String componentId; //组件Id
+    private String componentName; //组件名称
     private String funId;
-    private Integer componentType;
+    private Integer componentType; //组件类型
     private String organizationId;
     private String createDate;
     private String updateDate;

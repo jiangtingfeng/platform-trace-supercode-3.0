@@ -81,6 +81,7 @@ public class TraceFunFieldConfigService {
 			return restResult;
 		}
 
+		//创建定制功能使用规则、功能组件、字段
 		traceFunFieldConfigDelegate.saveFunComponentAndRegulation(customizeFun);
 
 		//动态创建定制功能表和保存字段

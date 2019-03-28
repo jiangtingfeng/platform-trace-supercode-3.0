@@ -1,5 +1,11 @@
 package com.jgw.supercodeplatform.trace.enums;
 
+/**
+ * 功能类型
+ *
+ * @author wzq
+ * @date: 2019-03-28
+ */
 public enum RegulationTypeEnum {
 
     ProcedureNode(1,"过程节点"),

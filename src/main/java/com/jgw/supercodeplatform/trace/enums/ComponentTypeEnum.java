@@ -1,5 +1,11 @@
 package com.jgw.supercodeplatform.trace.enums;
 
+/**
+ * 组件类型
+ *
+ * @author wzq
+ * @date: 2019-03-28
+ */
 public enum  ComponentTypeEnum {
 
     GroupCompent(1,"分组组件"),DeviceCompent(3,"设备组件"),

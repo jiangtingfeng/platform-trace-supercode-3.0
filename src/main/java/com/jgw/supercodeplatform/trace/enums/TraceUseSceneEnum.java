@@ -1,5 +1,11 @@
 package com.jgw.supercodeplatform.trace.enums;
 
+/**
+ * 使用场景类型
+ *
+ * @author wzq
+ * @date: 2019-03-28
+ */
 public enum TraceUseSceneEnum {
 
     CreateBatch(1,"创建关联对象批次"),

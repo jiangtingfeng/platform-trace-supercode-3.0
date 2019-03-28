@@ -2,15 +2,21 @@ package com.jgw.supercodeplatform.trace.constants;
 
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 
+/**
+ * 对象类型
+ *
+ * @author wzq
+ * @date: 2019-03-28
+ */
 public enum ObjectTypeEnum {
 	USER(13001,"UserId", "员工"),PRODUCT(13002, "ProductId","产品"),  TRACE_BATCH(13003,"TraceBatchInfoId", "批次"),
 
+	MassifInfo(13012,"MassIfId","地块"),
+	MassifBatch(13013,"TraceBatchId","地块批次"),
 	RecoveryBatch(13014,"TraceBatchId","采收批次"),
 	PurchaseBatch(13015,"TraceBatchId","收购批次"),
 	SortingBatch(13016,"TraceBatchId","分拣批次"),
-	PackingBatch(13017,"TraceBatchId","包装批次"),
-	MassifBatch(13018,"TraceBatchId","地块批次"),
-	MassifInfo(13019,"MassIfId","地块");
+	PackingBatch(13017,"TraceBatchId","包装批次");
 
 	public static ObjectTypeEnum getType(Integer codeTypeId) throws SuperCodeTraceException {
 		if (null==codeTypeId) {

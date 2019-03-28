@@ -5,8 +5,10 @@ import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtilComponent;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceBatchNamedMapper;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.BaseBatchInfo;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchNamed;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunRegulation;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,12 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/**
+ * 批次命名规则管理
+ *
+ * @author wzq
+ * @date: 2019-03-28
+ */
 @Service
 public class TraceBatchNamedService extends CommonUtil {
 
@@ -26,6 +34,10 @@ public class TraceBatchNamedService extends CommonUtil {
     @Autowired
     private CommonUtilComponent commonUtilComponent;
 
+    /**
+     * 新增批次命名规则
+     * @param traceBatchNameds
+     */
     public void insertTraceBatchNamed(List<TraceBatchNamed> traceBatchNameds)
     {
         for(TraceBatchNamed traceBatchNamed:traceBatchNameds){
@@ -34,7 +46,14 @@ public class TraceBatchNamedService extends CommonUtil {
         }
     }
 
-    public String buildBatchName(TraceFunRegulation traceFunRegulation,String productName) throws Exception
+    /**
+     * 根据批次命名规则自动生成批次名称
+     * @param traceFunRegulation
+     * @param baseBatchInfo
+     * @return
+     * @throws Exception
+     */
+    public String buildBatchName(TraceFunRegulation traceFunRegulation,BaseBatchInfo baseBatchInfo) throws Exception
     {
         StringBuilder traceBatchName=new StringBuilder();
         String funId=traceFunRegulation.getFunId();
@@ -44,7 +63,7 @@ public class TraceBatchNamedService extends CommonUtil {
             String fieldCode= traceBatchNamed.getFieldCode();
             switch (fieldCode){
                 case "ProductName":
-                    traceBatchName.append(productName);
+                    traceBatchName.append(baseBatchInfo.getProductName());
                     break;
                 case  "CreateDate":
                     Date date = new Date();
@@ -52,9 +71,12 @@ public class TraceBatchNamedService extends CommonUtil {
                     traceBatchName.append(sdf.format(date));
                     break;
                 case "SerialNumber":
-                    String incrKey=getOrganizationId()+":"+traceFunRegulation.getCreateBatchType();
-                    long incr = commonUtilComponent.getIncr(RedisKey.BatchId);
-                    traceBatchName.append(incr);
+                    //按组织、批次类型生成流水号
+                    String incrKey=String.format("%s:%s:%s",RedisKey.BatchSerialNumber,getOrganizationId(),traceFunRegulation.getCreateBatchType());
+                    long incr = redisUtil.generate(incrKey);
+                    baseBatchInfo.setSerialNumber(incr);
+                    String serial= StringUtils.leftPad(String.valueOf(incr),5,"0");
+                    traceBatchName.append(serial);
                     break;
                 case "FunName":
                     traceBatchName.append(traceFunRegulation.getFunctionName());

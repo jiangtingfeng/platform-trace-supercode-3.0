@@ -7,15 +7,15 @@ public class TraceBatchRelation implements Serializable {
 
     private static final long serialVersionUID = -951599081019898457L;
     private Long id;
-    private String batchRelationId;
-    private String currentBatchId;
-    private String parentBatchId;
+    private String batchRelationId; //批次关联id
+    private String currentBatchId; //当前批次id
+    private String parentBatchId; //父级批次id
     private String createDate;
     private String updateDate;
     private String businessTableName;
     private String parentBusinessTableName;
     private String currentBatchType;
-    private int parentBatchType;
+    private int parentBatchType; //父级批次类型
 
     public TraceBatchRelation(){}
 

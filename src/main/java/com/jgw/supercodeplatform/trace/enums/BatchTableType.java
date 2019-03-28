@@ -2,6 +2,12 @@ package com.jgw.supercodeplatform.trace.enums;
 
 import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 
+/**
+ * 批次表类型
+ *
+ * @author wzq
+ * @date: 2019-03-28
+ */
 public enum  BatchTableType {
 
     ProductBatch(1,"trace_batchinfo"),

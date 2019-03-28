@@ -11,6 +11,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 批次关联关系数据管理
+ *
+ * @author wzq
+ * @date: 2019-03-28
+ */
 @Service
 public class TraceBatchRelationService extends CommonUtil {
 
@@ -20,6 +26,11 @@ public class TraceBatchRelationService extends CommonUtil {
     @Autowired
     private TraceBatchRelationEsService traceBatchRelationEsService;
 
+    /**
+     * 根据批次Id递归查询所有父级批次
+     * @param batchId
+     * @return
+     */
     public List<TraceBatchRelation> selectByBatchId(String batchId)
     {
         boolean showAllOnSameClass=false;

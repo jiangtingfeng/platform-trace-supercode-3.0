@@ -24,6 +24,7 @@ public class RedisKey {
     public static String DATABASE1_TABLE_NUM_REDIS_KEY="trace:dynamic_database1_table_num";
     
     public static String DATABASE2_TABLE_NUM_REDIS_KEY="trace:dynamic_database2_table_num";
-    //分库分表自增  logistics:incr:
-    public static final String BatchId = "trace:incr:dynamic:batch";//redis自增
+
+    //批次名称自增流水号
+    public static final String BatchSerialNumber = "trace:batch:serialnumber:";
 }

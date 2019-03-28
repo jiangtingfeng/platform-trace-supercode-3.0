@@ -50,6 +50,11 @@ public interface TraceFunRegulationMapper extends CommonSql {
     int insertTraceFunRegulation(TraceFunRegulation traceFunRegulation);
 
 
+    /**
+     * 根据功能id获取定制功能使用规则
+     * @param funId
+     * @return
+     */
     @Select("SELECT "+allFields+" FROM trace_fun_regulation  where FunId=#{funId}")
     TraceFunRegulation selectByFunId(@Param("funId")String funId);
 

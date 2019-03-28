@@ -196,6 +196,7 @@ public class TraceFunFieldConfigController {
 			List<FunComponentModel> funComponentModels=new ArrayList<FunComponentModel>();
 			traceFunModel.setFunComponentModels(funComponentModels);
 
+			//查询定制功能中的组件和字段
 			List<TraceFunComponent> traceFunComponents= service.selectFunComponentByFunId(param.getFunctionId());
 			if (traceFunComponents!=null && traceFunComponents.size()>0){
 				for(TraceFunComponent traceFunComponent : traceFunComponents){

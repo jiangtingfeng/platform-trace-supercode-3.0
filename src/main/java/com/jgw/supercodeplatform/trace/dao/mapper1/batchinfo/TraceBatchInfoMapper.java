@@ -148,7 +148,8 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	 */
 	@Select(selectSql+" from trace_batchinfo a WHERE ${plainSql}")
 	TraceBatchInfo getOneByUnkonwnOneField(@Param("plainSql")String plainSql);
-    
+
+
 	@Update("update trace_batchinfo set TraceTemplateName=#{templateName} where TraceTemplateId = #{traceTemplateId}")
 	void updateTemplateNameByTemplateId(@Param("templateName")String templateName, @Param("traceTemplateId")String templateConfigId);
 	

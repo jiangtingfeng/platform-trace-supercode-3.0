@@ -267,6 +267,10 @@ public class TraceFunFieldConfigDelegate {
 		}
 	}
 
+	/**
+	 * 获取预定义的物料组件字段
+	 * @return
+	 */
 	private List<TraceFunFieldConfigParam> getMaterielFieldConfigs()
 	{
 		String funId="Materiel_Compent_Field";
@@ -276,6 +280,12 @@ public class TraceFunFieldConfigDelegate {
 		return  fieldConfigParams;
 	}
 
+
+	/**
+	 * 创建定制功能使用规则、功能组件、字段
+	 * @param customizeFun
+	 * @throws Exception
+	 */
 	public void saveFunComponentAndRegulation(CustomizeFun customizeFun) throws Exception
 	{
 		String funId=customizeFun.getFunId();

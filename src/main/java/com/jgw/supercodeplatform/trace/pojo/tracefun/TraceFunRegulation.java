@@ -7,19 +7,19 @@ public class TraceFunRegulation  implements Serializable {
     private static final long serialVersionUID = -3169212712471824749L;
 
     private String regulationId;
-    private String funId;
-    private int objectAssociatedType;
-    private int regulationType;
-    private boolean multipleInput;
-    private int useSceneType;
-    private String batchNamingLinkCharacter;
-    private String batchNamingRule;
-    private int batchTimeControl;
-    private int createBatchType;
-    private String splittingRule;
+    private String funId; //功能id
+    private int objectAssociatedType; //批次关联对象类型
+    private int regulationType; //功能类型：过程节点/控制节点
+    private boolean multipleInput; //是否可多次输入
+    private int useSceneType; //使用场景类型
+    private String batchNamingLinkCharacter; //批次命名链接符
+    private String batchNamingRule; //批次命名规则
+    private int batchTimeControl; //批次时间控制
+    private int createBatchType; //新建批次对象类型
+    private String splittingRule; //分裂规则
     private String createDate;
     private String updateDate;
-    private String functionName;
+    private String functionName; //功能名称
 
 
     public String getRegulationId() {

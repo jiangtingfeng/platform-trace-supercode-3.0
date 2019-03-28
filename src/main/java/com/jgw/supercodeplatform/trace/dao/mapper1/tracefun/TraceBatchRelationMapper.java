@@ -19,6 +19,11 @@ public interface TraceBatchRelationMapper extends CommonSql {
             "")
     int insertTraceBatchRelation(TraceBatchRelation traceBatchRelation);
 
-    @Select("SELECT * FROM jgw_trace.trace_batchrelation where CurrentBatchId=#{batchId}")
+    /**
+     * 根据批次id获取父级批次关联数据
+     * @param batchId
+     * @return
+     */
+    @Select("SELECT * FROM trace_batchrelation where CurrentBatchId=#{batchId}")
     List<TraceBatchRelation> selectByBatchId(@Param("batchId") String batchId);
 }

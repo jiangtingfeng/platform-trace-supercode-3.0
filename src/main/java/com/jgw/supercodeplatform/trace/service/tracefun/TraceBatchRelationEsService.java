@@ -27,6 +27,12 @@ import java.util.List;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
+/**
+ * ElasticSearch中的批次关联关系数据管理
+ *
+ * @author wzq
+ * @date: 2019-03-28
+ */
 @Service
 public class TraceBatchRelationEsService extends CommonUtil {
 
@@ -41,6 +47,11 @@ public class TraceBatchRelationEsService extends CommonUtil {
 
     private static Logger logger= LoggerFactory.getLogger(TraceBatchRelationEsService.class);
 
+    /**
+     * 新增批次关联数据，同时异步写入ElasticSearch
+     * @param traceBatchRelation
+     * @throws Exception
+     */
     public void insertTraceBatchRelation(TraceBatchRelation traceBatchRelation)  throws Exception
     {
         traceBatchRelationMapper.insertTraceBatchRelation(traceBatchRelation);
@@ -56,6 +67,11 @@ public class TraceBatchRelationEsService extends CommonUtil {
 
     }
 
+    /**
+     * 批次关联数据写入ElasticSearch
+     * @param traceBatchRelation
+     * @throws Exception
+     */
     private void insertTraceBatchRelationToEs(TraceBatchRelation traceBatchRelation) throws Exception{
         IndexResponse indexResponse=eClient.prepareIndex(IndexAndType.TRACE_INDEX,IndexAndType.TRACE_BATCHRELATION_TYPE).setSource(
                 jsonBuilder().startObject()
@@ -74,6 +90,11 @@ public class TraceBatchRelationEsService extends CommonUtil {
         }
     }
 
+    /**
+     * 根据批次Id从ElasticSearch中查询批次关联数据
+     * @param batchId
+     * @return
+     */
     public List<TraceBatchRelation> selectByBatchId(String batchId){
 
         SearchResponse response=eClient.prepareSearch(IndexAndType.TRACE_INDEX)

@@ -294,7 +294,6 @@ public class TraceBatchInfoService extends CommonUtil {
         ReturnParamsMap returnParamsMap=null;
         StringBuilder idsBuilder = new StringBuilder();
         Map<String, Object> dataMap=null;
-        Map<String, Object> resultMap=null;
 
         if (map.get("batchType")!=null && map.get("batchType").toString().equals("2")){
             total = traceObjectBatchInfoMapper.getCountByCondition(map);//获取总记录数
@@ -324,7 +323,7 @@ public class TraceBatchInfoService extends CommonUtil {
         }else {
             dataMap.put("addressWithTemplate", new ArrayList<>());
         }
-        return resultMap;
+        return dataMap;
     }
 
     /**
@@ -425,6 +424,12 @@ public class TraceBatchInfoService extends CommonUtil {
         return traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
     }
 
+    /**
+     * 查询父级批次对应的溯源信息数据并返回
+     * @param traceBatchRelations
+     * @param nodeDatas
+     * @throws Exception
+     */
     private void GetParentBatchNodeInfo(List<TraceBatchRelation> traceBatchRelations, List<Map<String, Object>> nodeDatas)  throws Exception {
         for(TraceBatchRelation traceBatchRelation:traceBatchRelations){
             String traceBatchInfoId=traceBatchRelation.getParentBatchId();
@@ -477,7 +482,7 @@ public class TraceBatchInfoService extends CommonUtil {
             dataMap.put("productInfo", traceBatchInfo);
         }
 
-        //父节点
+        //递归查询所有父级批次，查询所有父级批次对应的溯源信息数据并返回
         List<TraceBatchRelation> traceBatchRelations= traceBatchRelationService.selectByBatchId(traceBatchInfoId);
         if (traceBatchRelations!=null && traceBatchRelations.size()>0){
             GetParentBatchNodeInfo(traceBatchRelations, nodeDataResult.getResults());

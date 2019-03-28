@@ -46,6 +46,11 @@ public interface TraceObjectBatchInfoMapper extends CommonSql {
             + endScript)
     int getCountByCondition(Map<String,Object> map);
 
+    /**
+     * 获取地块批次列表数据
+     * @param map
+     * @return
+     */
     @Select(startScript + selectSql
             + " FROM trace_objectbatchinfo a LEFT JOIN trace_funtemplatestatistical b ON a.TraceTemplateId = b.TraceTemplateId "
             + startWhere
@@ -59,4 +64,21 @@ public interface TraceObjectBatchInfoMapper extends CommonSql {
             + endScript)
     List<TraceObjectBatchInfo> getTraceBatchInfo(Map<String,Object> map);
 
+
+    /**
+     * 根据地块id获取对应地块批次
+     * @param map
+     * @return
+     */
+    @Select(startScript+
+            "SELECT * FROM trace_objectbatchinfo\n" +
+            "where objectid =#{objectid}"
+            + endScript)
+    List<TraceObjectBatchInfo> getTraceBatchInfoByObjectId(Map<String,Object> map);
+
+    @Select(startScript+"SELECT COUNT(1) FROM trace_objectbatchinfo\n"
+            +"where objectid =#{objectid}"
+            + page
+            + endScript)
+    int getCountByObjectId(String objectId);
 }
