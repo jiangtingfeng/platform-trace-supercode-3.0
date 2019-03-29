@@ -17,9 +17,7 @@ import com.jgw.supercodeplatform.trace.enums.RegulationTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.TraceUseSceneEnum;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
-import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchNamedService;
-import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchRelationEsService;
-import com.jgw.supercodeplatform.trace.service.tracefun.TraceObjectBatchInfoService;
+import com.jgw.supercodeplatform.trace.service.tracefun.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,6 +107,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	@Autowired
 	private TraceBatchRelationEsService traceBatchRelationEsService;
 
+	@Autowired
+	private MaterialService materialService;
+
+	@Autowired
+	private DeviceService deviceService;
+
 
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
 	{
@@ -154,6 +158,28 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		}
 		return massifId;
 	}
+
+	private String getDeviceId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
+	{
+		String deviceId=null;
+		List<FieldBusinessParam> fields=lineBusinessData.getFields();
+		for (FieldBusinessParam fieldParam : fields) {
+			Integer objectType=fieldParam.getObjectType();
+			if (null!=objectType) {
+				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
+				switch (objectTypeEnum) {
+					case Device:
+						deviceId = fieldParam.getObjectUniqueValue();
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return deviceId;
+	}
+
+
 
 	/**
 	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
@@ -425,6 +451,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			//保存定制功能主表中的字段数据
 			restResult=addFunData(param,identityMap);
 
+			String deviceId=getDeviceId(param.getLineData());
+			if(!StringUtils.isEmpty(deviceId)){
+				//添加设备使用记录
+				deviceService.insertUsageInfo(deviceId);
+			}
+
 			List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
 			if (componentDataModels!=null && componentDataModels.size()>0){
 				for(FunComponentDataModel funComponentDataModel:componentDataModels){
@@ -440,6 +472,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 								//保存功能组件中的字段数据
 								addFunComponentData(componentFunParam,identityMap);
+
+								if(funComponentDataModel.getComponentType()== ComponentTypeEnum.MaterielCompent.getKey()){
+									//添加物料出库记录
+									materialService.insertOutOfStockInfo(fields);
+								}
 							}
 						}
 					}

@@ -16,7 +16,9 @@ public enum ObjectTypeEnum {
 	RecoveryBatch(13014,"TraceBatchId","采收批次"),
 	PurchaseBatch(13015,"TraceBatchId","收购批次"),
 	SortingBatch(13016,"TraceBatchId","分拣批次"),
-	PackingBatch(13017,"TraceBatchId","包装批次");
+	PackingBatch(13017,"TraceBatchId","包装批次"),
+
+	Device(13018,"DeviceId","设备");
 
 	public static ObjectTypeEnum getType(Integer codeTypeId) throws SuperCodeTraceException {
 		if (null==codeTypeId) {
