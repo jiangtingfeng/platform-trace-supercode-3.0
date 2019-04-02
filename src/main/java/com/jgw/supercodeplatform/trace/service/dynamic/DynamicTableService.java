@@ -113,6 +113,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	@Autowired
 	private DeviceService deviceService;
 
+	@Autowired
+	private CodeRelationService codeRelationService;
+
 
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
 	{
@@ -179,7 +182,25 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return deviceId;
 	}
 
-
+	private String getCodeAssociateType(LineBusinessData lineBusinessData) throws SuperCodeTraceException
+	{
+		String associateType=null;
+		List<FieldBusinessParam> fields=lineBusinessData.getFields();
+		for (FieldBusinessParam fieldParam : fields) {
+			Integer objectType=fieldParam.getObjectType();
+			if (null!=objectType) {
+				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
+				switch (objectTypeEnum) {
+					case CodeAssociate:
+						associateType = fieldParam.getObjectUniqueValue();
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return associateType;
+	}
 
 	/**
 	 * 新增定制功能数据无法让前端直接传模板id和批次id需要自己找
@@ -455,6 +476,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			if(!StringUtils.isEmpty(deviceId)){
 				//添加设备使用记录
 				deviceService.insertUsageInfo(deviceId);
+			}
+			String associateType=getCodeAssociateType(param.getLineData());
+			if(!StringUtils.isEmpty(associateType)){
+				//添加码关联信息
+				codeRelationService.insertCodeRelationInfo(param.getLineData().getFields());
 			}
 
 			List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();

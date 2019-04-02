@@ -18,7 +18,8 @@ public enum ObjectTypeEnum {
 	SortingBatch(13016,"TraceBatchId","分拣批次"),
 	PackingBatch(13017,"TraceBatchId","包装批次"),
 
-	Device(13018,"DeviceId","设备");
+	Device(13018,"DeviceId","设备"),
+	CodeAssociate(13010,"AssociateType","码关联方式");
 
 	public static ObjectTypeEnum getType(Integer codeTypeId) throws SuperCodeTraceException {
 		if (null==codeTypeId) {
@@ -32,18 +33,23 @@ public enum ObjectTypeEnum {
 		case 13003:
 			return TRACE_BATCH;
 
+		case 13012:
+			return MassifInfo;
+		case 13013:
+			return MassifBatch;
 		case 13014:
 			return RecoveryBatch;
 		case 13015:
-				return PurchaseBatch;
+			return PurchaseBatch;
 		case 13016:
 			return SortingBatch;
 		case 13017:
 			return PackingBatch;
+
 		case 13018:
-			return MassifBatch;
-		case 13019:
-			return MassifInfo;
+			return Device;
+		case 13010:
+			return CodeAssociate;
 		default:
 			throw new SuperCodeTraceException("无法根据对象类型codeTypeId="+codeTypeId+"获取到对象", 500);
 		}

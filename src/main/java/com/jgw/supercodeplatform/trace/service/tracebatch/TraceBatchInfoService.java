@@ -367,6 +367,7 @@ public class TraceBatchInfoService extends CommonUtil {
     public List<ReturnTraceBatchInfo> listTraceBatchInfo() throws SuperCodeException {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("organizationId", getOrganizationId());
+
         return traceBatchInfoMapper.getTraceBatchInfo(map);
     }
 
