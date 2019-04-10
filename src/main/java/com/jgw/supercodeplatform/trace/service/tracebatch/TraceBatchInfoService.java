@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceObjectBatchInfoMapper;
@@ -435,7 +436,7 @@ public class TraceBatchInfoService extends CommonUtil {
         for(TraceBatchRelation traceBatchRelation:traceBatchRelations){
             String traceBatchInfoId=traceBatchRelation.getParentBatchId();
             String traceTemplateId=null;
-            if(StringUtils.isEmpty(traceBatchInfoId)){
+            if(!StringUtils.isEmpty(traceBatchInfoId)){
                 if(traceBatchRelation.getParentBatchType()== BatchTableType.ObjectBatch.getKey()){
                     TraceObjectBatchInfo traceBatchInfo=traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
                     traceTemplateId=traceBatchInfo.getTraceTemplateId();
@@ -452,6 +453,32 @@ public class TraceBatchInfoService extends CommonUtil {
         }
     }
 
+    private HashMap<String, Object> getBatchNodeInfo(TraceBatchRelation traceBatchRelation) throws Exception{
+        String traceBatchInfoId=traceBatchRelation.getParentBatchId();
+        String traceTemplateId=null;
+        HashMap<String, Object> currentDataMap=null;
+        Object batchInfo=null;
+        if(!StringUtils.isEmpty(traceBatchInfoId)){
+            if(traceBatchRelation.getParentBatchType()== BatchTableType.ObjectBatch.getKey()){
+                TraceObjectBatchInfo traceBatchInfo=traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+                traceTemplateId=traceBatchInfo.getTraceTemplateId();
+                batchInfo=traceBatchInfo;
+            }else {
+                TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+                traceTemplateId=traceBatchInfo.getTraceTemplateId();
+                batchInfo=traceBatchInfo;
+            }
+            RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, true, null);
+            List<Map<String,Object>> parentNodeData=nodeDataResult.getResults();
+            if(parentNodeData!=null && parentNodeData.size()>0){
+                currentDataMap=new HashMap<String, Object>();
+                currentDataMap.put("nodeInfo",parentNodeData);
+                currentDataMap.put("productInfo", batchInfo);
+            }
+        }
+        return currentDataMap;
+    }
+
     /**
      * h5页面数据查询接口
      *
@@ -459,9 +486,10 @@ public class TraceBatchInfoService extends CommonUtil {
      * @return
      * @throws Exception
      */
-    public RestResult<Map<String, Object>> h5PageData(String traceBatchInfoId, Integer traceBatchType) throws Exception {
-        RestResult<Map<String, Object>> backResult = new RestResult<Map<String, Object>>();
-        Map<String, Object> dataMap = new HashMap<String, Object>();
+    public RestResult<List<HashMap<String, Object>>> h5PageData(String traceBatchInfoId, Integer traceBatchType) throws Exception {
+        RestResult<List<HashMap<String, Object>>> backResult = new RestResult<List<HashMap<String, Object>>>();
+        HashMap<String, Object> dataMap = new HashMap<String, Object>();
+        List<HashMap<String, Object>> batchDatas = new ArrayList<HashMap<String, Object>>();
 
         RestResult<List<Map<String, Object>>> nodeDataResult=null;
 
@@ -472,6 +500,7 @@ public class TraceBatchInfoService extends CommonUtil {
             }
             nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null);
 
+            dataMap.put("productInfo", traceBatchInfo);
         } else {
             TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
             if (null == traceBatchInfo) {
@@ -482,19 +511,38 @@ public class TraceBatchInfoService extends CommonUtil {
 
             dataMap.put("productInfo", traceBatchInfo);
         }
+        dataMap.put("nodeInfo", nodeDataResult.getResults());
+        batchDatas.add(dataMap);
 
         //递归查询所有父级批次，查询所有父级批次对应的溯源信息数据并返回
         List<TraceBatchRelation> traceBatchRelations= traceBatchRelationService.selectByBatchId(traceBatchInfoId);
         if (traceBatchRelations!=null && traceBatchRelations.size()>0){
-            GetParentBatchNodeInfo(traceBatchRelations, nodeDataResult.getResults());
+
+            HashMap<String, Object> currentDataMap = new HashMap<String, Object>();
+            List<TraceBatchRelation> parentBatchs= traceBatchRelations.stream().filter(e->e.getCurrentBatchId().equals(traceBatchInfoId)).collect(Collectors.toList());
+            while (parentBatchs!=null && parentBatchs.size()>0){
+                if(parentBatchs.size()==1){
+                    currentDataMap = getBatchNodeInfo(parentBatchs.get(0));
+                    if(currentDataMap!=null){
+                        batchDatas.add(currentDataMap);
+                    }
+
+                    String parentBatchId= parentBatchs.get(0).getParentBatchId();
+                    parentBatchs= traceBatchRelations.stream().filter(e->e.getCurrentBatchId().equals(parentBatchId)).collect(Collectors.toList());
+                } else {
+                    currentDataMap.put("relations",parentBatchs);
+                    batchDatas.add(currentDataMap);
+                    parentBatchs=null;
+                }
+            }
         }
 
         if (nodeDataResult.getState() != 200) {
             throw new SuperCodeTraceException(nodeDataResult.getMsg(), 500);
         }
-        dataMap.put("nodeInfo", nodeDataResult.getResults());
+
         backResult.setState(200);
-        backResult.setResults(dataMap);
+        backResult.setResults(batchDatas);
         return backResult;
     }
 }

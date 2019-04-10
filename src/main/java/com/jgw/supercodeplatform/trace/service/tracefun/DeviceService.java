@@ -51,11 +51,12 @@ public class DeviceService  extends CommonUtil {
             AccountCache userAccount = getUserLoginCache();
             params.put("deviceId", deviceId);
             params.put("usageTime", time.format(formatter));
-            params.put("createId", userAccount.getUserId());
-            params.put("createMan", userAccount.getUserName());
+            params.put("userId", userAccount.getUserId());
+            params.put("userName", userAccount.getUserName());
+            params.put("operationalContent", "");
 
             headerMap.put("super-token", getSuperToken());
-            ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restUserUrl + "/produce/device/usage", JSONObject.toJSONString( params), headerMap);
+            ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restUserUrl + "/device/usage-record", JSONObject.toJSONString( params), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
                 String body = rest.getBody();

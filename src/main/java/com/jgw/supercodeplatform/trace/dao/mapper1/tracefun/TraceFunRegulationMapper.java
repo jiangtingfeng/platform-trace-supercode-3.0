@@ -11,7 +11,7 @@ import java.util.List;
 public interface TraceFunRegulationMapper extends CommonSql {
 
     static String allFields="RegulationId regulationId, FunId funId, ObjectAssociatedType objectAssociatedType, RegulationType regulationType, MultipleInput multipleInput, UseSceneType useSceneType, BatchNamingLinkCharacter batchNamingLinkCharacter, "
-            +"BatchNamingRule batchNamingRule, BatchTimeControl batchTimeControl, CreateDate createDate, UpdateDate updateDate, CreateBatchType createBatchType, SplittingRule splittingRule, FunctionName functionName";
+            +"BatchNamingRule batchNamingRule, BatchTimeControl batchTimeControl, CreateDate createDate, UpdateDate updateDate, CreateBatchType createBatchType, SplittingRule splittingRule, FunctionName functionName,LayoutType layoutType";
 
 
     @Insert(startScript
@@ -28,6 +28,7 @@ public interface TraceFunRegulationMapper extends CommonSql {
                 + "<if test='batchTimeControl  != null '>BatchTimeControl,</if> "
                 + "<if test='createBatchType  != null '>CreateBatchType,</if> "
                 + "<if test='splittingRule  != null '>SplittingRule,</if> "
+                + "<if test='layoutType  != null '>LayoutType,</if> "
                 + "CreateDate, "
                 + "UpdateDate "
             + "</trim>"
@@ -43,6 +44,7 @@ public interface TraceFunRegulationMapper extends CommonSql {
                 + "<if test='batchTimeControl != null '>#{batchTimeControl},</if> "
                 + "<if test='createBatchType != null '>#{createBatchType},</if> "
                 + "<if test='splittingRule != null '>#{splittingRule},</if> "
+                + "<if test='layoutType != null '>#{layoutType},</if> "
                 + "now(), "
                 + "now() "
             + "</trim>"

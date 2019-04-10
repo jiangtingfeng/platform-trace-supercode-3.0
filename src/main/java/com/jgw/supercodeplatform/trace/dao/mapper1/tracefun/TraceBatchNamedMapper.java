@@ -23,9 +23,9 @@ public interface TraceBatchNamedMapper  extends CommonSql {
     int deleteTraceBatchNamed(@Param("funId")String funId);
 
     @Insert("INSERT INTO trace_batchnamed" +
-            "(`FieldId`,`FieldName`,`FieldCode`,`FunId`,`CreateDate`,`UpdateDate`)" +
+            "(`FieldId`,`FieldName`,`FieldCode`,`FunId`,`CreateDate`,`UpdateDate`,'fieldFormat','disableFlag')" +
             "VALUES" +
-            "( #{fieldId},#{fieldName},#{fieldCode},#{funId},now(),now())" +
+            "( #{fieldId},#{fieldName},#{fieldCode},#{funId},now(),now(),#{fieldFormat},#{disableFlag})" +
             "")
     int insertTraceBatchNamed(TraceBatchNamed traceBatchNamed);
 }

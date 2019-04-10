@@ -61,6 +61,8 @@ public class TraceBatchNamedService extends CommonUtil {
         for(int i=0;i<batchNameds.size();i++){
             TraceBatchNamed traceBatchNamed=batchNameds.get(i);
             String fieldCode= traceBatchNamed.getFieldCode();
+            String format= traceBatchNamed.getFieldFormat();
+            //TODO fieldFormat
             switch (fieldCode){
                 case "ProductName":
                     traceBatchName.append(baseBatchInfo.getProductName());
@@ -80,6 +82,8 @@ public class TraceBatchNamedService extends CommonUtil {
                     break;
                 case "FunName":
                     traceBatchName.append(traceFunRegulation.getFunctionName());
+                case "StaticText":
+                    traceBatchName.append(traceBatchNamed.getFieldName());
                     break;
             }
             if(i!=batchNameds.size()-1){

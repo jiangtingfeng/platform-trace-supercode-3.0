@@ -13,13 +13,34 @@ public class TraceBatchNamed implements Serializable {
     private String createDate;
     private String updateDate;
     private String funId;
+    private String fieldFormat;
+
+    public String getFieldFormat() {
+        return fieldFormat;
+    }
+
+    public void setFieldFormat(String fieldFormat) {
+        this.fieldFormat = fieldFormat;
+    }
+
+    public boolean isDisableFlag() {
+        return disableFlag;
+    }
+
+    public void setDisableFlag(boolean disableFlag) {
+        this.disableFlag = disableFlag;
+    }
+
+    private boolean disableFlag;
 
     public TraceBatchNamed(){}
 
-    public TraceBatchNamed(String fieldName,String fieldCode,String funId){
+    public TraceBatchNamed(String fieldName,String fieldCode,String funId,String fieldFormat,boolean disableFlag){
         this.fieldName=fieldName;
         this.fieldCode=fieldCode;
         this.funId=funId;
+        this.fieldFormat=fieldFormat;
+        this.disableFlag=disableFlag;
     }
 
     public Long getId() {

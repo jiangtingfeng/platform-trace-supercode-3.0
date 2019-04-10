@@ -321,6 +321,7 @@ public class TraceFunFieldConfigDelegate {
 				traceFunComponent.setComponentName(funComponent.getComponentName());
 				traceFunComponent.setComponentType(funComponent.getComponentType());
 				traceFunComponent.setFunId(funId);
+				traceFunComponent.setFieldWeight(funComponent.getFieldWeight());
 				traceFunComponentMapper.insertTraceFunComponent(traceFunComponent);
 			}
 		}
@@ -335,11 +336,12 @@ public class TraceFunFieldConfigDelegate {
 		traceFunRegulation.setBatchTimeControl(customizeFun.getBatchTimeControl());
 		traceFunRegulation.setCreateBatchType(customizeFun.getCreateBatchType());
 		traceFunRegulation.setSplittingRule(customizeFun.getSplittingRule());
+		traceFunRegulation.setLayoutType(customizeFun.getLayoutType());
 		traceFunRegulationMapper.insertTraceFunRegulation(traceFunRegulation);
 
 		List<BatchNamedRuleField> batchNamedRuleFields= customizeFun.getBatchNamedRuleFieldModels();
 		if (batchNamedRuleFields!=null && batchNamedRuleFields.size()>0){
-			List<TraceBatchNamed> traceBatchNameds= batchNamedRuleFields.stream().map(e->new TraceBatchNamed(e.getFieldName(),e.getFieldCode(),funId)).collect(Collectors.toList());
+			List<TraceBatchNamed> traceBatchNameds= batchNamedRuleFields.stream().map(e->new TraceBatchNamed(e.getFieldName(),e.getFieldCode(),funId,e.getFieldFormat(),e.isDisableFlag())).collect(Collectors.toList());
 			traceBatchNamedService.insertTraceBatchNamed(traceBatchNameds);
 		}
 	}

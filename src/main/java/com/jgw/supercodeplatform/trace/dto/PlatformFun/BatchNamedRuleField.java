@@ -12,6 +12,25 @@ public  class BatchNamedRuleField
     @ApiModelProperty(value = "字段Code")
     private String fieldCode;
 
+    private String fieldFormat;
+
+    public String getFieldFormat() {
+        return fieldFormat;
+    }
+
+    public void setFieldFormat(String fieldFormat) {
+        this.fieldFormat = fieldFormat;
+    }
+
+    public boolean isDisableFlag() {
+        return disableFlag;
+    }
+
+    public void setDisableFlag(boolean disableFlag) {
+        this.disableFlag = disableFlag;
+    }
+
+    private boolean disableFlag;
 
     public String getFieldName() {
         return fieldName;

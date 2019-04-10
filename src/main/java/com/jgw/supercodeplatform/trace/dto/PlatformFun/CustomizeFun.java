@@ -103,6 +103,16 @@ public  class CustomizeFun {
     @ApiModelProperty(value = "命名规则字段数组")
     List<BatchNamedRuleField> batchNamedRuleFieldModels;
 
+    private int layoutType;
+
+    public int getLayoutType() {
+        return layoutType;
+    }
+
+    public void setLayoutType(int layoutType) {
+        this.layoutType = layoutType;
+    }
+
     public String getFunName() {
         return funName;
     }

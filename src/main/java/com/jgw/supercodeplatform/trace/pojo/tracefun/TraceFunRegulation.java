@@ -21,6 +21,16 @@ public class TraceFunRegulation  implements Serializable {
     private String updateDate;
     private String functionName; //功能名称
 
+    public int getLayoutType() {
+        return layoutType;
+    }
+
+    public void setLayoutType(int layoutType) {
+        this.layoutType = layoutType;
+    }
+
+    private int layoutType;
+
 
     public String getRegulationId() {
         return regulationId;

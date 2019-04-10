@@ -19,6 +19,16 @@ public  class FunComponent
     @ApiModelProperty(value = "组件id")
     private String componentId;
 
+    public int getFieldWeight() {
+        return fieldWeight;
+    }
+
+    public void setFieldWeight(int fieldWeight) {
+        this.fieldWeight = fieldWeight;
+    }
+
+    private int fieldWeight;
+
     @ApiModelProperty(name = "traceFunFieldConfigModel", value = "功能溯源对象模型数组")
     List<TraceFunFieldConfigParam> traceFunFieldConfigModel;
 

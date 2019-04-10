@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface TraceFunComponentMapper extends CommonSql {
 
-    static String allFields=" ComponentId componentId, FunId funId, ComponentType componentType, CreateDate createDate, UpdateDate updateDate, TableName tableName, OrganizationId organizationId, ComponentName componentName";
+    static String allFields=" ComponentId componentId, FunId funId, ComponentType componentType, CreateDate createDate, UpdateDate updateDate, TableName tableName, OrganizationId organizationId, ComponentName componentName,FieldWeight fieldWeight";
 
 
     @Insert(startScript
@@ -21,6 +21,7 @@ public interface TraceFunComponentMapper extends CommonSql {
                 + "<if test='tableName != null '>TableName,</if> "
                 + "<if test='organizationId != null '>OrganizationId,</if> "
                 + "<if test='componentName != null '>ComponentName,</if> "
+                + "<if test='fieldWeight != null '>FieldWeight,</if> "
                 + "CreateDate, "
                 + "UpdateDate "
             + "</trim>"
@@ -31,6 +32,7 @@ public interface TraceFunComponentMapper extends CommonSql {
                 + "<if test='tableName != null '>#{tableName},</if> "
                 + "<if test='organizationId != null '>#{organizationId},</if> "
                 + "<if test='componentName != null '>#{componentName},</if> "
+                + "<if test='fieldWeight != null '>#{fieldWeight},</if> "
                 + "now(), "
                 + "now() "
             + "</trim>"
