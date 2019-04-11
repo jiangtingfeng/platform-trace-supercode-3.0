@@ -310,10 +310,7 @@ public class TraceFunFieldConfigDelegate {
 						createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
 					}
 				}else {
-					List<TraceFunFieldConfigParam> fieldConfigParams=funComponent.getTraceFunFieldConfigModel();
-					if(fieldConfigParams!=null && fieldConfigParams.size()>0){
-						customizeFun.getTraceFunFieldConfigModel().addAll(fieldConfigParams);
-					}
+
 				}
 
 				TraceFunComponent traceFunComponent=new TraceFunComponent();

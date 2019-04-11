@@ -11,7 +11,11 @@ import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceBatchNamedMappe
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunComponentMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunRegulationMapper;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponent;
+import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchNamed;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunRegulation;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +70,18 @@ public class TraceFunFieldConfigService {
 		RestResult<List<String>> restResult=new RestResult<List<String>>();
 
 		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
+
+		List<FunComponent> funComponentModels=customizeFun.getFunComponentModels();
+		if (funComponentModels!=null && funComponentModels.size()>0){
+			for (FunComponent funComponent:funComponentModels){
+				if(!ComponentTypeEnum.isNestComponent(funComponent.getComponentType())){
+					List<TraceFunFieldConfigParam> fieldConfigParams=funComponent.getTraceFunFieldConfigModel();
+					if(fieldConfigParams!=null && fieldConfigParams.size()>0){
+						customizeFun.getTraceFunFieldConfigModel().addAll(fieldConfigParams);
+					}
+				}
+			}
+		}
 
 		boolean containsBatch=TraceFunFieldConfigDelegate.checkAddParam(param);
 		if (!containsBatch) {
@@ -183,6 +199,17 @@ public class TraceFunFieldConfigService {
 	{
 		return traceFunComponentMapper.selectByFunId(funId);
 	}
+
+	public TraceFunRegulation selectTraceFunRegulation(String funId)
+	{
+		return traceFunRegulationMapper.selectByFunId(funId);
+	}
+
+	public List<TraceBatchNamed> selectTraceBatchNamed(String funId)
+	{
+		return traceBatchNamedMapper.selectByFunId(funId);
+	}
+
 
 	public void deleteByTraceTemplateIdAndFunctionId(String traceTemplateId, String functionId) {
 		dao.deleteByTraceTemplateIdAndFunctionId(traceTemplateId,functionId);

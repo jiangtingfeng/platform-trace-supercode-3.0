@@ -12,8 +12,10 @@ import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponent;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponentModel;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.TraceFunModel;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchNamed;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunRegulation;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -213,6 +215,12 @@ public class TraceFunFieldConfigController {
 					funComponentModels.add(funComponent);
 				}
 			}
+
+			TraceFunRegulation traceFunRegulation= service.selectTraceFunRegulation(param.getFunctionId());
+			traceFunModel.setTraceFunRegulation(traceFunRegulation);
+
+			List<TraceBatchNamed> traceBatchNameds= service.selectTraceBatchNamed(param.getFunctionId());
+			traceFunModel.setTraceBatchNameds(traceBatchNameds);
 
 			result.setResults(traceFunModel);
 			result.setState(200);
