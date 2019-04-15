@@ -439,6 +439,52 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return baseBatchInfos;
 	}
 
+	private RestResult<String> addFunData(DynamicAddFunParam param) throws Exception{
+
+		RestResult<String> restResult=null;
+		LinkedHashMap<String, Object> identityMap=new LinkedHashMap<String, Object>();
+		//保存定制功能主表中的字段数据
+		restResult=addFunData(param,identityMap);
+
+		String deviceId=getDeviceId(param.getLineData());
+		if(!StringUtils.isEmpty(deviceId)){
+			//添加设备使用记录
+			deviceService.insertUsageInfo(deviceId);
+		}
+		String associateType=getCodeAssociateType(param.getLineData());
+		if(!StringUtils.isEmpty(associateType)){
+			//添加码关联信息
+			codeRelationService.insertCodeRelationInfo(param.getLineData().getFields());
+		}
+
+		List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
+		if (componentDataModels!=null && componentDataModels.size()>0){
+			for(FunComponentDataModel funComponentDataModel:componentDataModels){
+				if(ComponentTypeEnum.isNestComponent(funComponentDataModel.getComponentType())){
+					List<List<FieldBusinessParam>> fieldRows= funComponentDataModel.getFieldRows();
+					if (fieldRows!=null && fieldRows.size()>0){
+						for(List<FieldBusinessParam> fields: fieldRows){
+							DynamicAddFunParam componentFunParam=new DynamicAddFunParam();
+							componentFunParam.setFunctionId(funComponentDataModel.getComponentId());
+							LineBusinessData lineBusinessData=new LineBusinessData();
+							lineBusinessData.setFields(fields);
+							componentFunParam.setLineData(lineBusinessData);
+
+							//保存功能组件中的字段数据
+							addFunComponentData(componentFunParam,identityMap);
+
+							if(funComponentDataModel.getComponentType()== ComponentTypeEnum.MaterielCompent.getKey()){
+								//添加物料出库记录
+								materialService.insertOutOfStockInfo(fields);
+							}
+						}
+					}
+				}
+			}
+		}
+		return restResult;
+	}
+
 	/**
 	 * 定制功能保存数据
 	 * @param param
@@ -456,58 +502,23 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		}
 
 		List<BaseBatchInfo> baseBatchInfos=null;
-		if(traceFunRegulation.getRegulationType() == RegulationTypeEnum.ControlNode.getKey()) //控制节点
+		if(traceFunRegulation!=null && traceFunRegulation.getRegulationType() == RegulationTypeEnum.ControlNode.getKey()) //控制节点
 		{
 			//根据使用场景自动创建批次和批次关联数据
 			baseBatchInfos=CreateBatchInfoWithRelation(traceFunRegulation,param,traceBatchInfo);
 		}
 
 		RestResult<String> restResult=null;
-		for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
-			List<FieldBusinessParam> fieldBusinessParams= param.getLineData().getFields();
-			fieldBusinessParams.add(new FieldBusinessParam("traceBatchInfoId", baseBatchInfo.getTraceBatchInfoId()));
-			fieldBusinessParams.add(new FieldBusinessParam("traceBatchName", baseBatchInfo.getTraceBatchName()));
 
-			LinkedHashMap<String, Object> identityMap=new LinkedHashMap<String, Object>();
-			//保存定制功能主表中的字段数据
-			restResult=addFunData(param,identityMap);
-
-			String deviceId=getDeviceId(param.getLineData());
-			if(!StringUtils.isEmpty(deviceId)){
-				//添加设备使用记录
-				deviceService.insertUsageInfo(deviceId);
+		if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
+			for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
+				List<FieldBusinessParam> fieldBusinessParams= param.getLineData().getFields();
+				fieldBusinessParams.add(new FieldBusinessParam("traceBatchInfoId", baseBatchInfo.getTraceBatchInfoId()));
+				fieldBusinessParams.add(new FieldBusinessParam("traceBatchName", baseBatchInfo.getTraceBatchName()));
+				restResult= addFunData(param);
 			}
-			String associateType=getCodeAssociateType(param.getLineData());
-			if(!StringUtils.isEmpty(associateType)){
-				//添加码关联信息
-				codeRelationService.insertCodeRelationInfo(param.getLineData().getFields());
-			}
-
-			List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
-			if (componentDataModels!=null && componentDataModels.size()>0){
-				for(FunComponentDataModel funComponentDataModel:componentDataModels){
-					if(ComponentTypeEnum.isNestComponent(funComponentDataModel.getComponentType())){
-						List<List<FieldBusinessParam>> fieldRows= funComponentDataModel.getFieldRows();
-						if (fieldRows!=null && fieldRows.size()>0){
-							for(List<FieldBusinessParam> fields: fieldRows){
-								DynamicAddFunParam componentFunParam=new DynamicAddFunParam();
-								componentFunParam.setFunctionId(funComponentDataModel.getComponentId());
-								LineBusinessData lineBusinessData=new LineBusinessData();
-								lineBusinessData.setFields(fields);
-								componentFunParam.setLineData(lineBusinessData);
-
-								//保存功能组件中的字段数据
-								addFunComponentData(componentFunParam,identityMap);
-
-								if(funComponentDataModel.getComponentType()== ComponentTypeEnum.MaterielCompent.getKey()){
-									//添加物料出库记录
-									materialService.insertOutOfStockInfo(fields);
-								}
-							}
-						}
-					}
-				}
-			}
+		}else {
+			restResult= addFunData(param);
 		}
 
 		return restResult;
