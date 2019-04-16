@@ -758,13 +758,22 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		List<LinkedHashMap<String, Object>> list = dao.select(sql);
 
 		String funId=param.getFunctionId();
+		getFunComponentData(funId,list,dao);
+
+		return list;
+	}
+
+	private void getFunComponentData(String funId,List<LinkedHashMap<String, Object>> list ,DynamicBaseMapper dao)
+			throws SuperCodeTraceException, SuperCodeException {
+
+		String orgnizationId=commonUtil.getOrganizationId();
 		List<TraceFunComponent> traceFunComponents= traceFunComponentMapper.selectByFunId(funId);
 
 		//遍历定制功能列表数据，根据主表Id到功能组件数据表中查询组件数据
 		for (TraceFunComponent traceFunComponent: traceFunComponents){
 			if(list!=null && list.size()>0){
 				List<String> ids= list.stream().map(e->e.get("Id").toString()).collect(Collectors.toList());
-				sql=queryComponentSqlBuilder(traceFunComponent.getComponentId(),orgnizationId,ids);
+				String sql=queryComponentSqlBuilder(traceFunComponent.getComponentId(),orgnizationId,ids);
 				List<LinkedHashMap<String, Object>> componentDataList = dao.select(sql);
 				if (componentDataList!=null && componentDataList.size()>0){
 					for (LinkedHashMap<String, Object> rowMap:list){
@@ -784,9 +793,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				}
 			}
 		}
-
-		return list;
 	}
+
     /**
      * 定制功能列表查询统计数量
      */
@@ -987,7 +995,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	 * @return
 	 * @throws SuperCodeTraceException
 	 */
-	public RestResult<Map<String, Object>> getById(Long id, String functionId) throws SuperCodeTraceException {
+	public RestResult<Map<String, Object>> getById(Long id, String functionId) throws Exception {
 		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,functionId);
 		Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,functionId,1);
@@ -1011,6 +1019,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String fields = fieldNameBuilder.substring(0, fieldNameBuilder.length() - 1);
 		String sql = "select " + fields + " from " + tableName + " where Id="+id;
 		List<LinkedHashMap<String, Object>> list = dao.select(sql);
+
+		getFunComponentData(functionId,list,dao);
+
 		if (null!=list && !list.isEmpty()) {
 			restResult.setResults(list.get(0));
 		}
