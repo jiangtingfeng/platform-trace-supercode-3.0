@@ -453,10 +453,10 @@ public class TraceBatchInfoService extends CommonUtil {
         }
     }
 
-    private HashMap<String, Object> getBatchNodeInfo(TraceBatchRelation traceBatchRelation) throws Exception{
+    private List<Map<String,Object>> getBatchNodeInfo(TraceBatchRelation traceBatchRelation) throws Exception{
         String traceBatchInfoId=traceBatchRelation.getParentBatchId();
         String traceTemplateId=null;
-        HashMap<String, Object> currentDataMap=null;
+        List<Map<String,Object>> parentNodeData=null;
         Object batchInfo=null;
         if(!StringUtils.isEmpty(traceBatchInfoId)){
             if(traceBatchRelation.getParentBatchType()== BatchTableType.ObjectBatch.getKey()){
@@ -469,14 +469,16 @@ public class TraceBatchInfoService extends CommonUtil {
                 batchInfo=traceBatchInfo;
             }
             RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, true, null);
-            List<Map<String,Object>> parentNodeData=nodeDataResult.getResults();
-            if(parentNodeData!=null && parentNodeData.size()>0){
+            parentNodeData=nodeDataResult.getResults();
+
+
+            /*if(parentNodeData!=null && parentNodeData.size()>0){
                 currentDataMap=new HashMap<String, Object>();
                 currentDataMap.put("nodeInfo",parentNodeData);
                 currentDataMap.put("productInfo", batchInfo);
-            }
+            }*/
         }
-        return currentDataMap;
+        return parentNodeData;
     }
 
     /**
@@ -486,10 +488,10 @@ public class TraceBatchInfoService extends CommonUtil {
      * @return
      * @throws Exception
      */
-    public RestResult<List<HashMap<String, Object>>> h5PageData(String traceBatchInfoId, Integer traceBatchType) throws Exception {
-        RestResult<List<HashMap<String, Object>>> backResult = new RestResult<List<HashMap<String, Object>>>();
+    public RestResult<HashMap<String, Object>> h5PageData(String traceBatchInfoId, Integer traceBatchType) throws Exception {
+        RestResult<HashMap<String, Object>> backResult = new RestResult<HashMap<String, Object>>();
         HashMap<String, Object> dataMap = new HashMap<String, Object>();
-        List<HashMap<String, Object>> batchDatas = new ArrayList<HashMap<String, Object>>();
+        List<Map<String, Object>> batchDatas = null;
 
         RestResult<List<Map<String, Object>>> nodeDataResult=null;
 
@@ -512,26 +514,27 @@ public class TraceBatchInfoService extends CommonUtil {
             dataMap.put("productInfo", traceBatchInfo);
         }
         dataMap.put("nodeInfo", nodeDataResult.getResults());
-        batchDatas.add(dataMap);
+        batchDatas =nodeDataResult.getResults();
 
         //递归查询所有父级批次，查询所有父级批次对应的溯源信息数据并返回
         List<TraceBatchRelation> traceBatchRelations= traceBatchRelationService.selectByBatchId(traceBatchInfoId);
         if (traceBatchRelations!=null && traceBatchRelations.size()>0){
 
-            HashMap<String, Object> currentDataMap = new HashMap<String, Object>();
+            List<Map<String, Object>> currentDataMap = null;
             List<TraceBatchRelation> parentBatchs= traceBatchRelations.stream().filter(e->e.getCurrentBatchId().equals(traceBatchInfoId)).collect(Collectors.toList());
             while (parentBatchs!=null && parentBatchs.size()>0){
                 if(parentBatchs.size()==1){
                     currentDataMap = getBatchNodeInfo(parentBatchs.get(0));
                     if(currentDataMap!=null){
-                        batchDatas.add(currentDataMap);
+                        batchDatas.addAll(currentDataMap);
                     }
 
                     String parentBatchId= parentBatchs.get(0).getParentBatchId();
                     parentBatchs= traceBatchRelations.stream().filter(e->e.getCurrentBatchId().equals(parentBatchId)).collect(Collectors.toList());
                 } else {
-                    currentDataMap.put("relations",parentBatchs);
-                    batchDatas.add(currentDataMap);
+                    Map<String, Object> currentMap=new HashMap<String, Object>();
+                    currentMap.put("relations",parentBatchs);
+                    batchDatas.add(currentMap);
                     parentBatchs=null;
                 }
             }
@@ -542,7 +545,7 @@ public class TraceBatchInfoService extends CommonUtil {
         }
 
         backResult.setState(200);
-        backResult.setResults(batchDatas);
+        backResult.setResults(dataMap);
         return backResult;
     }
 }

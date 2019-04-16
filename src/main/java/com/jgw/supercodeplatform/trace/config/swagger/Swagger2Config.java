@@ -67,13 +67,37 @@ public class Swagger2Config {
                  .apiInfo(apiInfo())
                  .enable(enable);
      }
-     
+
      @Bean("批次管理")
      public Docket batchApis() {
          return new Docket(DocumentationType.SWAGGER_2)
                  .groupName("批次管理")
                  .select()
                  .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.tracebatch"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
+     @Bean("产品检测")
+     public Docket testingTypeApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("产品检测")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.producttesting"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
+     @Bean("码关联")
+     public Docket codeApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("码关联")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.code"))
                  .paths(PathSelectors.any())
                  .build()
                  .apiInfo(apiInfo())

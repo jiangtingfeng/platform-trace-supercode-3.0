@@ -302,7 +302,7 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true),
         @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
     })
-	public RestResult<List<HashMap<String, Object>>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam(required = false) Integer traceBatchType) throws Exception{
+	public RestResult<HashMap<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam(required = false) Integer traceBatchType) throws Exception{
 		return traceBatchInfoService.h5PageData(traceBatchInfoId,traceBatchType);
 	}
 	
