@@ -768,7 +768,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				List<LinkedHashMap<String, Object>> componentDataList = dao.select(sql);
 				if (componentDataList!=null && componentDataList.size()>0){
 					for (LinkedHashMap<String, Object> rowMap:list){
-						List<LinkedHashMap<String, Object>> childRows= componentDataList.stream().filter(e-> e.get("ParentId").toString().equals(rowMap.get("Id").toString())).collect(Collectors.toList());
+						List<LinkedHashMap<String, Object>> childRows= componentDataList.stream().filter(e->e.get("ParentId")!=null && e.get("ParentId").toString().equals(rowMap.get("Id").toString())).collect(Collectors.toList());
 						if(childRows!=null && childRows.size()>0){
 							ArrayList<HashMap<String,Object>> components=(ArrayList<HashMap<String,Object>>)rowMap.get("components");
 							if (components==null){
