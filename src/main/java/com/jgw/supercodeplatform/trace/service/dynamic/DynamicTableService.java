@@ -11,6 +11,7 @@ import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.*;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.*;
+import com.jgw.supercodeplatform.trace.dto.dynamictable.node.DynamicUpdateNodeParam;
 import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.RegulationTypeEnum;
@@ -670,7 +671,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return dynamicServiceDelegate.delete(param.getFunctionId(),param.getIds(),null);
 	}
 
-	public RestResult<String> update(String functionId,LineBusinessData lineData,boolean isNode,String traceTemplateId)
+	public RestResult<String> update(String functionId, LineBusinessData lineData, boolean isNode, String traceTemplateId)
 			throws SuperCodeTraceException, SuperCodeException {
 		RestResult<String> backResult = new RestResult<String>();
 
@@ -682,24 +683,28 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				throw new SuperCodeTraceException("修改溯源节点数据时traceTemplateId不能为空", 500);
 			}
 		}
-		StringBuilder sqlFieldNameBuilder=new StringBuilder();
-		StringBuilder sqlFieldValueBuilder=new StringBuilder();
+
+
 		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(traceTemplateId,functionId);
-		
-		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(lineData, 3,sqlFieldNameBuilder,sqlFieldValueBuilder,isNode);
-		
-		//拼装查询语句
-		String queryIdSQL="select Id from "+tableName+sqlFieldValueBuilder.toString();
-		List<LinkedHashMap<String, Object>> idlistDdata=dao.select(queryIdSQL);
-		if (null==idlistDdata || idlistDdata.isEmpty()) {
-			throw new SuperCodeTraceException("要修改的记录不存在", 500);
+		StringBuilder sqlFieldValueBuilder=new StringBuilder();
+		updateDynamicTable(lineData,tableName,dao,isNode,sqlFieldValueBuilder);
+
+		List<FunComponentDataModel> funComponentDataModels= lineData.getFunComponentDataModels();
+		if(funComponentDataModels!=null && funComponentDataModels.size()>0){
+			for(FunComponentDataModel funComponentDataModel:funComponentDataModels){
+				List<List<FieldBusinessParam>> fieldRows= funComponentDataModel.getFieldRows();
+				if(fieldRows!=null && fieldRows.size()>0){
+					for(List<FieldBusinessParam> fieldRow:fieldRows){
+						LineBusinessData funComponentlineData=new LineBusinessData();
+						funComponentlineData.setFields(fieldRow);
+						String compTableName = traceFunFieldConfigService.getEnTableNameByFunctionId(funComponentDataModel.getComponentId());
+						StringBuilder sqlFunFieldValueBuilder=new StringBuilder();
+						updateDynamicTable(funComponentlineData,compTableName,dao,isNode,sqlFunFieldValueBuilder);
+					}
+				}
+			}
 		}
-		
-		String sql = "update " + tableName + " set " ;
-		String fieldNames = sqlFieldNameBuilder.substring(0, sqlFieldNameBuilder.length()-1);
-		sql=sql+ fieldNames+sqlFieldValueBuilder.toString() ;
-		dao.update(sql);
 		
 		try {
 			Map<String, TraceFunFieldConfig> fieldsMap =null;
@@ -726,6 +731,24 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		backResult.setMsg("操作成功");
 		backResult.setState(200);
 		return backResult;
+	}
+
+	private void updateDynamicTable(LineBusinessData lineData,String tableName,DynamicBaseMapper dao,boolean isNode,StringBuilder sqlFieldValueBuilder) throws SuperCodeTraceException, SuperCodeException
+	{
+		StringBuilder sqlFieldNameBuilder=new StringBuilder();
+		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(lineData, 3,sqlFieldNameBuilder,sqlFieldValueBuilder,isNode);
+
+		//拼装查询语句
+		String queryIdSQL="select Id from "+tableName+sqlFieldValueBuilder.toString();
+		List<LinkedHashMap<String, Object>> idlistDdata=dao.select(queryIdSQL);
+		if (null==idlistDdata || idlistDdata.isEmpty()) {
+			throw new SuperCodeTraceException("要修改的记录不存在", 500);
+		}
+
+		String sql = "update " + tableName + " set " ;
+		String fieldNames = sqlFieldNameBuilder.substring(0, sqlFieldNameBuilder.length()-1);
+		sql=sql+ fieldNames+sqlFieldValueBuilder.toString() ;
+		dao.update(sql);
 	}
 
     /**

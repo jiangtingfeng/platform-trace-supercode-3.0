@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.controller.dynamic;
 import java.util.List;
 import java.util.Map;
 
+import com.jgw.supercodeplatform.trace.dto.dynamictable.node.DynamicUpdateNodeParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -58,7 +59,7 @@ public class DynamicFunController {
 	@RequestMapping(value="/update",method=RequestMethod.POST)
 	@ApiOperation(value = "动态功能数据修改接口", notes = "")
 	@ApiImplicitParams(value= {@ApiImplicitParam(paramType="header",value = "功能id",name="functionId",required=true),@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")})
-	public RestResult<String> update(@RequestBody LineBusinessData lineData,@RequestHeader(value="functionId",required=true) String functionId) throws Exception {
+	public RestResult<String> update(@RequestBody LineBusinessData lineData, @RequestHeader(value="functionId",required=true) String functionId) throws Exception {
 		return service.update(functionId,lineData,false,null);
 	}
 
