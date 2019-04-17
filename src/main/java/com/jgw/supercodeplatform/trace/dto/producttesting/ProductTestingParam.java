@@ -1,6 +1,7 @@
 package com.jgw.supercodeplatform.trace.dto.producttesting;
 
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItem;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 import java.util.List;
@@ -10,22 +11,29 @@ public class ProductTestingParam  {
 
     private String productTestingId;
 
+    @ApiModelProperty(value = "企业id",required=true)
     private String organizationId;
 
+    @ApiModelProperty(value = "机构id，第三方检测")
     private String thirdpartyOrganizationId;
 
+    @ApiModelProperty(value = "产品id",required=true)
     private String productID;
 
+    @ApiModelProperty(value = "批次id",required=true)
     private String traceBatchInfoId;
 
+    @ApiModelProperty(value = "计划检测日期")
     private String testingDate;
 
+    @ApiModelProperty(value = "")
     private String testingMan;
 
     private Date createTime;
 
     private String createId;
 
+    @ApiModelProperty(value = "内部检测为1，第三方检测为2")
     private Integer testingType;
 
     public Integer getTestingType() {

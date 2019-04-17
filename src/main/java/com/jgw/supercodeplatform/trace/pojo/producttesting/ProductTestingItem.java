@@ -1,5 +1,7 @@
 package com.jgw.supercodeplatform.trace.pojo.producttesting;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
 public class ProductTestingItem {
@@ -9,28 +11,40 @@ public class ProductTestingItem {
 
     private String productTestingId;
 
+    @ApiModelProperty(value = "检测项id")
     private String testingTypeId;
 
+    @ApiModelProperty(value = "检测标准")
     private Integer testingStandard;
 
+    @ApiModelProperty(value = "检测结果")
     private Integer testingResult;
 
+    @ApiModelProperty(value = "检测日期")
     private Date testingDate;
 
+    @ApiModelProperty(value = "检测依据")
     private String testingAccording;
 
+    @ApiModelProperty(value = "检测数量")
     private Integer quantity;
 
+    @ApiModelProperty(value = "检测方法")
     private String testingMethod;
 
+    @ApiModelProperty(value = "检测设备")
     private String testingDevice;
 
+    @ApiModelProperty(value = "检测数据excel")
     private String excel;
 
+    @ApiModelProperty(value = "图片")
     private String imgs;
 
+    @ApiModelProperty(value = "pdf")
     private String pdfs;
 
+    @ApiModelProperty(value = "备注")
     private String remark;
 
     public Integer getId() {
