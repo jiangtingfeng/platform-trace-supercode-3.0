@@ -30,7 +30,7 @@ public class TestingTypeService extends AbstractPageService {
         AccountCache userAccount = getUserLoginCache();
         String organizationId = getOrganizationId();
 
-        testingType.setOrganizationId(organizationId);
+        //testingType.setOrganizationId(organizationId);
         testingType.setCreateId(userAccount.getUserId());
         testingType.setCreateMan(userAccount.getUserName());
         testingType.setTestingTypeId(getUUID());

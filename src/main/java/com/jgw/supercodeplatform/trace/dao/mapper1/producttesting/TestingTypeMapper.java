@@ -20,17 +20,17 @@ public interface TestingTypeMapper extends CommonSql {
         "insert into trace_TestingType (Id, TestingTypeId, ",
         "OrganizationId, CreateId, ",
         "CreateMan, disableFlag, ",
-        "TestingTypeName, CreateTime)",
+        "TestingTypeName, CreateTime,OrganizationName)",
         "values (#{id,jdbcType=INTEGER}, #{testingTypeId,jdbcType=VARCHAR}, ",
         "#{organizationId,jdbcType=VARCHAR}, #{createId,jdbcType=VARCHAR}, ",
         "#{createMan,jdbcType=VARCHAR}, #{disableFlag,jdbcType=INTEGER}, ",
-        "#{testingTypeName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})"
+        "#{testingTypeName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{organizationName,jdbcType=VARCHAR})"
     })
     int insert(TestingType record);
 
     @Select({
         "select",
-        "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName, ",
+        "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName, organizationName, ",
         "CreateTime",
         "from trace_TestingType",
         "where Id = #{id,jdbcType=INTEGER}"
@@ -43,7 +43,8 @@ public interface TestingTypeMapper extends CommonSql {
         @Result(column="CreateMan", property="createMan", jdbcType=JdbcType.VARCHAR),
         @Result(column="disableFlag", property="disableFlag", jdbcType=JdbcType.INTEGER),
         @Result(column="TestingTypeName", property="testingTypeName", jdbcType=JdbcType.VARCHAR),
-        @Result(column="CreateTime", property="createTime", jdbcType=JdbcType.TIMESTAMP)
+        @Result(column="CreateTime", property="createTime", jdbcType=JdbcType.TIMESTAMP),
+            @Result(column="OrganizationName", property="organizationName", jdbcType=JdbcType.VARCHAR)
     })
     TestingType selectByPrimaryKey(Integer id);
 
@@ -51,7 +52,7 @@ public interface TestingTypeMapper extends CommonSql {
     @Select({" <script>  SELECT COUNT(1) FROM trace_TestingType  <where>  <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if>  <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  </script> "})
     int getCountByCondition(Map<String, Object> var1);
 
-    @Select({" <script> select", "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName", "from trace_TestingType a <where>  <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if>  <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  ORDER BY a.CreateTime DESC <if test='startNumber != null and pageSize != null '> LIMIT #{startNumber},#{pageSize}</if> </script> "})
+    @Select({" <script> select", "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName, CreateTime, organizationName ", "from trace_TestingType a <where>  <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if>  <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  ORDER BY a.CreateTime DESC <if test='startNumber != null and pageSize != null '> LIMIT #{startNumber},#{pageSize}</if> </script> "})
     @Results({
             @Result(column="Id", property="id", jdbcType=JdbcType.INTEGER, id=true),
             @Result(column="TestingTypeId", property="testingTypeId", jdbcType=JdbcType.VARCHAR),
@@ -60,19 +61,18 @@ public interface TestingTypeMapper extends CommonSql {
             @Result(column="CreateMan", property="createMan", jdbcType=JdbcType.VARCHAR),
             @Result(column="disableFlag", property="disableFlag", jdbcType=JdbcType.INTEGER),
             @Result(column="TestingTypeName", property="testingTypeName", jdbcType=JdbcType.VARCHAR),
-            @Result(column="CreateTime", property="createTime", jdbcType=JdbcType.TIMESTAMP)
+            @Result(column="CreateTime", property="createTime", jdbcType=JdbcType.TIMESTAMP),
+            @Result(column="OrganizationName", property="organizationName", jdbcType=JdbcType.VARCHAR)
     })
     List<TestingType> selectTestingType(Map<String, Object> var1);
 
     @Update({
         "update trace_TestingType",
         "set TestingTypeId = #{testingTypeId,jdbcType=VARCHAR},",
-          "OrganizationId = #{organizationId,jdbcType=VARCHAR},",
-          "CreateId = #{createId,jdbcType=VARCHAR},",
-          "CreateMan = #{createMan,jdbcType=VARCHAR},",
           "disableFlag = #{disableFlag,jdbcType=INTEGER},",
+            "OrganizationId = #{organizationId,jdbcType=VARCHAR},",
           "TestingTypeName = #{testingTypeName,jdbcType=VARCHAR},",
-          "CreateTime = #{createTime,jdbcType=TIMESTAMP}",
+            "OrganizationName = #{organizationName,jdbcType=VARCHAR}",
         "where Id = #{id,jdbcType=INTEGER}"
     })
     int updateByPrimaryKey(TestingType record);
