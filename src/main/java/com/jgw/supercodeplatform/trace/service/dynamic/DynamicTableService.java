@@ -794,6 +794,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		//遍历定制功能列表数据，根据主表Id到功能组件数据表中查询组件数据
 		for (TraceFunComponent traceFunComponent: traceFunComponents){
+			if(!ComponentTypeEnum.isNestComponent( traceFunComponent.getComponentType()))
+				continue;
 			if(list!=null && list.size()>0){
 				List<String> ids= list.stream().map(e->e.get("Id").toString()).collect(Collectors.toList());
 				String sql=queryComponentSqlBuilder(traceFunComponent.getComponentId(),orgnizationId,ids);
