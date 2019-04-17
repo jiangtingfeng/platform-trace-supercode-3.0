@@ -25,6 +25,16 @@ public class ProductTesting {
 
     private String createId;
 
+    public Integer getTestingType() {
+        return testingType;
+    }
+
+    public void setTestingType(Integer testingType) {
+        this.testingType = testingType;
+    }
+
+    private Integer testingType;
+
     public Integer getId() {
         return id;
     }

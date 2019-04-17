@@ -43,7 +43,7 @@ public class ProductTestingService extends AbstractPageService {
         AccountCache userAccount = getUserLoginCache();
         String organizationId = getOrganizationId();
 
-        productTesting.setOrganizationId(organizationId);
+        //productTesting.setOrganizationId(organizationId);
         productTesting.setCreateId(userAccount.getUserId());
         productTesting.setCreateMan(userAccount.getUserName());
         productTesting.setProductTestingId(getUUID());

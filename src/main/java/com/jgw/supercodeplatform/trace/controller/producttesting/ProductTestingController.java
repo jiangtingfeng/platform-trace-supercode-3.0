@@ -53,7 +53,8 @@ public class ProductTestingController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
             @ApiImplicitParam(name = "pageSize", paramType = "query", defaultValue = "30", value = "每页记录数,不传默认10条,非必需"),
-            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需")
+            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
+            @ApiImplicitParam(name = "testingType", paramType = "query", defaultValue = "3", value = "检测类型: 内部检测为1，第三方检测为2")
     })
     public RestResult listTestingType(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
         return new RestResult(200, "success", productTestingService.listProductTesting(map));

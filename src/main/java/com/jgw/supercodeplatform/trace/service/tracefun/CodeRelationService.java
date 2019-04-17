@@ -97,7 +97,7 @@ public class CodeRelationService extends CommonUtil {
         return null;
     }
 
-    public JsonNode insertCodeRelationInfo(CodeObjectRelationDto codeObjectRelationDto){
+    public JsonNode insertCodeRelationInfo(CodeObjectRelationDto codeObjectRelationDto) throws Exception{
 
         Map<String, String> headerMap = new HashMap<String, String>();
 
@@ -125,12 +125,13 @@ public class CodeRelationService extends CommonUtil {
             }
         } catch (SuperCodeTraceException | IOException | SuperCodeException e) {
             e.printStackTrace();
+            throw  e;
         }
 
         return null;
     }
 
-    public JsonNode addSbatchUrl(String batchId){
+    public JsonNode addSbatchUrl(String batchId) throws Exception{
 
         Map<String, Object> params = new HashMap<String, Object>();
         Map<String, String> headerMap = new HashMap<String, String>();
@@ -159,6 +160,7 @@ public class CodeRelationService extends CommonUtil {
             }
         } catch (SuperCodeTraceException | IOException | SuperCodeException e) {
             e.printStackTrace();
+            throw e;
         }
 
         return null;

@@ -21,20 +21,20 @@ public interface ProductTestingMapper extends CommonSql {
         "ProductID, TraceBatchInfoId, ",
         "TestingDate, TestingMan, ",
         "CreateMan, CreateTime, ",
-        "CreateId)",
+        "CreateId, TestingType)",
         "values (#{id,jdbcType=INTEGER}, #{productTestingId,jdbcType=VARCHAR}, ",
         "#{organizationId,jdbcType=VARCHAR}, #{thirdpartyOrganizationId,jdbcType=VARCHAR}, ",
         "#{productID,jdbcType=VARCHAR}, #{traceBatchInfoId,jdbcType=VARCHAR}, ",
         "#{testingDate,jdbcType=VARCHAR}, #{testingMan,jdbcType=VARCHAR}, ",
         "#{createMan,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, ",
-        "#{createId,jdbcType=VARCHAR})"
+        "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER})"
     })
     int insert(ProductTesting record);
 
     @Select({
         "select",
         "Id, ProductTestingId, OrganizationId, ThirdpartyOrganizationId, ProductID, TraceBatchInfoId, ",
-        "TestingDate, TestingMan, CreateMan, CreateTime, CreateId",
+        "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType",
         "from trace_ProductTesting",
         "where Id = #{id,jdbcType=INTEGER}"
     })
@@ -56,7 +56,7 @@ public interface ProductTestingMapper extends CommonSql {
     @Select({
         "select",
         "Id, ProductTestingId, OrganizationId, ThirdpartyOrganizationId, ProductID, TraceBatchInfoId, ",
-        "TestingDate, TestingMan, CreateMan, CreateTime, CreateId",
+        "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType",
         "from trace_ProductTesting"
     })
     @Results({
@@ -86,6 +86,7 @@ public interface ProductTestingMapper extends CommonSql {
           "CreateMan = #{createMan,jdbcType=VARCHAR},",
           "CreateTime = #{createTime,jdbcType=TIMESTAMP},",
           "CreateId = #{createId,jdbcType=VARCHAR}",
+            "TestingType = #{testingType,jdbcType=VARCHAR}",
         "where Id = #{id,jdbcType=INTEGER}"
     })
     int updateByPrimaryKey(ProductTesting record);
@@ -94,6 +95,7 @@ public interface ProductTestingMapper extends CommonSql {
             startScript+
             "SELECT COUNT(1) FROM trace_ProductTesting a"
                     +startWhere
+                    +" a.TestingType = #{testingType} "
                     + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
@@ -107,9 +109,10 @@ public interface ProductTestingMapper extends CommonSql {
             startScript+
                     "select "+
                     "Id, ProductTestingId, OrganizationId, ThirdpartyOrganizationId, ProductID, TraceBatchInfoId, "+
-                    "TestingDate, TestingMan, CreateMan, CreateTime, CreateId "+
+                    "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType "+
                     "from trace_ProductTesting a"
                     +startWhere
+                    +" a.TestingType = #{testingType} "
                     + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere

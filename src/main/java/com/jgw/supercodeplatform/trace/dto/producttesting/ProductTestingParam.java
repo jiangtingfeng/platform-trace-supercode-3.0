@@ -26,6 +26,16 @@ public class ProductTestingParam  {
 
     private String createId;
 
+    private Integer testingType;
+
+    public Integer getTestingType() {
+        return testingType;
+    }
+
+    public void setTestingType(Integer testingType) {
+        this.testingType = testingType;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
