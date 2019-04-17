@@ -52,7 +52,7 @@ public interface TestingTypeMapper extends CommonSql {
     @Select({" <script>  SELECT COUNT(1) FROM trace_TestingType  <where>  <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if>  <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  </script> "})
     int getCountByCondition(Map<String, Object> var1);
 
-    //<if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if> 
+    //<if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if>
     @Select({" <script> select", "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName, CreateTime, organizationName ", "from trace_TestingType a <where>   <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  ORDER BY a.CreateTime DESC <if test='startNumber != null and pageSize != null '> LIMIT #{startNumber},#{pageSize}</if> </script> "})
     @Results({
             @Result(column="Id", property="id", jdbcType=JdbcType.INTEGER, id=true),

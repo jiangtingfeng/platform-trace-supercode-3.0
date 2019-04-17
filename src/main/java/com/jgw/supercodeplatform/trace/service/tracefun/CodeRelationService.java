@@ -78,8 +78,6 @@ public class CodeRelationService extends CommonUtil {
             params.put("startCode", getCodeRelationFieldValue(fields,"startCode"));
             params.put("endCode", getCodeRelationFieldValue(fields,"endCode"));
 
-
-
             headerMap.put("super-token", getSuperToken());
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/relation/addRelation", JSONObject.toJSONString( params), headerMap);
 
@@ -116,10 +114,10 @@ public class CodeRelationService extends CommonUtil {
 
                     List<ObjectPropertyDto> objectPropertyDtos= codeObjectRelationDto.getObjectPropertyDtoList().stream().filter(e->e.getObjectTypeId()==3).collect(Collectors.toList());
                     if(objectPropertyDtos!=null && objectPropertyDtos.size()>0){
-                        String batchId= objectPropertyDtos.get(0).getObjectId();
-                        addSbatchUrl(batchId);
+                        String batchInfoId= objectPropertyDtos.get(0).getObjectId();
+                        String codebatchId= node.get("results").toString();
+                        addSbatchUrl(codebatchId,batchInfoId);
                     }
-
                     return node.get("results");
                 }
             }
@@ -131,7 +129,7 @@ public class CodeRelationService extends CommonUtil {
         return null;
     }
 
-    public JsonNode addSbatchUrl(String batchId) throws Exception{
+    public JsonNode addSbatchUrl(String batchId,String batchInfoId) throws Exception{
 
         Map<String, Object> params = new HashMap<String, Object>();
         Map<String, String> headerMap = new HashMap<String, String>();
@@ -141,7 +139,7 @@ public class CodeRelationService extends CommonUtil {
         try {
 
             //TraceBatchInfo traceBatchInfo= traceBatchInfoMapper.selectByTraceBatchInfoId(batchId);
-            String url = String.format("%s?traceBatchInfoId=%s",h5PageUrl,batchId);
+            String url = String.format("%s?traceBatchInfoId=%s",h5PageUrl,batchInfoId);
             params.put("url",url);
             params.put("businessType",2);
             params.put("batchId",batchId);
