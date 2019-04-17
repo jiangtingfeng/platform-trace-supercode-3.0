@@ -35,6 +35,26 @@ public class ProductTesting {
 
     private Integer testingType;
 
+    private String certifyNumber;
+
+    private String excel;
+
+    public String getCertifyNumber() {
+        return certifyNumber;
+    }
+
+    public void setCertifyNumber(String certifyNumber) {
+        this.certifyNumber = certifyNumber;
+    }
+
+    public String getExcel() {
+        return excel;
+    }
+
+    public void setExcel(String excel) {
+        this.excel = excel;
+    }
+
     public Integer getId() {
         return id;
     }

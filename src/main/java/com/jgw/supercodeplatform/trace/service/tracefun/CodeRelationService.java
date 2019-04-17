@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,8 +116,10 @@ public class CodeRelationService extends CommonUtil {
                     List<ObjectPropertyDto> objectPropertyDtos= codeObjectRelationDto.getObjectPropertyDtoList().stream().filter(e->e.getObjectTypeId()==3).collect(Collectors.toList());
                     if(objectPropertyDtos!=null && objectPropertyDtos.size()>0){
                         String batchInfoId= objectPropertyDtos.get(0).getObjectId();
-                        String codebatchId= node.get("results").toString();
-                        addSbatchUrl(codebatchId,batchInfoId);
+                        Integer codebatchId= Integer.parseInt(node.get("results").textValue());
+                        if(codebatchId>0){
+                            addSbatchUrl(codebatchId,batchInfoId);
+                        }
                     }
                     return node.get("results");
                 }
@@ -129,10 +132,11 @@ public class CodeRelationService extends CommonUtil {
         return null;
     }
 
-    public JsonNode addSbatchUrl(String batchId,String batchInfoId) throws Exception{
+    public JsonNode addSbatchUrl(Integer batchId,String batchInfoId) throws Exception{
 
-        Map<String, Object> params = new HashMap<String, Object>();
+        HashMap<String, Object> params = new HashMap<String, Object>();
         Map<String, String> headerMap = new HashMap<String, String>();
+        List<HashMap<String, Object>> paramList=new ArrayList<HashMap<String, Object>>();
 
         LocalDateTime time = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
@@ -143,11 +147,12 @@ public class CodeRelationService extends CommonUtil {
             params.put("url",url);
             params.put("businessType",2);
             params.put("batchId",batchId);
+            paramList.add(params);
 
             AccountCache userAccount = getUserLoginCache();
 
             headerMap.put("super-token", getSuperToken());
-            ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/sbatchUrl/addSbatchUrl", JSONObject.toJSONString( params), headerMap);
+            ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/sbatchUrl/addSbatchUrl", JSONObject.toJSONString( paramList), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
                 String body = rest.getBody();

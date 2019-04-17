@@ -21,13 +21,13 @@ public interface ProductTestingMapper extends CommonSql {
         "ProductID, TraceBatchInfoId, ",
         "TestingDate, TestingMan, ",
         "CreateMan, CreateTime, ",
-        "CreateId, TestingType)",
+        "CreateId, TestingType, Excel, CertifyNumber)",
         "values (#{id,jdbcType=INTEGER}, #{productTestingId,jdbcType=VARCHAR}, ",
         "#{organizationId,jdbcType=VARCHAR}, #{thirdpartyOrganizationId,jdbcType=VARCHAR}, ",
         "#{productID,jdbcType=VARCHAR}, #{traceBatchInfoId,jdbcType=VARCHAR}, ",
         "#{testingDate,jdbcType=VARCHAR}, #{testingMan,jdbcType=VARCHAR}, ",
         "#{createMan,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, ",
-        "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER})"
+        "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER}),#{excel,jdbcType=VARCHAR},#{certifyNumber,jdbcType=VARCHAR})"
     })
     int insert(ProductTesting record);
 
@@ -85,7 +85,7 @@ public interface ProductTestingMapper extends CommonSql {
           "TestingMan = #{testingMan,jdbcType=VARCHAR},",
           "CreateMan = #{createMan,jdbcType=VARCHAR},",
           "CreateTime = #{createTime,jdbcType=TIMESTAMP},",
-          "CreateId = #{createId,jdbcType=VARCHAR}",
+          "CreateId = #{certifyNumber,jdbcType=VARCHAR}",
             "TestingType = #{testingType,jdbcType=VARCHAR}",
         "where Id = #{id,jdbcType=INTEGER}"
     })
@@ -109,7 +109,7 @@ public interface ProductTestingMapper extends CommonSql {
             startScript+
                     "select "+
                     "Id, ProductTestingId, OrganizationId, ThirdpartyOrganizationId, ProductID, TraceBatchInfoId, "+
-                    "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType "+
+                    "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType, CertifyNumber,Excel "+
                     "from trace_ProductTesting a"
                     +startWhere
                     +" a.TestingType = #{testingType} "

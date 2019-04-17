@@ -33,6 +33,28 @@ public class ProductTestingParam  {
 
     private String createId;
 
+    @ApiModelProperty(value = "检疫证号")
+    private String certifyNumber;
+
+    @ApiModelProperty(value = "excel")
+    private String excel;
+
+    public String getCertifyNumber() {
+        return certifyNumber;
+    }
+
+    public void setCertifyNumber(String certifyNumber) {
+        this.certifyNumber = certifyNumber;
+    }
+
+    public String getExcel() {
+        return excel;
+    }
+
+    public void setExcel(String excel) {
+        this.excel = excel;
+    }
+
     @ApiModelProperty(value = "内部检测为1，第三方检测为2")
     private Integer testingType;
 
