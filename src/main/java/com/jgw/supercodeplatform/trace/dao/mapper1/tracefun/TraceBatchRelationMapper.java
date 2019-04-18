@@ -15,7 +15,7 @@ public interface TraceBatchRelationMapper extends CommonSql {
     @Insert("INSERT INTO trace_batchrelation" +
             "(`BatchRelationId`,`CurrentBatchId`,`ParentBatchId`,`CreateDate`,`UpdateDate`,`BusinessTableName`,`ParentBusinessTableName`,`ParentBatchType`)" +
             "VALUES" +
-            "( #{batchRelationId},#{currentBatchId},#{parentBatchId},now(),now(),#{businessTableName},#{parentBusinessTableName},#{ParentBatchType})" +
+            "( #{batchRelationId},#{currentBatchId},#{parentBatchId},now(),now(),#{businessTableName},#{parentBusinessTableName},#{parentBatchType})" +
             "")
     int insertTraceBatchRelation(TraceBatchRelation traceBatchRelation);
 

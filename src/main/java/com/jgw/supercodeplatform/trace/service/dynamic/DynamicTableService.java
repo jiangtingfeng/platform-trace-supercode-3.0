@@ -333,8 +333,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	 */
 	private List<BaseBatchInfo> CreateBatchInfoWithRelation(TraceFunRegulation traceFunRegulation, DynamicAddFunParam param,TraceBatchInfo parentTraceBatchInfo) throws Exception
 	{
-		String traceTemplateId="62f05945b9164d589a995e181a4b6fd9";
-		String traceTemplateName="枣阳桃默认模板";
+		String traceTemplateId="2c7874f1b40340b9b930d1f375b34f80";
+		String traceTemplateName="桃溯源默认模板";
 		Integer userSceneType= traceFunRegulation.getUseSceneType();
 		String productName = parentTraceBatchInfo.getProductName();
 		String productId=parentTraceBatchInfo.getProductId();
@@ -393,7 +393,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
 		} else if(userSceneType==TraceUseSceneEnum.BatchMixWithSameObject.getKey()){
 			//批次混合，多个相同关联对象批次混合并创建新对象批次
-			if(parentTraceBatchInfoId.contains(",")){
+			if(!StringUtils.isEmpty(parentTraceBatchInfoId)){
 				String[] parentTraceBatchInfoIds= parentTraceBatchInfoId.split(",");
 				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
 				String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
@@ -514,8 +514,10 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
 			for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
 				List<FieldBusinessParam> fieldBusinessParams= param.getLineData().getFields();
-				fieldBusinessParams.add(new FieldBusinessParam("traceBatchInfoId", baseBatchInfo.getTraceBatchInfoId()));
-				fieldBusinessParams.add(new FieldBusinessParam("traceBatchName", baseBatchInfo.getTraceBatchName()));
+				List<FieldBusinessParam> batchParams= fieldBusinessParams.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
+				batchParams.get(0).setFieldValue(baseBatchInfo.getTraceBatchInfoId());
+				//fieldBusinessParams.add(new FieldBusinessParam("traceBatchInfoId", baseBatchInfo.getTraceBatchInfoId()));
+				//fieldBusinessParams.add(new FieldBusinessParam("traceBatchName", baseBatchInfo.getTraceBatchName()));
 				restResult= addFunData(param);
 			}
 		}else {
