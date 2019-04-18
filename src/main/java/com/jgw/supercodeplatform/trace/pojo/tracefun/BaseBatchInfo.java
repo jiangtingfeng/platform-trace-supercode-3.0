@@ -33,7 +33,7 @@ public class BaseBatchInfo {
         this.traceBatchName=traceBatchName;
     }
     public BaseBatchInfo(String productName){
-
+        this.productName=productName;
     }
 
 
