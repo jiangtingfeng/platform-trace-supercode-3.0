@@ -507,6 +507,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		{
 			//根据使用场景自动创建批次和批次关联数据
 			baseBatchInfos=CreateBatchInfoWithRelation(traceFunRegulation,param,traceBatchInfo);
+		}else if(traceFunRegulation!=null && traceFunRegulation.getRegulationType() == RegulationTypeEnum.ProcedureNode.getKey())
+		{
+			baseBatchInfos = new ArrayList<BaseBatchInfo>();
+			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchInfo.getTraceBatchName());
+			baseBatchInfos.add(baseBatchInfo);
 		}
 
 		RestResult<String> restResult=null;
