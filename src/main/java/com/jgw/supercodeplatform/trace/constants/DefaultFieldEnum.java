@@ -9,7 +9,8 @@ public enum DefaultFieldEnum {
 	DELETE_STATUS("DeleteStatus","隐藏删除状态",""),
 	ID("Id","主键",""),
 	USERID("UserId","用户id","1"),
-	PRODUCTID("ProductId","产品id","1");
+	PRODUCTID("ProductId","产品id","1"),
+	ParentId("ParentId","主表数据id","1");
 	private DefaultFieldEnum(String fieldCode, String fieldName, String fieldType) {
 		this.fieldCode = fieldCode;
 		this.fieldName = fieldName;

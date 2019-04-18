@@ -6,8 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-@Component
-@Order(value = 1)//多个CommandLineRunner的执行顺序，1最高
+/*@Component
+@Order(value = 1)//多个CommandLineRunner的执行顺序，1最高*/
 public class BeforeApplicationStartUp implements CommandLineRunner {
     @Autowired
     private CommonUtilComponent commonUtilComponent;
