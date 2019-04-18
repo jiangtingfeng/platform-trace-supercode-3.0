@@ -70,7 +70,7 @@ public class ProductTestingService extends AbstractPageService {
 
     public Map<String, Object> listProductTesting(Map<String, Object> map) throws Exception {
         String organizationId=commonUtil.getOrganizationId();
-        map.put("organizationId", getOrganizationId());
+        //map.put("organizationId", getOrganizationId());
 
         ReturnParamsMap returnParamsMap=null;
         Map<String, Object> dataMap=null;
@@ -79,17 +79,19 @@ public class ProductTestingService extends AbstractPageService {
         returnParamsMap = getPageAndRetuanMap(map, total);
 
         List<ProductTesting> productTestings= productTestingMapper.selectProductTesting(map);
-        List<String> productTestingIds= productTestings.stream().map(e->"'"+e.getProductTestingId()+"'").collect(Collectors.toList());
-        String ids= StringUtils.join(productTestingIds,",");
-        List<ProductTestingItem> productTestingItems= productTestingItemMapper.selectByProductTestingId(ids);
-
         List<Map<String, Object>> productTestingList=new ArrayList<Map<String, Object>>();
-        for(ProductTesting productTesting:productTestings){
-            Map<String, Object> testingMap= beanToMap(productTesting);
-            productTestingList.add(testingMap);
-            String productTestingId= productTesting.getProductTestingId();
-            List<ProductTestingItem> productTestingItems1= productTestingItems.stream().filter(e->e.getProductTestingId().equals(productTestingId)).collect(Collectors.toList());
-            testingMap.put("testingItems",productTestingItems1);
+        if(productTestings.size()>0){
+            List<String> productTestingIds= productTestings.stream().map(e->"'"+e.getProductTestingId()+"'").collect(Collectors.toList());
+            String ids= StringUtils.join(productTestingIds,",");
+            List<ProductTestingItem> productTestingItems= productTestingItemMapper.selectByProductTestingId(ids);
+
+            for(ProductTesting productTesting:productTestings){
+                Map<String, Object> testingMap= beanToMap(productTesting);
+                productTestingList.add(testingMap);
+                String productTestingId= productTesting.getProductTestingId();
+                List<ProductTestingItem> productTestingItems1= productTestingItems.stream().filter(e->e.getProductTestingId().equals(productTestingId)).collect(Collectors.toList());
+                testingMap.put("testingItems",productTestingItems1);
+            }
         }
 
         dataMap = returnParamsMap.getReturnMap();

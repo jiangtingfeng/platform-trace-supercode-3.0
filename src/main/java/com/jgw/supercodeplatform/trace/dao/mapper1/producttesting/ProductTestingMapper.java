@@ -27,7 +27,7 @@ public interface ProductTestingMapper extends CommonSql {
         "#{productID,jdbcType=VARCHAR}, #{traceBatchInfoId,jdbcType=VARCHAR}, ",
         "#{testingDate,jdbcType=VARCHAR}, #{testingMan,jdbcType=VARCHAR}, ",
         "#{createMan,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, ",
-        "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER}),#{excel,jdbcType=VARCHAR},#{certifyNumber,jdbcType=VARCHAR})"
+        "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER},#{excel,jdbcType=VARCHAR},#{certifyNumber,jdbcType=VARCHAR})"
     })
     int insert(ProductTesting record);
 
