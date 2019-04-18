@@ -783,12 +783,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		List<LinkedHashMap<String, Object>> list = dao.select(sql);
 
 		String funId=param.getFunctionId();
-		getFunComponentData(funId,list,dao);
+		getFunComponentData(funId,list);
 
 		return list;
 	}
 
-	private void getFunComponentData(String funId,List<LinkedHashMap<String, Object>> list ,DynamicBaseMapper dao)
+	private void getFunComponentData(String funId,List<LinkedHashMap<String, Object>> list)
 			throws SuperCodeTraceException, SuperCodeException {
 
 		String orgnizationId=commonUtil.getOrganizationId();
@@ -800,7 +800,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				continue;
 			if(list!=null && list.size()>0){
 				List<String> ids= list.stream().map(e->e.get("Id").toString()).collect(Collectors.toList());
-				String sql=queryComponentSqlBuilder(traceFunComponent.getComponentId(),orgnizationId,ids);
+				String componentId=traceFunComponent.getComponentId();
+				String sql=queryComponentSqlBuilder(componentId,orgnizationId,ids);
+				DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,componentId);
 				List<LinkedHashMap<String, Object>> componentDataList = dao.select(sql);
 				if (componentDataList!=null && componentDataList.size()>0){
 					for (LinkedHashMap<String, Object> rowMap:list){
@@ -1047,7 +1049,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String sql = "select " + fields + " from " + tableName + " where Id="+id;
 		List<LinkedHashMap<String, Object>> list = dao.select(sql);
 
-		getFunComponentData(functionId,list,dao);
+		getFunComponentData(functionId,list);
 
 		if (null!=list && !list.isEmpty()) {
 			restResult.setResults(list.get(0));
