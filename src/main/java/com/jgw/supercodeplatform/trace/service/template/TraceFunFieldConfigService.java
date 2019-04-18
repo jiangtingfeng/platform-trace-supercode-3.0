@@ -84,11 +84,11 @@ public class TraceFunFieldConfigService {
 		}
 
 		boolean containsBatch=TraceFunFieldConfigDelegate.checkAddParam(param);
-		if (!containsBatch || true) {
+		/*if (!containsBatch || true) {
 			restResult.setState(500);
 			restResult.setMsg("新增定制功能必须选择产品和批次对象");
 			return restResult;
-		}
+		}*/
 		//获取定制功能的字段信息
 		List<TraceFunFieldConfig> list=dao.selectDZFPartFieldsByFunctionId(param.get(0).getFunctionId());
 		if (null!=list && !list.isEmpty()) {
