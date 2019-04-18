@@ -1,11 +1,10 @@
 package com.jgw.supercodeplatform.trace.controller.tracebatch;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -301,11 +300,30 @@ public class TraceBatchInfoController extends CommonUtil {
      */
 	@GetMapping("/h5PageData")
 	@ApiOperation(value = "根据批次号获取h5溯源页数据接口", notes = "h5溯源页数据",consumes="application/x-www-form-urlencoded;charset=UTF-8")
-    @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true),
-        @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+    @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true)//,
+        /*@ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),*/
     })
-	public RestResult<Map<String, Object>> h5PageData(@RequestParam String traceBatchInfoId) throws Exception{
-		return traceBatchInfoService.h5PageData(traceBatchInfoId);
+	public RestResult<Map<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, String startTime, String endTime) throws Exception{
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date start=null,end=null;
+        try{
+            if(!StringUtils.isEmpty(startTime)){
+                if(startTime.length()==10){
+                    startTime=startTime+" 00:00:00";
+                }
+                start=sdf.parse(startTime);
+            }
+            if(!StringUtils.isEmpty(endTime)){
+                if (endTime.length()==10){
+                    endTime=endTime+" 23:59:59";
+                }
+                end=sdf.parse(endTime);
+            }
+        }catch (Exception e){
+            throw new  Exception("日期格式错误");
+        }
+
+		return traceBatchInfoService.h5PageData(traceBatchInfoId,start,end);
 	}
 	
 }

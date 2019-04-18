@@ -1,10 +1,7 @@
 package com.jgw.supercodeplatform.trace.service.tracebatch;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -281,7 +278,7 @@ public class TraceBatchInfoService extends CommonUtil {
             throw new SuperCodeTraceException("无此批次号记录", 500);
         }
         String orgnizationId = commonUtil.getOrganizationId();
-        return traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), false, orgnizationId);
+        return traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), false, orgnizationId,null,null);
     }
 
     public TraceBatchInfo getOneByUnkonwnOneField(String plainSql) {
@@ -300,14 +297,15 @@ public class TraceBatchInfoService extends CommonUtil {
      * @return
      * @throws Exception
      */
-    public RestResult<Map<String, Object>> h5PageData(String traceBatchInfoId) throws Exception {
+    public RestResult<Map<String, Object>> h5PageData(String traceBatchInfoId, Date start, Date end) throws Exception {
         RestResult<Map<String, Object>> backResult = new RestResult<Map<String, Object>>();
         TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
         if (null == traceBatchInfo) {
             throw new SuperCodeTraceException("无此批次号记录", 500);
         }
         //h5查询不需要登陆 没有组织id
-        RestResult<List<Map<String, Object>>> nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null);
+        RestResult<List<Map<String, Object>>> nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null
+            ,start,end);
         if (nodeDataResult.getState() != 200) {
             throw new SuperCodeTraceException(nodeDataResult.getMsg(), 500);
         }

@@ -1,11 +1,7 @@
 package com.jgw.supercodeplatform.trace.service.template;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -523,6 +519,38 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		}
 		return restResult;
 	}
+
+	private boolean dateAfter(String dateStr,Date date)
+	{
+		boolean ret=true;
+		if(date!=null){
+			try{
+				long longTime=Long.parseLong(dateStr);
+				Date date0=new Date();
+				date0.setTime(longTime);
+				ret= date0.after(date);
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+		}
+		return ret;
+	}
+	private boolean dateBefore(String dateStr,Date date)
+	{
+		boolean ret=true;
+		if(date!=null){
+			try{
+				long longTime=Long.parseLong(dateStr);
+				Date date0=new Date();
+				date0.setTime(longTime);
+				ret= date0.before(date);
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+		}
+		return ret;
+	}
+
 	/**
 	 * 根据追溯模板id排序查询模板下节点业务数据
 	 * @param traceTemplateId
@@ -530,7 +558,8 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 	 * @param orgnizationId 
 	 * @throws Exception 
 	 */
-	public RestResult<List<Map<String, Object>>> queryNodeInfo(String traceBatchInfoId,String traceTemplateId, boolean fromH5, String orgnizationId) throws Exception {
+	public RestResult<List<Map<String, Object>>> queryNodeInfo(String traceBatchInfoId, String traceTemplateId, boolean fromH5, String orgnizationId
+		, Date start, Date end) throws Exception {
 		RestResult<List<Map<String, Object>>> restResult=new RestResult<List<Map<String, Object>>>();
 		//查询顺序节点信息拼装对应动态表名用于查询节点业务数据
 		List<TraceFunTemplateconfigVO> templateConfigList=traceFunTemplateconfigDao.getTemplateAndFieldInfoByTemplateId(traceTemplateId);
@@ -545,7 +574,14 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		for (TraceFunTemplateconfigVO traceFunTemplateconfigVO : templateConfigList) {
 			String nodeFunctionId=traceFunTemplateconfigVO.getNodeFunctionId();
 			String businessType=traceFunTemplateconfigVO.getBusinessType();
+			String nodeFunctionName= traceFunTemplateconfigVO.getNodeFunctionName();
 			List<LinkedHashMap<String, Object>> nodeData=dynamicTableService.queryTemplateNodeBatchData(traceBatchInfoId,traceTemplateId,nodeFunctionId,traceFunTemplateconfigVO.getEnTableName(),businessType,fromH5,orgnizationId);
+
+			//平安项目
+			if(!nodeFunctionName.equals("基地管理")){
+				nodeData = nodeData.stream().filter(e->dateAfter(e.get("SortDateTime").toString(),start) && dateBefore(e.get("SortDateTime").toString(),end) ).collect(Collectors.toList());
+			}
+
 			Map<String, TraceFunFieldConfig> fieldCacheMap=functionFieldCache.getFunctionIdFields(traceTemplateId, nodeFunctionId, 2);
 			
 			if (null!=nodeData && !nodeData.isEmpty()) {
@@ -579,6 +615,11 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 					lineData.put("lineData", fieldList);
 					lineData.put("defaultLineData", defualtfieldList);
 					allNodeData.add(lineData);
+
+					//平安项目
+					if( nodeFunctionName.equals("基地管理")){
+						lineData.put("businessType", "4");
+					}
 				}
 			}
 		}
