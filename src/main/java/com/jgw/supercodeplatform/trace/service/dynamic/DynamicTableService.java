@@ -129,10 +129,10 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				switch (objectTypeEnum) {
 					case TRACE_BATCH:
 					case MassifBatch:
-					case RecoveryBatch:
+					/*case RecoveryBatch:
 					case PurchaseBatch:
 					case PackingBatch:
-					case SortingBatch:
+					case SortingBatch:*/
 						batchInfoId = fieldParam.getObjectUniqueValue();
 						break;
 					default:

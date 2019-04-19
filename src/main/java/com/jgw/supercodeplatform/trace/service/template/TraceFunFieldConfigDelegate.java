@@ -626,7 +626,7 @@ public class TraceFunFieldConfigDelegate {
 	public static boolean checkAddParam(List<TraceFunFieldConfigParam> param) throws SuperCodeTraceException {
 		
 	  if (null==param || param.isEmpty()) {
-		  throw new SuperCodeTraceException("新增字段不能为空", 500);
+		  throw new SuperCodeTraceException("组件外层至少添加一个字段", 500);
 	  }	
 	  Map<String, Integer> fieldMap=new HashMap<String, Integer>();
 	  boolean containBtach=false;

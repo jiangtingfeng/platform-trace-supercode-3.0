@@ -134,10 +134,10 @@ public class DynamicServiceDelegate {
 						switch (objectTypeEnum) {
 						case TRACE_BATCH:
 						case MassifBatch:
-						case RecoveryBatch:
+						/*case RecoveryBatch:
 						case PurchaseBatch:
 						case SortingBatch:
-						case PackingBatch:
+						case PackingBatch:*/
 							//如果不是自动节点的插入修改则必须传模板id
 							//如果是自动节点则新增时无模板id但必须有批次号
 							adDataModel.setTraceBatchInfoId(fieldParam.getObjectUniqueValue());

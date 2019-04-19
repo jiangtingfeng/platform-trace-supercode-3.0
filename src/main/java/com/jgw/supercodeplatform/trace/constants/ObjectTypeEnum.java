@@ -9,14 +9,14 @@ import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
  * @date: 2019-03-28
  */
 public enum ObjectTypeEnum {
-	USER(13001,"UserId", "员工"),PRODUCT(13002, "ProductId","产品"),  TRACE_BATCH(13003,"TraceBatchInfoId", "批次"),
+	USER(13001,"UserId", "员工"),PRODUCT(13002, "ProductId","产品"),  TRACE_BATCH(13003,"TraceBatchInfoId", "产品批次"),
 
 	MassifInfo(13012,"MassIfId","地块"),
 	MassifBatch(13013,"TraceBatchId","地块批次"),
-	RecoveryBatch(13014,"TraceBatchId","采收批次"),
+	/*RecoveryBatch(13014,"TraceBatchId","采收批次"),
 	PurchaseBatch(13015,"TraceBatchId","收购批次"),
 	SortingBatch(13016,"TraceBatchId","分拣批次"),
-	PackingBatch(13017,"TraceBatchId","包装批次"),
+	PackingBatch(13017,"TraceBatchId","包装批次"),*/
 
 	Device(13018,"DeviceId","设备"),
 	CodeAssociate(13010,"AssociateType","码关联方式");
@@ -37,14 +37,14 @@ public enum ObjectTypeEnum {
 			return MassifInfo;
 		case 13013:
 			return MassifBatch;
-		case 13014:
+		/*case 13014:
 			return RecoveryBatch;
 		case 13015:
 			return PurchaseBatch;
 		case 13016:
 			return SortingBatch;
 		case 13017:
-			return PackingBatch;
+			return PackingBatch;*/
 
 		case 13018:
 			return Device;
