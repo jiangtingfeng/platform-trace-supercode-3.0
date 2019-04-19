@@ -13,7 +13,10 @@ import com.jgw.supercodeplatform.trace.dto.code.ObjectPropertyDto;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.FieldBusinessParam;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
+import com.jgw.supercodeplatform.trace.service.dynamic.DynamicTableService;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +39,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class CodeRelationService extends CommonUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(CodeRelationService.class);
 
     @Autowired
     private RestTemplateUtil restTemplateUtil;
@@ -110,6 +115,9 @@ public class CodeRelationService extends CommonUtil {
 
             if (rest.getStatusCode().value() == 200) {
                 String body = rest.getBody();
+
+                logger.info("addRelation: "+body);
+
                 JsonNode node = new ObjectMapper().readTree(body);
                 if (200 == node.get("state").asInt()) {
 
@@ -157,6 +165,9 @@ public class CodeRelationService extends CommonUtil {
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/sbatchUrl/addSbatchUrl", JSONObject.toJSONString( paramList), headerMap);
 
             String body = rest.getBody();
+
+            logger.info("addSbatchUrl: "+body);
+
             JsonNode node = new ObjectMapper().readTree(body);
             if (rest.getStatusCode().value() == 200) {
                 if (200 == node.get("state").asInt()) {
