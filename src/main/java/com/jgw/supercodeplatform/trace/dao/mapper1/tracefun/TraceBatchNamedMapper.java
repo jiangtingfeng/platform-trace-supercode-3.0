@@ -19,7 +19,7 @@ public interface TraceBatchNamedMapper  extends CommonSql {
     @Select("SELECT * FROM trace_batchnamed where FunId=#{funId}")
     List<TraceBatchNamed> selectByFunId(@Param("funId")String funId);
 
-    @Delete(" DELETE FROM trace_batchnamed WHERE where FunId=#{funId}")
+    @Delete(" DELETE FROM trace_batchnamed WHERE FunId=#{funId}")
     int deleteTraceBatchNamed(@Param("funId")String funId);
 
     @Insert("INSERT INTO trace_batchnamed" +

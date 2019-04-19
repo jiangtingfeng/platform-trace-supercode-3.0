@@ -119,6 +119,7 @@ public class TraceFunFieldConfigService {
 	public RestResult<String> update(CustomizeFun customizeFun) throws Exception {
 		RestResult<String> restResult=new RestResult<String>();
 
+
 		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
 
 		List<TraceFunFieldConfigParam> addConfigLlist=new ArrayList<TraceFunFieldConfigParam>();
@@ -251,6 +252,7 @@ public class TraceFunFieldConfigService {
      * @return
      * @throws Exception 
      */
+	@Transactional(rollbackFor = Exception.class)
 	public RestResult<String> arbitraryUpdate(CustomizeFun customizeFun) throws Exception {
 		RestResult<String> restResult=new RestResult<String>();
 
@@ -266,16 +268,21 @@ public class TraceFunFieldConfigService {
 		}
         DynamicBaseMapper baseMapper=traceApplicationContextAware.getDynamicMapperByFunctionId(null, functionId);
         String querySQL="select * from "+traceOrgFunRoute.getTableName()+" limit 1";
-        List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
-        if (null!=data && !data.isEmpty()) {
-        	restResult.setState(500);
-        	restResult.setMsg("该定制功能表已有数据不能修改");
-        	return restResult;
+
+        try{
+			List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
+			if (null!=data && !data.isEmpty()) {
+				restResult.setState(500);
+				restResult.setMsg("该定制功能表已有数据不能修改");
+				return restResult;
+			}
+			String trunkSQL="DROP TABLE "+traceOrgFunRoute.getTableName();
+
+			//删除已建立的定制功能表
+			baseMapper.update(trunkSQL);
+		} catch (Exception e){
+        	e.printStackTrace();
 		}
-        String trunkSQL="DROP TABLE "+traceOrgFunRoute.getTableName();
-        
-        //删除已建立的定制功能表
-        baseMapper.update(trunkSQL);
         
         //删除企业路由关系
         traceOrgFunRouteDao.deleteByDzFunctionId(param.get(0).getFunctionId());

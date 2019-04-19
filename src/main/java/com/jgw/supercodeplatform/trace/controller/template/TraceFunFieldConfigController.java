@@ -90,7 +90,8 @@ public class TraceFunFieldConfigController {
 	public RestResult<String> update(@Valid  @RequestBody CustomizeFun param, HttpServletRequest request) throws IOException, ParseException {
 		RestResult<String> result=null;
 		try {
-			result =service.update(param);
+			//result =service.update(param);
+			result =service.arbitraryUpdate(param);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result=new RestResult<>();

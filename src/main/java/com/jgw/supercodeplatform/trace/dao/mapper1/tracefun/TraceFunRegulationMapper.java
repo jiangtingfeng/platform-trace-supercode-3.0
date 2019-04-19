@@ -60,7 +60,7 @@ public interface TraceFunRegulationMapper extends CommonSql {
     @Select("SELECT "+allFields+" FROM trace_fun_regulation  where FunId=#{funId}")
     TraceFunRegulation selectByFunId(@Param("funId")String funId);
 
-    @Delete(" DELETE FROM trace_fun_regulation WHERE where FunId=#{funId}")
+    @Delete(" DELETE FROM trace_fun_regulation WHERE  FunId=#{funId}")
     int deleteTraceFunRegulation(@Param("funId")String funId);
 
 }
