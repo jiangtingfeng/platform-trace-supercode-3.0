@@ -333,8 +333,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	 */
 	private List<BaseBatchInfo> CreateBatchInfoWithRelation(TraceFunRegulation traceFunRegulation, DynamicAddFunParam param,TraceBatchInfo parentTraceBatchInfo) throws Exception
 	{
-		String traceTemplateId="2c7874f1b40340b9b930d1f375b34f80";
-		String traceTemplateName="桃溯源默认模板";
+		String traceTemplateId="cd153b772694428e8435ad5e594f90c5";
+		String traceTemplateName="桃溯源模板419";
 		Integer userSceneType= traceFunRegulation.getUseSceneType();
 		String productName = parentTraceBatchInfo.getProductName();
 		String productId=parentTraceBatchInfo.getProductId();
