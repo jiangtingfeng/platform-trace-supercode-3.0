@@ -122,6 +122,8 @@ public class CodeRelationService extends CommonUtil {
                         }
                     }
                     return node.get("results");
+                }else {
+                    throw new Exception(node.get("msg").textValue());
                 }
             }
         } catch (SuperCodeTraceException | IOException | SuperCodeException e) {
@@ -154,12 +156,14 @@ public class CodeRelationService extends CommonUtil {
             headerMap.put("super-token", getSuperToken());
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/sbatchUrl/addSbatchUrl", JSONObject.toJSONString( paramList), headerMap);
 
+            String body = rest.getBody();
+            JsonNode node = new ObjectMapper().readTree(body);
             if (rest.getStatusCode().value() == 200) {
-                String body = rest.getBody();
-                JsonNode node = new ObjectMapper().readTree(body);
                 if (200 == node.get("state").asInt()) {
                     return node.get("results");
                 }
+            }else {
+                throw new Exception(node.get("results").asText());
             }
         } catch (SuperCodeTraceException | IOException | SuperCodeException e) {
             e.printStackTrace();
