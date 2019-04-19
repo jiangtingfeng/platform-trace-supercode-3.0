@@ -22,7 +22,8 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
     		+ ",FunctionName functionName,FunctionId functionId";
     
     String ALLFields="Id id,FunctionId functionId,ObjectFieldId objectFieldId,ObjectType objectType,FunctionName functionName,ExtraCreate extraCreate,TraceTemplateId traceTemplateId,EnTableName enTableName,FieldType fieldType,FieldName fieldName,FieldWeight fieldWeight,FieldCode fieldCode,TypeClass typeClass,DefaultValue defaultValue,"
-    		+ "IsRequired isRequired,ValidateFormat validateFormat,MinSize minSize,MaxSize maxSize,RequiredNumber requiredNumber,MinNumber minNumber,MaxNumber maxNumber,DataValue dataValue,IsRemarkEnable isRemarkEnable,ShowHidden showHidden,CreateBy createBy,DATE_FORMAT(CreateTime,'%Y-%m-%d %H:%i:%S') createTime,LastUpdateBy lastUpdateBy,DATE_FORMAT(LastUpdateTime,'%Y-%m-%d %H:%i:%S') lastUpdateTime";
+    		+ "IsRequired isRequired,ValidateFormat validateFormat,MinSize minSize,MaxSize maxSize,RequiredNumber requiredNumber,MinNumber minNumber,MaxNumber maxNumber,DataValue dataValue,IsRemarkEnable isRemarkEnable,ShowHidden showHidden,CreateBy createBy,DATE_FORMAT(CreateTime,'%Y-%m-%d %H:%i:%S') createTime,LastUpdateBy lastUpdateBy,DATE_FORMAT(LastUpdateTime,'%Y-%m-%d %H:%i:%S') lastUpdateTime,"
+			+"ComponentId componentId";
     
 	@InsertProvider(type = TraceFunFieldConfigProvider.class, method = "batchInsert")
 	void batchInsert(@Param("list")List<TraceFunFieldConfig> arg0);

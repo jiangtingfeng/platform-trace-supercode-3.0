@@ -310,7 +310,13 @@ public class TraceFunFieldConfigDelegate {
 						createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
 					}
 				}else {
-
+					List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
+					if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
+						for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
+							fieldConfigParam.setComponentId(traceFunComponentId);
+						}
+						//createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
+					}
 				}
 
 				TraceFunComponent traceFunComponent=new TraceFunComponent();
@@ -577,6 +583,7 @@ public class TraceFunFieldConfigDelegate {
 			tffc.setTypeClass(typeClass);
 			tffc.setObjectType(objectType);
 			tffc.setFieldWeight(traceFunConfigParam.getFieldWeight());
+			tffc.setComponentId(traceFunConfigParam.getComponentId());
 			tffcList.add(tffc);
 
 		}
