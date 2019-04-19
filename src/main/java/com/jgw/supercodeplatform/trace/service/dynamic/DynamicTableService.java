@@ -509,9 +509,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			baseBatchInfos=CreateBatchInfoWithRelation(traceFunRegulation,param,traceBatchInfo);
 		}else if(traceFunRegulation!=null && traceFunRegulation.getRegulationType() == RegulationTypeEnum.ProcedureNode.getKey())
 		{
-			baseBatchInfos = new ArrayList<BaseBatchInfo>();
-			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchInfo.getTraceBatchName());
-			baseBatchInfos.add(baseBatchInfo);
+			if(traceBatchInfo!=null){
+				baseBatchInfos = new ArrayList<BaseBatchInfo>();
+				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchInfo.getTraceBatchName());
+				baseBatchInfos.add(baseBatchInfo);
+			}
 		}
 
 		RestResult<String> restResult=null;

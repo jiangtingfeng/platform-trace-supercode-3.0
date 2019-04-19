@@ -271,11 +271,11 @@ public class TraceFunFieldConfigService {
 
         try{
 			List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
-			if (null!=data && !data.isEmpty()) {
+			/*if (null!=data && !data.isEmpty()) {
 				restResult.setState(500);
 				restResult.setMsg("该定制功能表已有数据不能修改");
 				return restResult;
-			}
+			}*/
 			String trunkSQL="DROP TABLE "+traceOrgFunRoute.getTableName();
 
 			//删除已建立的定制功能表
