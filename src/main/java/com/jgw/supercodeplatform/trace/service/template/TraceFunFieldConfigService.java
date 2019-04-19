@@ -259,17 +259,17 @@ public class TraceFunFieldConfigService {
 		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
 
 		String functionId=param.get(0).getFunctionId();
-		
-        TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
-        if (null==traceOrgFunRoute) {
-        	restResult.setState(500);
-        	restResult.setMsg("该定制功能未建立企业功能路由记录无法删除");
-        	return restResult;
-		}
-        DynamicBaseMapper baseMapper=traceApplicationContextAware.getDynamicMapperByFunctionId(null, functionId);
-        String querySQL="select * from "+traceOrgFunRoute.getTableName()+" limit 1";
 
         try{
+			TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
+		    /*if (null==traceOrgFunRoute) {
+				restResult.setState(500);
+				restResult.setMsg("该定制功能未建立企业功能路由记录无法删除");
+				return restResult;
+			}*/
+			DynamicBaseMapper baseMapper=traceApplicationContextAware.getDynamicMapperByFunctionId(null, functionId);
+			String querySQL="select * from "+traceOrgFunRoute.getTableName()+" limit 1";
+
 			List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
 			/*if (null!=data && !data.isEmpty()) {
 				restResult.setState(500);
@@ -289,7 +289,6 @@ public class TraceFunFieldConfigService {
         
         //删除字段
         dao.deleteDzFieldsByFunctionId(functionId);
-
 
 		traceFunComponentMapper.deleteTraceFunComponent(functionId);
 		traceFunRegulationMapper.deleteTraceFunRegulation(functionId);
