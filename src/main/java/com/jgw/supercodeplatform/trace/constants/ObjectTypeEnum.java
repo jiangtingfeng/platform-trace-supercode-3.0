@@ -51,7 +51,8 @@ public enum ObjectTypeEnum {
 		case 13010:
 			return CodeAssociate;
 		default:
-			throw new SuperCodeTraceException("无法根据对象类型codeTypeId="+codeTypeId+"获取到对象", 500);
+			return null;
+			//throw new SuperCodeTraceException("无法根据对象类型codeTypeId="+codeTypeId+"获取到对象", 500);
 		}
 	}
 	private int code;

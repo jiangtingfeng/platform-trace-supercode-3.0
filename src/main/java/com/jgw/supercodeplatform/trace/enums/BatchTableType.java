@@ -31,13 +31,14 @@ public enum  BatchTableType {
 
     public static BatchTableType getBatchTableType(ObjectTypeEnum objectTypeEnum){
         BatchTableType batchTableType=ProductBatch;
-        switch (objectTypeEnum){
-            case MassifBatch:
-                batchTableType=ObjectBatch;
-            default:
-                break;
+        if(objectTypeEnum!=null){
+            switch (objectTypeEnum){
+                case MassifBatch:
+                    batchTableType=ObjectBatch;
+                default:
+                    break;
+            }
         }
-
         return batchTableType;
     }
 }
