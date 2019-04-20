@@ -253,16 +253,11 @@ public class TraceFunFieldConfigService {
 	RestResult<String> updateWithAddField(CustomizeFun customizeFun,String tableName) throws Exception
 	{
 		RestResult<String> restResult=new RestResult<String>();
-		String functionId=customizeFun.getFunId();
-		String functionName=customizeFun.getFunName();
 
 		addGroupField(customizeFun);
 
-		List<TraceFunFieldConfigParam> traceFunFieldConfigParams= customizeFun.getTraceFunFieldConfigModel();
-		List<TraceFunFieldConfigParam>  addConfigLlist= traceFunFieldConfigParams.stream().filter(e->e.getId()==null).collect(Collectors.toList());
-		if(addConfigLlist.size()>0){
-			restResult=traceFunFieldConfigDelegate.addNewFields(addConfigLlist, tableName,false,false,functionId,functionName,null,null);
-		}
+		String functionId=customizeFun.getFunId(),functionName=null;
+		List<TraceFunFieldConfigParam> traceFunFieldConfigParams=null,addConfigLlist=null;
 
 		List<FunComponent> funComponents=customizeFun.getFunComponentModels();
 		if(funComponents!=null && funComponents.size()>0){
@@ -271,19 +266,31 @@ public class TraceFunFieldConfigService {
 					traceFunFieldConfigDelegate.saveFunComponent(funComponent,functionId);
 				} else {
 					String componentId=funComponent.getComponentId();
-
-					TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, componentId);
-					tableName=traceOrgFunRoute.getTableName();
 					functionName = funComponent.getComponentName();
-
 					traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
 					addConfigLlist= traceFunFieldConfigParams.stream().filter(e->e.getId()==null).collect(Collectors.toList());
 					if(addConfigLlist.size()>0){
-						traceFunFieldConfigDelegate.addNewFields(addConfigLlist, tableName,false,false,componentId,functionName,null,null);
+						if(ComponentTypeEnum.isNestComponent(funComponent.getComponentType())){
+                            TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, componentId);
+                            tableName=traceOrgFunRoute.getTableName();
+							traceFunFieldConfigDelegate.addNewFields(addConfigLlist, tableName,false,false,componentId,functionName,null,null);
+						} else {
+							for(TraceFunFieldConfigParam fieldConfigParam:addConfigLlist){
+								fieldConfigParam.setComponentId(componentId);
+							}
+						}
 					}
 				}
 
 			}
+		}
+
+		functionId=customizeFun.getFunId();
+		functionName=customizeFun.getFunName();
+		traceFunFieldConfigParams= customizeFun.getTraceFunFieldConfigModel();
+		addConfigLlist= traceFunFieldConfigParams.stream().filter(e->e.getId()==null).collect(Collectors.toList());
+		if(addConfigLlist.size()>0){
+			restResult=traceFunFieldConfigDelegate.addNewFields(addConfigLlist, tableName,false,false,functionId,functionName,null,null);
 		}
 
 		restResult.setState(200);
