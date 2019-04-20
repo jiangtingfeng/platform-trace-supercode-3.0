@@ -64,7 +64,7 @@ public class ProductTestingController {
     @ApiOperation(value = "获取检测详情", notes = "内部检测列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
-            @ApiImplicitParam(name = "id", paramType = "query", defaultValue = "3", value = "检测类型: 内部检测为1，第三方检测为2")
+            @ApiImplicitParam(name = "productTestingId", paramType = "query", defaultValue = "1", value = "检测id")
     })
     public RestResult getById(Integer productTestingId ) throws Exception {
         return new RestResult(200, "success", productTestingService.getById(productTestingId));
