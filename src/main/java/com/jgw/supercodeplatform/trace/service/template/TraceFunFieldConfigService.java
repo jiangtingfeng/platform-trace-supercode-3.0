@@ -254,8 +254,6 @@ public class TraceFunFieldConfigService {
 	{
 		RestResult<String> restResult=new RestResult<String>();
 
-		addGroupField(customizeFun);
-
 		String functionId=customizeFun.getFunId(),functionName=null;
 		List<TraceFunFieldConfigParam> traceFunFieldConfigParams=null,addConfigLlist=null;
 
@@ -310,6 +308,8 @@ public class TraceFunFieldConfigService {
 		RestResult<String> restResult=new RestResult<String>();
 		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
 		String functionId=param.get(0).getFunctionId();
+
+        addGroupField(customizeFun);
 
 		TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
 		/*if (null==traceOrgFunRoute) {
