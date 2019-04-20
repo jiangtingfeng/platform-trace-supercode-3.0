@@ -18,6 +18,7 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,9 @@ public class TraceBatchRelationEsService extends CommonUtil {
 
     private static Logger logger= LoggerFactory.getLogger(TraceBatchRelationEsService.class);
 
+    @Value("${elastic.enable}")
+    private boolean enableElastic;
+
     /**
      * 新增批次关联数据，同时异步写入ElasticSearch
      * @param traceBatchRelation
@@ -56,15 +60,16 @@ public class TraceBatchRelationEsService extends CommonUtil {
     {
         traceBatchRelationMapper.insertTraceBatchRelation(traceBatchRelation);
 
-        taskExecutor.execute(()->{
-            try{
-                insertTraceBatchRelationToEs(traceBatchRelation);
-            }catch (Exception e){
-                logger.error("批次关系写入es失败",e);
-                e.printStackTrace();
-            }
-        });
-
+        if(enableElastic){
+            taskExecutor.execute(()->{
+                try{
+                    insertTraceBatchRelationToEs(traceBatchRelation);
+                }catch (Exception e){
+                    logger.error("批次关系写入es失败",e);
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     /**
@@ -97,20 +102,24 @@ public class TraceBatchRelationEsService extends CommonUtil {
      */
     public List<TraceBatchRelation> selectByBatchId(String batchId){
 
-        SearchResponse response=eClient.prepareSearch(IndexAndType.TRACE_INDEX)
-                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                .setTypes(IndexAndType.TRACE_BATCHRELATION_TYPE)
-                .setQuery(QueryBuilders.boolQuery()
-                        .must(QueryBuilders.termQuery("currentBatchId.keyword",batchId))
+        if(enableElastic){
+            SearchResponse response=eClient.prepareSearch(IndexAndType.TRACE_INDEX)
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setTypes(IndexAndType.TRACE_BATCHRELATION_TYPE)
+                    .setQuery(QueryBuilders.boolQuery()
+                            .must(QueryBuilders.termQuery("currentBatchId.keyword",batchId))
 
-                ).get();
-        SearchHit[] hits=response.getHits().getHits();
+                    ).get();
+            SearchHit[] hits=response.getHits().getHits();
 
-        List<TraceBatchRelation> traceBatchRelations=new ArrayList<TraceBatchRelation>() ;
-        for(SearchHit searchHit:hits){
-            TraceBatchRelation traceBatchRelation= JSONObject.parseObject(JSONObject.toJSONString(searchHit.getSourceAsMap()),TraceBatchRelation.class);
-            traceBatchRelations.add(traceBatchRelation);
+            List<TraceBatchRelation> traceBatchRelations=new ArrayList<TraceBatchRelation>() ;
+            for(SearchHit searchHit:hits){
+                TraceBatchRelation traceBatchRelation= JSONObject.parseObject(JSONObject.toJSONString(searchHit.getSourceAsMap()),TraceBatchRelation.class);
+                traceBatchRelations.add(traceBatchRelation);
+            }
+            return traceBatchRelations;
         }
-        return traceBatchRelations;
+
+        return null;
     }
 }
