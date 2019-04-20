@@ -67,6 +67,14 @@ public class ProductTestingService extends AbstractPageService {
     }
 
 
+    public Map<String, Object> getById(Integer productTestingId ) throws Exception {
+        ProductTesting productTesting= productTestingMapper.selectByPrimaryKey(productTestingId);
+        String prdTestId = productTesting.getProductTestingId();
+        List<ProductTestingItem> productTestingItems= productTestingItemMapper.selectByProductTestingId(String.format("'%s'",prdTestId));
+        Map<String, Object> testingMap= beanToMap(productTesting);
+        testingMap.put("testingItems",productTestingItems);
+        return testingMap;
+    }
 
     public Map<String, Object> listProductTesting(Map<String, Object> map) throws Exception {
         String organizationId=commonUtil.getOrganizationId();

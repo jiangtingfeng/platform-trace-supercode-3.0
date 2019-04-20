@@ -39,6 +39,36 @@ public class ProductTesting {
 
     private String excel;
 
+    private String traceBatchInfoName;
+
+    private  String productName;
+
+    public String getTestingManName() {
+        return testingManName;
+    }
+
+    public void setTestingManName(String testingManName) {
+        this.testingManName = testingManName;
+    }
+
+    private String testingManName;
+
+    public String getTraceBatchInfoName() {
+        return traceBatchInfoName;
+    }
+
+    public void setTraceBatchInfoName(String traceBatchInfoName) {
+        this.traceBatchInfoName = traceBatchInfoName;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
     public String getCertifyNumber() {
         return certifyNumber;
     }

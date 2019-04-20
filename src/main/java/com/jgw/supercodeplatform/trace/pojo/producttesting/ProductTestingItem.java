@@ -47,6 +47,9 @@ public class ProductTestingItem {
     @ApiModelProperty(value = "备注")
     private String remark;
 
+    @ApiModelProperty(value = "检测设备名称")
+    private String testingDeviceName;
+
     public Integer getId() {
         return id;
     }

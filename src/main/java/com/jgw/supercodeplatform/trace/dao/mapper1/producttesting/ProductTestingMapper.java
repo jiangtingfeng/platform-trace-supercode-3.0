@@ -21,20 +21,22 @@ public interface ProductTestingMapper extends CommonSql {
         "ProductID, TraceBatchInfoId, ",
         "TestingDate, TestingMan, ",
         "CreateMan, CreateTime, ",
-        "CreateId, TestingType, Excel, CertifyNumber)",
+        "CreateId, TestingType, Excel, CertifyNumber," ,
+        "TraceBatchInfoName,ProductName,TestingManName)",
         "values (#{id,jdbcType=INTEGER}, #{productTestingId,jdbcType=VARCHAR}, ",
         "#{organizationId,jdbcType=VARCHAR}, #{thirdpartyOrganizationId,jdbcType=VARCHAR}, ",
         "#{productID,jdbcType=VARCHAR}, #{traceBatchInfoId,jdbcType=VARCHAR}, ",
         "#{testingDate,jdbcType=VARCHAR}, #{testingMan,jdbcType=VARCHAR}, ",
-        "#{createMan,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, ",
-        "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER},#{excel,jdbcType=VARCHAR},#{certifyNumber,jdbcType=VARCHAR})"
+        "#{createMan,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},  ",
+        "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER},#{excel,jdbcType=VARCHAR},#{certifyNumber,jdbcType=VARCHAR}" ,
+        ",#{traceBatchInfoName,jdbcType=VARCHAR},#{productName,jdbcType=VARCHAR},#{testingManName,jdbcType=VARCHAR})"
     })
     int insert(ProductTesting record);
 
     @Select({
         "select",
         "Id, ProductTestingId, OrganizationId, ThirdpartyOrganizationId, ProductID, TraceBatchInfoId, ",
-        "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType",
+         "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType, CertifyNumber,Excel,TraceBatchInfoName,ProductName,TestingManName "+
         "from trace_ProductTesting",
         "where Id = #{id,jdbcType=INTEGER}"
     })
@@ -109,7 +111,7 @@ public interface ProductTestingMapper extends CommonSql {
             startScript+
                     "select "+
                     "Id, ProductTestingId, OrganizationId, ThirdpartyOrganizationId, ProductID, TraceBatchInfoId, "+
-                    "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType, CertifyNumber,Excel "+
+                    "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType, CertifyNumber,Excel,TraceBatchInfoName,ProductName,TestingManName "+
                     "from trace_ProductTesting a"
                     +startWhere
                     +" a.TestingType = #{testingType} "

@@ -39,6 +39,39 @@ public class ProductTestingParam  {
     @ApiModelProperty(value = "excel")
     private String excel;
 
+    @ApiModelProperty(value = "批次名称")
+    private String traceBatchInfoName;
+
+    public String getTestingManName() {
+        return testingManName;
+    }
+
+    public void setTestingManName(String testingManName) {
+        this.testingManName = testingManName;
+    }
+
+    @ApiModelProperty(value = "检测人名称")
+    private String testingManName;
+
+    public String getTraceBatchInfoName() {
+        return traceBatchInfoName;
+    }
+
+    public void setTraceBatchInfoName(String traceBatchInfoName) {
+        this.traceBatchInfoName = traceBatchInfoName;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    @ApiModelProperty(value = "产品名称")
+    private  String productName;
+
     public String getCertifyNumber() {
         return certifyNumber;
     }

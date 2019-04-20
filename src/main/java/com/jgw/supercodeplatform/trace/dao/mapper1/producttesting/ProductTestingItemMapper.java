@@ -21,14 +21,14 @@ public interface ProductTestingItemMapper {
         "TestingDate, TestingAccording, ",
         "Quantity, TestingMethod, ",
         "TestingDevice, Excel, ",
-        "Imgs, Pdfs, Remark)",
+        "Imgs, Pdfs, Remark,TestingDeviceName)",
         "values (#{id,jdbcType=INTEGER}, #{productTestingItemId,jdbcType=VARCHAR}, ",
         "#{productTestingId,jdbcType=VARCHAR}, #{testingTypeId,jdbcType=VARCHAR}, ",
         "#{testingStandard,jdbcType=INTEGER}, #{testingResult,jdbcType=INTEGER}, ",
         "#{testingDate,jdbcType=TIMESTAMP}, #{testingAccording,jdbcType=VARCHAR}, ",
         "#{quantity,jdbcType=INTEGER}, #{testingMethod,jdbcType=VARCHAR}, ",
         "#{testingDevice,jdbcType=VARCHAR}, #{excel,jdbcType=VARCHAR}, ",
-        "#{imgs,jdbcType=VARCHAR}, #{pdfs,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR})"
+        "#{imgs,jdbcType=VARCHAR}, #{pdfs,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{testingDeviceName,jdbcType=VARCHAR})"
     })
     int insert(ProductTestingItem record);
 
@@ -63,7 +63,7 @@ public interface ProductTestingItemMapper {
         "select",
         "Id, ProductTestingItemId, ProductTestingId, TestingTypeId, TestingStandard, ",
         "TestingResult, TestingDate, TestingAccording, Quantity, TestingMethod, TestingDevice, ",
-        "Excel, Imgs, Pdfs, Remark",
+        "Excel, Imgs, Pdfs, Remark,TestingDeviceName",
         "from trace_ProductTestingItem where ProductTestingId in (${ids}) "
     })
     @Results({
