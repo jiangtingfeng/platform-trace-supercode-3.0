@@ -65,13 +65,8 @@ public class TraceFunFieldConfigService {
 
 	@Autowired
 	private TraceBatchNamedMapper traceBatchNamedMapper;
-	
-	@Transactional
-	public RestResult<List<String>> add(CustomizeFun customizeFun) throws Exception {
-		RestResult<List<String>> restResult=new RestResult<List<String>>();
 
-		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
-
+	private void addGroupField(CustomizeFun customizeFun){
 		List<FunComponent> funComponentModels=customizeFun.getFunComponentModels();
 		if (funComponentModels!=null && funComponentModels.size()>0){
 			for (FunComponent funComponent:funComponentModels){
@@ -83,6 +78,15 @@ public class TraceFunFieldConfigService {
 				}
 			}
 		}
+	}
+
+	@Transactional
+	public RestResult<List<String>> add(CustomizeFun customizeFun) throws Exception {
+		RestResult<List<String>> restResult=new RestResult<List<String>>();
+
+		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
+
+		addGroupField(customizeFun);
 
 		boolean containsBatch=TraceFunFieldConfigDelegate.checkAddParam(param);
 		/*if (!containsBatch || true) {
@@ -251,6 +255,8 @@ public class TraceFunFieldConfigService {
 		RestResult<String> restResult=new RestResult<String>();
 		String functionId=customizeFun.getFunId();
 		String functionName=customizeFun.getFunName();
+
+		addGroupField(customizeFun);
 
 		List<TraceFunFieldConfigParam> traceFunFieldConfigParams= customizeFun.getTraceFunFieldConfigModel();
 		List<TraceFunFieldConfigParam>  addConfigLlist= traceFunFieldConfigParams.stream().filter(e->e.getId()==null).collect(Collectors.toList());
