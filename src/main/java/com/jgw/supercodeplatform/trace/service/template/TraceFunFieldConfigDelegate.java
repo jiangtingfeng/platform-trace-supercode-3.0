@@ -280,6 +280,43 @@ public class TraceFunFieldConfigDelegate {
 		return  fieldConfigParams;
 	}
 
+	public void saveFunComponent(FunComponent funComponent,String funId) throws Exception
+	{
+		String traceFunComponentId= commonUtil.getUUID();
+
+		if(ComponentTypeEnum.isNestComponent(funComponent.getComponentType())){
+			if(ComponentTypeEnum.MaterielCompent.getKey() == Integer.valueOf(funComponent.getComponentType())){
+				// 物料组件
+				List<TraceFunFieldConfigParam> fieldConfigParams= getMaterielFieldConfigs();
+				funComponent.setTraceFunFieldConfigModel(fieldConfigParams);
+			}
+			List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
+			if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
+				for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
+					fieldConfigParam.setFunctionId(traceFunComponentId);
+					fieldConfigParam.setFunctionName(funComponent.getComponentName());
+				}
+				createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
+			}
+		}else {
+			List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
+			if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
+				for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
+					fieldConfigParam.setComponentId(traceFunComponentId);
+				}
+				//createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
+			}
+		}
+
+		TraceFunComponent traceFunComponent=new TraceFunComponent();
+		traceFunComponent.setComponentId(traceFunComponentId);
+		traceFunComponent.setComponentName(funComponent.getComponentName());
+		traceFunComponent.setComponentType(funComponent.getComponentType());
+		traceFunComponent.setFunId(funId);
+		traceFunComponent.setFieldWeight(funComponent.getFieldWeight());
+		traceFunComponentMapper.insertTraceFunComponent(traceFunComponent);
+	}
+
 
 	/**
 	 * 创建定制功能使用规则、功能组件、字段
@@ -291,41 +328,8 @@ public class TraceFunFieldConfigDelegate {
 		String funId=customizeFun.getFunId();
 		List<FunComponent> funComponentModels=customizeFun.getFunComponentModels();
 		if (funComponentModels!=null && funComponentModels.size()>0){
-
 			for (FunComponent funComponent:funComponentModels){
-				String traceFunComponentId= commonUtil.getUUID();
-
-				if(ComponentTypeEnum.isNestComponent(funComponent.getComponentType())){
-					if(ComponentTypeEnum.MaterielCompent.getKey() == Integer.valueOf(funComponent.getComponentType())){
-						// 物料组件
-						List<TraceFunFieldConfigParam> fieldConfigParams= getMaterielFieldConfigs();
-						funComponent.setTraceFunFieldConfigModel(fieldConfigParams);
-					}
-					List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
-					if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
-						for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
-							fieldConfigParam.setFunctionId(traceFunComponentId);
-							fieldConfigParam.setFunctionName(funComponent.getComponentName());
-						}
-						createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
-					}
-				}else {
-					List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
-					if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
-						for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
-							fieldConfigParam.setComponentId(traceFunComponentId);
-						}
-						//createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
-					}
-				}
-
-				TraceFunComponent traceFunComponent=new TraceFunComponent();
-				traceFunComponent.setComponentId(traceFunComponentId);
-				traceFunComponent.setComponentName(funComponent.getComponentName());
-				traceFunComponent.setComponentType(funComponent.getComponentType());
-				traceFunComponent.setFunId(funId);
-				traceFunComponent.setFieldWeight(funComponent.getFieldWeight());
-				traceFunComponentMapper.insertTraceFunComponent(traceFunComponent);
+				saveFunComponent(funComponent,funId);
 			}
 		}
 

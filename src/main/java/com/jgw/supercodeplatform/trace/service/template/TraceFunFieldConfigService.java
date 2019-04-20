@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -245,6 +246,45 @@ public class TraceFunFieldConfigService {
 		return restResult;
 	}
 
+	RestResult<String> updateWithAddField(CustomizeFun customizeFun,String tableName) throws Exception
+	{
+		RestResult<String> restResult=new RestResult<String>();
+		String functionId=customizeFun.getFunId();
+		String functionName=customizeFun.getFunName();
+
+		List<TraceFunFieldConfigParam> traceFunFieldConfigParams= customizeFun.getTraceFunFieldConfigModel();
+		List<TraceFunFieldConfigParam>  addConfigLlist= traceFunFieldConfigParams.stream().filter(e->e.getId()==null).collect(Collectors.toList());
+		if(addConfigLlist.size()>0){
+			restResult=traceFunFieldConfigDelegate.addNewFields(addConfigLlist, tableName,false,false,functionId,functionName,null,null);
+		}
+
+		List<FunComponent> funComponents=customizeFun.getFunComponentModels();
+		if(funComponents!=null && funComponents.size()>0){
+			for(FunComponent funComponent:funComponents){
+				if(StringUtils.isEmpty(funComponent.getComponentId())){
+					traceFunFieldConfigDelegate.saveFunComponent(funComponent,functionId);
+				} else {
+					String componentId=funComponent.getComponentId();
+
+					TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, componentId);
+					tableName=traceOrgFunRoute.getTableName();
+					functionName = funComponent.getComponentName();
+
+					traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
+					addConfigLlist= traceFunFieldConfigParams.stream().filter(e->e.getId()==null).collect(Collectors.toList());
+					if(addConfigLlist.size()>0){
+						traceFunFieldConfigDelegate.addNewFields(addConfigLlist, tableName,false,false,componentId,functionName,null,null);
+					}
+				}
+
+			}
+		}
+
+		restResult.setState(200);
+		restResult.setMsg("操作成功");
+		return restResult;
+	}
+
 
     /**
      * 任意修改定制功能表
@@ -255,53 +295,52 @@ public class TraceFunFieldConfigService {
 	@Transactional(rollbackFor = Exception.class)
 	public RestResult<String> arbitraryUpdate(CustomizeFun customizeFun) throws Exception {
 		RestResult<String> restResult=new RestResult<String>();
-
 		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
-
 		String functionId=param.get(0).getFunctionId();
 
-        try{
-			TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
-		    /*if (null==traceOrgFunRoute) {
-				restResult.setState(500);
-				restResult.setMsg("该定制功能未建立企业功能路由记录无法删除");
-				return restResult;
-			}*/
-			DynamicBaseMapper baseMapper=traceApplicationContextAware.getDynamicMapperByFunctionId(null, functionId);
-			String querySQL="select * from "+traceOrgFunRoute.getTableName()+" limit 1";
+		TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
+		/*if (null==traceOrgFunRoute) {
+			restResult.setState(500);
+			restResult.setMsg("该定制功能未建立企业功能路由记录无法删除");
+			return restResult;
+		}*/
+		DynamicBaseMapper baseMapper=traceApplicationContextAware.getDynamicMapperByFunctionId(null, functionId);
+		String querySQL="select * from "+traceOrgFunRoute.getTableName()+" limit 1";
 
-			List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
-			/*if (null!=data && !data.isEmpty()) {
-				restResult.setState(500);
-				restResult.setMsg("该定制功能表已有数据不能修改");
-				return restResult;
-			}*/
+		List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
+		if (null!=data && !data.isEmpty()) {
+			restResult = updateWithAddField(customizeFun,traceOrgFunRoute.getTableName());
+			//restResult.setState(500);
+			//restResult.setMsg("该定制功能表已有数据不能修改");
+		} else {
 			String trunkSQL="DROP TABLE "+traceOrgFunRoute.getTableName();
+			try{
+				//删除已建立的定制功能表
+				baseMapper.update(trunkSQL);
+			}catch (Exception e){
+				e.printStackTrace();
+				logger.error(e.toString());
+			}
 
-			//删除已建立的定制功能表
-			baseMapper.update(trunkSQL);
-		} catch (Exception e){
-        	e.printStackTrace();
+			//删除企业路由关系
+			traceOrgFunRouteDao.deleteByDzFunctionId(param.get(0).getFunctionId());
+
+			//删除字段
+			dao.deleteDzFieldsByFunctionId(functionId);
+
+			traceFunComponentMapper.deleteTraceFunComponent(functionId);
+			traceFunRegulationMapper.deleteTraceFunRegulation(functionId);
+			traceBatchNamedMapper.deleteTraceBatchNamed(functionId);
+
+			//创建新的定制功能时依然校验
+
+			TraceFunFieldConfigDelegate.checkAddParam(param);
+
+			traceFunFieldConfigDelegate.saveFunComponentAndRegulation(customizeFun);
+
+			//动态创建定制功能表和保存字段
+			traceFunFieldConfigDelegate.createTableAndGerenteOrgFunRouteAndSaveFields(param, true,param.get(0).getFunctionId(),param.get(0).getFunctionName());
 		}
-        
-        //删除企业路由关系
-        traceOrgFunRouteDao.deleteByDzFunctionId(param.get(0).getFunctionId());
-        
-        //删除字段
-        dao.deleteDzFieldsByFunctionId(functionId);
-
-		traceFunComponentMapper.deleteTraceFunComponent(functionId);
-		traceFunRegulationMapper.deleteTraceFunRegulation(functionId);
-		traceBatchNamedMapper.deleteTraceBatchNamed(functionId);
-        
-        //创建新的定制功能时依然校验
-        
-        TraceFunFieldConfigDelegate.checkAddParam(param);
-
-		traceFunFieldConfigDelegate.saveFunComponentAndRegulation(customizeFun);
-
-    	//动态创建定制功能表和保存字段
-        traceFunFieldConfigDelegate.createTableAndGerenteOrgFunRouteAndSaveFields(param, true,param.get(0).getFunctionId(),param.get(0).getFunctionName());
 
         restResult.setState(200);
         restResult.setMsg("操作成功");

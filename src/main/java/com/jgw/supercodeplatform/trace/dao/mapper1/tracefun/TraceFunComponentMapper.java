@@ -50,4 +50,7 @@ public interface TraceFunComponentMapper extends CommonSql {
     @Delete(" DELETE FROM trace_fun_component WHERE FunId=#{funId}")
     int deleteTraceFunComponent(@Param("funId")String funId);
 
+    @Select("SELECT "+allFields+" FROM trace_fun_component where ComponentId=#{componentId}")
+    TraceFunComponent selectByComponentId(@Param("componentId")String componentId);
+
 }
