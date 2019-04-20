@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.pojo.cache.AccountCache;
 import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtilComponent;
@@ -16,6 +17,7 @@ import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.RegulationTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.TraceUseSceneEnum;
+import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTesting;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
 import com.jgw.supercodeplatform.trace.service.tracefun.*;
@@ -219,10 +221,17 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		//校验批次记录存不存在
 		String traceBatchInfoId=addBusinessDataModel.getTraceBatchInfoId();
 		TraceBatchInfo traceBatchInfo=traceBatchInfoService.selectByTraceBatchInfoId(traceBatchInfoId);
+		TraceObjectBatchInfo traceObjectBatchInfo=null;
 		if (null==traceBatchInfo) {
-			backResult.setState(500);
-			backResult.setMsg("无法根据traceBatchInfoId="+traceBatchInfoId+"查询到记录");
-			return backResult;
+			traceObjectBatchInfo=traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+			if(traceObjectBatchInfo!=null){
+				Map<String, Object> map = JSONObject.parseObject(JSONObject.toJSONString(traceObjectBatchInfo), Map.class);
+				traceBatchInfo = JSONObject.parseObject(JSONObject.toJSONString(map), TraceBatchInfo.class);
+			}else {
+				backResult.setState(500);
+				backResult.setMsg("无法根据traceBatchInfoId="+traceBatchInfoId+"查询到记录");
+				return backResult;
+			}
 		}
 		//获取到表名
 		String tableName = traceFunFieldConfigService.getEnTableNameByFunctionId(functionId);
@@ -274,7 +283,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			}else {
 				traceBatchInfo.setNodeDataCount(nodeDataCount+1);
 			}
-			traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+			if(traceObjectBatchInfo==null){
+				traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -336,9 +347,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String traceTemplateId="cd153b772694428e8435ad5e594f90c5";
 		String traceTemplateName="桃溯源模板419";
 		Integer userSceneType= traceFunRegulation.getUseSceneType();
-		String productName = parentTraceBatchInfo.getProductName();
-		String productId=parentTraceBatchInfo.getProductId();
-		String parentTraceBatchInfoId=parentTraceBatchInfo.getTraceBatchInfoId();
+		String productName=null,productId=null,parentTraceBatchInfoId=null;
+		if(parentTraceBatchInfo!=null){
+			productName = parentTraceBatchInfo.getProductName();
+			productId=parentTraceBatchInfo.getProductId();
+			parentTraceBatchInfoId=parentTraceBatchInfo.getTraceBatchInfoId();
+		}
 		int createBatchType = traceFunRegulation.getCreateBatchType();
 		int objectAssociatedType= traceFunRegulation.getObjectAssociatedType();
 

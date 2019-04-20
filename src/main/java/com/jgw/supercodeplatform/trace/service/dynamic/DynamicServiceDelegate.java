@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.service.dynamic;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,7 +149,13 @@ public class DynamicServiceDelegate {
 					}
 				}
 				if (StringUtils.isBlank(adDataModel.getTraceBatchInfoId())) {
-					throw new SuperCodeTraceException("生产管理新增数据无法获取到批次唯一id", 500);
+					List<FieldBusinessParam> batchParams= fields.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
+					String batchInfoId= batchParams.get(0).getFieldValue();
+					if(StringUtils.isEmpty(batchInfoId)){
+						throw new SuperCodeTraceException("生产管理新增数据无法获取到批次唯一id", 500);
+					}else {
+						adDataModel.setTraceBatchInfoId(batchInfoId);
+					}
 				}
 			}
 		} catch (Exception e) {
