@@ -291,6 +291,10 @@ public class TraceFunFieldConfigService {
 			restResult=traceFunFieldConfigDelegate.addNewFields(addConfigLlist, tableName,false,false,functionId,functionName,null,null);
 		}
 
+		traceFunRegulationMapper.deleteTraceFunRegulation(functionId);
+		traceBatchNamedMapper.deleteTraceBatchNamed(functionId);
+		traceFunFieldConfigDelegate.saveFunRegulation(customizeFun);
+
 		restResult.setState(200);
 		restResult.setMsg("操作成功");
 		return restResult;

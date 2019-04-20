@@ -317,22 +317,8 @@ public class TraceFunFieldConfigDelegate {
 		traceFunComponentMapper.insertTraceFunComponent(traceFunComponent);
 	}
 
-
-	/**
-	 * 创建定制功能使用规则、功能组件、字段
-	 * @param customizeFun
-	 * @throws Exception
-	 */
-	public void saveFunComponentAndRegulation(CustomizeFun customizeFun) throws Exception
-	{
+	public void saveFunRegulation(CustomizeFun customizeFun){
 		String funId=customizeFun.getFunId();
-		List<FunComponent> funComponentModels=customizeFun.getFunComponentModels();
-		if (funComponentModels!=null && funComponentModels.size()>0){
-			for (FunComponent funComponent:funComponentModels){
-				saveFunComponent(funComponent,funId);
-			}
-		}
-
 		TraceFunRegulation traceFunRegulation=new TraceFunRegulation();
 		traceFunRegulation.setFunId(funId);
 		traceFunRegulation.setObjectAssociatedType(customizeFun.getObjectAssociatedType());
@@ -352,6 +338,24 @@ public class TraceFunFieldConfigDelegate {
 			List<TraceBatchNamed> traceBatchNameds= batchNamedRuleFields.stream().map(e->new TraceBatchNamed(e.getFieldName(),e.getFieldCode(),funId,e.getFieldFormat(),e.isDisableFlag())).collect(Collectors.toList());
 			traceBatchNamedService.insertTraceBatchNamed(traceBatchNameds);
 		}
+	}
+
+	/**
+	 * 创建定制功能使用规则、功能组件、字段
+	 * @param customizeFun
+	 * @throws Exception
+	 */
+	public void saveFunComponentAndRegulation(CustomizeFun customizeFun) throws Exception
+	{
+		String funId=customizeFun.getFunId();
+		List<FunComponent> funComponentModels=customizeFun.getFunComponentModels();
+		if (funComponentModels!=null && funComponentModels.size()>0){
+			for (FunComponent funComponent:funComponentModels){
+				saveFunComponent(funComponent,funId);
+			}
+		}
+
+		saveFunRegulation(customizeFun);
 	}
 
 	public RestResult<String> updateFields(List<TraceFunFieldConfigParam> param, String tableName, boolean isAdd,
