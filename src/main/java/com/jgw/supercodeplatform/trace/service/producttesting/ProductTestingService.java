@@ -41,7 +41,7 @@ public class ProductTestingService extends AbstractPageService {
         ProductTesting productTesting = JSONObject.parseObject(JSONObject.toJSONString(map), ProductTesting.class);
 
         AccountCache userAccount = getUserLoginCache();
-        String organizationId = getOrganizationId();
+        //String organizationId = getOrganizationId();
 
         //productTesting.setOrganizationId(organizationId);
         productTesting.setCreateId(userAccount.getUserId());
