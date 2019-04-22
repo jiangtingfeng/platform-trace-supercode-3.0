@@ -128,17 +128,15 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			Integer objectType=fieldParam.getObjectType();
 			if (null!=objectType) {
 				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
-				switch (objectTypeEnum) {
-					case TRACE_BATCH:
-					case MassifBatch:
-					/*case RecoveryBatch:
-					case PurchaseBatch:
-					case PackingBatch:
-					case SortingBatch:*/
-						batchInfoId = fieldParam.getObjectUniqueValue();
-						break;
-					default:
-						break;
+				if(objectTypeEnum!=null){
+					switch (objectTypeEnum) {
+						case TRACE_BATCH:
+						case MassifBatch:
+							batchInfoId = fieldParam.getObjectUniqueValue();
+							break;
+						default:
+							break;
+					}
 				}
 			}
 		}
@@ -154,12 +152,14 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			Integer objectType=fieldParam.getObjectType();
 			if (null!=objectType) {
 				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
-				switch (objectTypeEnum) {
-					case PRODUCT:
-						massifId = fieldParam.getFieldValue();
-						break;
-					default:
-						break;
+				if(objectTypeEnum!=null){
+					switch (objectTypeEnum) {
+						case PRODUCT:
+							massifId = fieldParam.getFieldValue();
+							break;
+						default:
+							break;
+					}
 				}
 			}
 		}
@@ -174,12 +174,14 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			Integer objectType=fieldParam.getObjectType();
 			if (null!=objectType) {
 				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
-				switch (objectTypeEnum) {
-					case PRODUCT:
-						massifId = fieldParam.getObjectUniqueValue();
-						break;
-					default:
-						break;
+				if(objectTypeEnum!=null){
+					switch (objectTypeEnum) {
+						case PRODUCT:
+							massifId = fieldParam.getObjectUniqueValue();
+							break;
+						default:
+							break;
+					}
 				}
 			}
 		}

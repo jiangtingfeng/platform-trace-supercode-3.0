@@ -69,8 +69,15 @@ public class TraceBatchNamedService extends CommonUtil {
                     break;
                 case  "CreateDate":
                     Date date = new Date();
+                    Integer batchTimeControl=traceFunRegulation.getBatchTimeControl();
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
-                    traceBatchName.append(sdf.format(date));
+                    String strDate=sdf.format(date);
+                    if(batchTimeControl>0){
+                        strDate=sdf.format(new Date(date.getTime() + batchTimeControl * 24 * 60 * 60 * 1000));
+                    } else {
+                        strDate=sdf.format(date);
+                    }
+                    traceBatchName.append(strDate);
                     break;
                 case "SerialNumber":
                     //按组织、批次类型生成流水号
