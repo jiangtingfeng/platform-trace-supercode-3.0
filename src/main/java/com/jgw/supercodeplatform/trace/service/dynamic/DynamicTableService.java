@@ -145,6 +145,27 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return batchInfoId;
 	}
 
+
+	private String getProductId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
+	{
+		String massifId=null;
+		List<FieldBusinessParam> fields=lineBusinessData.getFields();
+		for (FieldBusinessParam fieldParam : fields) {
+			Integer objectType=fieldParam.getObjectType();
+			if (null!=objectType) {
+				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
+				switch (objectTypeEnum) {
+					case PRODUCT:
+						massifId = fieldParam.getObjectUniqueValue();
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return massifId;
+	}
+
 	private String getMassifId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
 	{
 		String massifId=null;
@@ -380,8 +401,13 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				traceObjectBatchInfo.setObjectId(massifId);
 				traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
 				traceBatchInfoId = traceObjectBatchInfo.getTraceBatchInfoId();
-			}
+			}else if(createBatchType == ObjectTypeEnum.PRODUCT.getCode()){
+				productId= getProductId(param.getLineData());
 
+				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
+				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
+				traceBatchInfoId = traceBatchInfo.getTraceBatchInfoId();
+			}
 
 			baseBatchInfo.setTraceBatchName(traceBatchName);
 			baseBatchInfo.setTraceBatchInfoId(traceBatchInfoId);
