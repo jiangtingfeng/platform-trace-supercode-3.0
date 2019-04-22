@@ -223,8 +223,8 @@ public class DynamicServiceDelegate {
 				//新增数据设置批次id时只有定制功能才需要在字段数据里找，节点数据新增有单独的字段接收批次唯一id
 				case TRACE_BATCH:
 					if (!isNode) {
-						/*sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
-						sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");*/
+						sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
+						sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
 					}
 					break;
 				case PRODUCT:
