@@ -14,6 +14,7 @@ import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunRegulationMa
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponent;
 import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
+import com.jgw.supercodeplatform.trace.enums.TraceUseSceneEnum;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchNamed;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunRegulation;
@@ -37,6 +38,7 @@ import com.jgw.supercodeplatform.trace.dto.template.query.TraceFunTemplateconfig
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 import com.jgw.supercodeplatform.trace.pojo.TraceOrgFunRoute;
+import com.jgw.supercodeplatform.trace.enums.TraceUseSceneEnum;
 
 @Service
 public class TraceFunFieldConfigService {
@@ -80,6 +82,27 @@ public class TraceFunFieldConfigService {
 		}
 	}
 
+	private boolean  checkAddField(CustomizeFun customizeFun,RestResult<List<String>> restResult){
+		boolean result=true;
+		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
+
+		List<TraceFunFieldConfigParam> batchParams= param.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
+		if(batchParams==null || batchParams.size()==0){
+			if(customizeFun.getUseSceneType() == TraceUseSceneEnum.CreateBatch.getKey()){
+
+
+			} else {
+				result=false;
+				restResult.setState(500);
+				restResult.setMsg("新增定制功能必须选择产品或批次对象");
+			}
+		}
+
+
+
+		return result;
+	}
+
 	@Transactional
 	public RestResult<List<String>> add(CustomizeFun customizeFun) throws Exception {
 		RestResult<List<String>> restResult=new RestResult<List<String>>();
@@ -87,6 +110,10 @@ public class TraceFunFieldConfigService {
 		List<TraceFunFieldConfigParam> param=customizeFun.getTraceFunFieldConfigModel();
 
 		addGroupField(customizeFun);
+
+		 if(!checkAddField(customizeFun,restResult)){
+		 	return  restResult;
+		 }
 
 		boolean containsBatch=TraceFunFieldConfigDelegate.checkAddParam(param);
 		/*if (!containsBatch || true) {

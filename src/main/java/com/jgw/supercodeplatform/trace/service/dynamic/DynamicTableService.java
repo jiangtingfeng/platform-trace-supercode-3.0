@@ -404,15 +404,16 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		List<BaseBatchInfo> baseBatchInfos=new ArrayList<BaseBatchInfo>();
 		if(userSceneType == TraceUseSceneEnum.CreateBatch.getKey()) {
 			//创建关联对象批次
-			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
-			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
-			String traceBatchInfoId=null;
-
 			if(objectAssociatedType == ObjectTypeEnum.MassifInfo.getCode())
 				createBatchType=ObjectTypeEnum.MassifBatch.getCode();
 			else if(objectAssociatedType == ObjectTypeEnum.PRODUCT.getCode()){
 				createBatchType=ObjectTypeEnum.TRACE_BATCH.getCode();
+				productName=getProductName(param.getLineData());
+				productId= getProductId(param.getLineData());
 			}
+			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+			String traceBatchInfoId=null;
+			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
 			if(createBatchType==ObjectTypeEnum.MassifBatch.getCode()){
 				String massifId= getMassifId(param.getLineData());
@@ -425,8 +426,6 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
 				traceBatchInfoId = traceObjectBatchInfo.getTraceBatchInfoId();
 			}else if(createBatchType == ObjectTypeEnum.TRACE_BATCH.getCode()){
-				productId= getProductId(param.getLineData());
-				productName=getProductName(param.getLineData());
 
 				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
 				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
