@@ -146,6 +146,26 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	}
 
 
+	private String getProductName(LineBusinessData lineBusinessData) throws SuperCodeTraceException
+	{
+		String massifId=null;
+		List<FieldBusinessParam> fields=lineBusinessData.getFields();
+		for (FieldBusinessParam fieldParam : fields) {
+			Integer objectType=fieldParam.getObjectType();
+			if (null!=objectType) {
+				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
+				switch (objectTypeEnum) {
+					case PRODUCT:
+						massifId = fieldParam.getFieldValue();
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return massifId;
+	}
+
 	private String getProductId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
 	{
 		String massifId=null;
@@ -390,6 +410,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 			if(objectAssociatedType == ObjectTypeEnum.MassifInfo.getCode())
 				createBatchType=ObjectTypeEnum.MassifBatch.getCode();
+			else if(objectAssociatedType == ObjectTypeEnum.PRODUCT.getCode()){
+				createBatchType=ObjectTypeEnum.TRACE_BATCH.getCode();
+			}
 
 			if(createBatchType==ObjectTypeEnum.MassifBatch.getCode()){
 				String massifId= getMassifId(param.getLineData());
@@ -401,8 +424,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				traceObjectBatchInfo.setObjectId(massifId);
 				traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
 				traceBatchInfoId = traceObjectBatchInfo.getTraceBatchInfoId();
-			}else if(createBatchType == ObjectTypeEnum.PRODUCT.getCode()){
+			}else if(createBatchType == ObjectTypeEnum.TRACE_BATCH.getCode()){
 				productId= getProductId(param.getLineData());
+				productName=getProductName(param.getLineData());
 
 				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
 				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
