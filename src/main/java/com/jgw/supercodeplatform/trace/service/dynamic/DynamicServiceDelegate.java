@@ -152,7 +152,7 @@ public class DynamicServiceDelegate {
 					List<FieldBusinessParam> batchParams= fields.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
 					String batchInfoId= batchParams.get(0).getFieldValue();
 					if(StringUtils.isEmpty(batchInfoId)){
-						throw new SuperCodeTraceException("生产管理新增数据无法获取到批次唯一id", 500);
+						//throw new SuperCodeTraceException("生产管理新增数据无法获取到批次唯一id", 500);
 					}else {
 						adDataModel.setTraceBatchInfoId(batchInfoId);
 					}

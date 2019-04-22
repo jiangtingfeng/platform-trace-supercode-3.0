@@ -269,9 +269,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				Map<String, Object> map = JSONObject.parseObject(JSONObject.toJSONString(traceObjectBatchInfo), Map.class);
 				traceBatchInfo = JSONObject.parseObject(JSONObject.toJSONString(map), TraceBatchInfo.class);
 			}else {
-				backResult.setState(500);
+				/*backResult.setState(500);
 				backResult.setMsg("无法根据traceBatchInfoId="+traceBatchInfoId+"查询到记录");
-				return backResult;
+				return backResult;*/
 			}
 		}
 		//获取到表名
@@ -299,33 +299,37 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String parentId = identityRow.get(0).get("@@IDENTITY").toString();
 		identityMap.put("traceBatchInfoId",traceBatchInfoId);
 		identityMap.put("ParentId",parentId);
-		identityMap.put("ProductName",traceBatchInfo.getProductName());
-		identityMap.put("ProductId",traceBatchInfo.getProductId());
+		if(traceBatchInfo!=null){
+			identityMap.put("ProductName",traceBatchInfo.getProductName());
+			identityMap.put("ProductId",traceBatchInfo.getProductId());
+		}
 
 		//更新批次节点数据条数
 		try {
-			Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,functionId,1);
-			if (null == fieldsMap || fieldsMap.isEmpty()) {
-				throw new SuperCodeTraceException("无此功能字段", 500);
-			}
+			if(traceBatchInfo!=null){
+				Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,functionId,1);
+				if (null == fieldsMap || fieldsMap.isEmpty()) {
+					throw new SuperCodeTraceException("无此功能字段", 500);
+				}
 
-			Boolean flag=commonUtil.getTraceSeniorFunFlag();
-			if (null!=flag && flag) {
-				blockChainService.coChain(param.getLineData(),false,null,fieldsMap,null);
-			}
+				Boolean flag=commonUtil.getTraceSeniorFunFlag();
+				if (null!=flag && flag) {
+					blockChainService.coChain(param.getLineData(),false,null,fieldsMap,null);
+				}
 
-			Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
-			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
-				antChainInfoService.coChain(param.getLineData(),false,null,fieldsMap,null);
-			}
-			Integer nodeDataCount=traceBatchInfo.getNodeDataCount();
-			if (null==nodeDataCount) {
-				traceBatchInfo.setNodeDataCount(1);
-			}else {
-				traceBatchInfo.setNodeDataCount(nodeDataCount+1);
-			}
-			if(traceObjectBatchInfo==null){
-				traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+				Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
+				if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
+					antChainInfoService.coChain(param.getLineData(),false,null,fieldsMap,null);
+				}
+				Integer nodeDataCount=traceBatchInfo.getNodeDataCount();
+				if (null==nodeDataCount) {
+					traceBatchInfo.setNodeDataCount(1);
+				}else {
+					traceBatchInfo.setNodeDataCount(nodeDataCount+1);
+				}
+				if(traceObjectBatchInfo==null){
+					traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
