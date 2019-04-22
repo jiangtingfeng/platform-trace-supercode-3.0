@@ -15,8 +15,8 @@ public enum ObjectTypeEnum {
 	MassifBatch(13013,"TraceBatchId","地块批次"),
 	/*RecoveryBatch(13014,"TraceBatchId","采收批次"),
 	PurchaseBatch(13015,"TraceBatchId","收购批次"),
-	SortingBatch(13016,"TraceBatchId","分拣批次"),
-	PackingBatch(13017,"TraceBatchId","包装批次"),*/
+	SortingBatch(13016,"TraceBatchId","分拣批次"),*/
+	StoragePlace(13004,"StoragePlaceId","存放地点"),
 
 	Device(13018,"DeviceId","设备"),
 	CodeAssociate(13010,"AssociateType","码关联方式");
@@ -48,6 +48,8 @@ public enum ObjectTypeEnum {
 
 		case 13018:
 			return Device;
+			case 13004:
+				return StoragePlace;
 		case 13010:
 			return CodeAssociate;
 		default:
