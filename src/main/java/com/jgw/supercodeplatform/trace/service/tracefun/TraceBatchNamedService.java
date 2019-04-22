@@ -82,6 +82,7 @@ public class TraceBatchNamedService extends CommonUtil {
                     break;
                 case "FunName":
                     traceBatchName.append(traceFunRegulation.getFunctionName());
+                    break;
                 case "StaticText":
                     traceBatchName.append(traceBatchNamed.getFieldName());
                     break;
