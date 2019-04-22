@@ -441,6 +441,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			traceBatchRelation.setCurrentBatchId(traceBatchInfoId);
 			traceBatchRelation.setBatchRelationId(getUUID());
 			traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
+
+			List<FieldBusinessParam> fieldBusinessParams= param.getLineData().getFields();
+			List<FieldBusinessParam> batchParams= fieldBusinessParams.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
+			batchParams.get(0).setFieldValue(baseBatchInfo.getTraceBatchInfoId());
+
 		} else if(userSceneType==TraceUseSceneEnum.CreateBatchInheritNodeData.getKey()) {
 			//批次继承，创建新批次并继承溯源信息
 			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
