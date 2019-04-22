@@ -532,7 +532,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		RestResult<String> restResult=null;
 
-		if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
+/*		if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
 			for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
 				List<FieldBusinessParam> fieldBusinessParams= param.getLineData().getFields();
 				List<FieldBusinessParam> batchParams= fieldBusinessParams.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
@@ -543,7 +543,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			}
 		}else {
 			restResult= addFunData(param);
-		}
+		}*/
+
+		restResult= addFunData(param);
 
 		return restResult;
 	}
