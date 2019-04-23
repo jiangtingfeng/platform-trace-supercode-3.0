@@ -51,6 +51,8 @@ public enum ObjectTypeEnum {
 			return Device;
 			case 13004:
 				return StoragePlace;
+			case  13006:
+				return ProductGrade;
 		case 13010:
 			return CodeAssociate;
 		default:
