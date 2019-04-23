@@ -1,6 +1,7 @@
 package com.jgw.supercodeplatform.trace.controller.massifbatch;
 
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
+import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.MassifBatchInfo;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceObjectBatchInfoService;
@@ -33,7 +34,7 @@ public class MassifBatchInfoController  extends CommonUtil {
             @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
             @ApiImplicitParam(name = "massifId", paramType = "query", defaultValue = "1", value = "地块id",required = true)
     })
-    public RestResult listTraceBatchInfoByMassifId(Map<String, Object> map) throws Exception
+    public RestResult<AbstractPageService.PageResults<List<MassifBatchInfo>>> listTraceBatchInfoByMassifId(Map<String, Object> map) throws Exception
     {
         return new RestResult(200, "success", traceObjectBatchInfoService.listMassifTraceBatchInfo(map));
     }
