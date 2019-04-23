@@ -15,6 +15,17 @@ public class MassifBatchInfo  {
     @ApiModelProperty(value = "操作信息")
     private String nodeInfo; //
 
+    @ApiModelProperty(value = "批次id")
+    private String traceBatchInfoId;
+
+    public String getTraceBatchInfoId() {
+        return traceBatchInfoId;
+    }
+
+    public void setTraceBatchInfoId(String traceBatchInfoId) {
+        this.traceBatchInfoId = traceBatchInfoId;
+    }
+
     public MassifBatchInfo(){}
 
     public MassifBatchInfo(String traceBatchId, String traceBatchName){
