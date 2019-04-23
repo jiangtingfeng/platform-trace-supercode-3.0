@@ -6,6 +6,16 @@ public class BaseBatchInfo {
     private String traceBatchInfoId;//唯一id
     private String traceBatchName;//批次名称
 
+    private String productId=null;
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
     public long getSerialNumber() {
         return serialNumber;
     }
@@ -26,16 +36,18 @@ public class BaseBatchInfo {
 
     private String productName;
 
-    public BaseBatchInfo(){}
+    public BaseBatchInfo(){
 
-    public BaseBatchInfo(String traceBatchInfoId,String traceBatchName){
+    }
+
+    public BaseBatchInfo(String traceBatchInfoId){
         this.traceBatchInfoId=traceBatchInfoId;
-        this.traceBatchName=traceBatchName;
-    }
-    public BaseBatchInfo(String productName){
-        this.productName=productName;
     }
 
+    public BaseBatchInfo(String productName,String productId){
+        this.productName=productName;
+        this.productId=productId;
+    }
 
     public String getTraceBatchInfoId() {
         return traceBatchInfoId;

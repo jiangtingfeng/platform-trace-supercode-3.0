@@ -417,7 +417,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				productName=getProductName(param.getLineData());
 				productId= getProductId(param.getLineData());
 			}
-			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 			String traceBatchInfoId=null;
 			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
@@ -453,7 +453,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		} else if(userSceneType==TraceUseSceneEnum.CreateBatchInheritNodeData.getKey()) {
 			//批次继承，创建新批次并继承溯源信息
-			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
 			TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
@@ -469,7 +469,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			//批次混合，多个相同关联对象批次混合并创建新对象批次
 			if(!StringUtils.isEmpty(parentTraceBatchInfoId)){
 				String[] parentTraceBatchInfoIds= parentTraceBatchInfoId.split(",");
-				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 				String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
 				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
@@ -494,7 +494,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			if(componentDataModels!=null && componentDataModels.size()>0){
 				List<List<FieldBusinessParam>> dataModels=	componentDataModels.get(0).getFieldRows();
 				for(List<FieldBusinessParam> fieldBusinessParams:dataModels){
-					BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName);
+					BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 					String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
 					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
@@ -585,7 +585,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		{
 			if(traceBatchInfo!=null){
 				baseBatchInfos = new ArrayList<BaseBatchInfo>();
-				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId(),traceBatchInfo.getTraceBatchName());
+				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(traceBatchInfo.getTraceBatchInfoId());
+				baseBatchInfo.setTraceBatchName(traceBatchInfo.getTraceBatchName());
 				baseBatchInfos.add(baseBatchInfo);
 			}
 		}

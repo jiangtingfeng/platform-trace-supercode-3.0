@@ -213,6 +213,7 @@ public class TraceFunFieldConfigController {
 					funComponent.setComponentId(traceFunComponent.getComponentId());
 					funComponent.setComponentName(traceFunComponent.getComponentName());
 					funComponent.setComponentType(traceFunComponent.getComponentType());
+					funComponent.setFieldWeight(traceFunComponent.getFieldWeight());
 					funComponentModels.add(funComponent);
 				}
 			}

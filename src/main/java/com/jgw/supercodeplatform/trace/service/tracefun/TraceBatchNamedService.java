@@ -82,6 +82,9 @@ public class TraceBatchNamedService extends CommonUtil {
                 case "SerialNumber":
                     //按组织、批次类型生成流水号
                     String incrKey=String.format("%s:%s:%s",RedisKey.BatchSerialNumber,getOrganizationId(),traceFunRegulation.getCreateBatchType());
+                    if(!StringUtils.isEmpty(incrKey)){
+                        incrKey=incrKey+":"+baseBatchInfo.getProductId();
+                    }
                     long incr = redisUtil.generate(incrKey);
                     baseBatchInfo.setSerialNumber(incr);
                     Integer size= Integer.valueOf( traceBatchNamed.getFieldFormat());
