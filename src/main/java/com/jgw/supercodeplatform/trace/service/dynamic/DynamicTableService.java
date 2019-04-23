@@ -520,7 +520,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return baseBatchInfos;
 	}
 
-	private RestResult<String> addFunData(DynamicAddFunParam param) throws Exception{
+	private RestResult<String> addFunData(DynamicAddFunParam param,TraceFunRegulation traceFunRegulation) throws Exception{
 
 		RestResult<String> restResult=null;
 		LinkedHashMap<String, Object> identityMap=new LinkedHashMap<String, Object>();
@@ -530,7 +530,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String deviceId=getDeviceId(param.getLineData());
 		if(!StringUtils.isEmpty(deviceId)){
 			//添加设备使用记录
-			deviceService.insertUsageInfo(deviceId);
+			deviceService.insertUsageInfo(deviceId,traceFunRegulation.getFunctionName());
 		}
 		String associateType=getCodeAssociateType(param.getLineData());
 		if(!StringUtils.isEmpty(associateType)){
@@ -612,7 +612,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			restResult= addFunData(param);
 		}*/
 
-		restResult= addFunData(param);
+		restResult= addFunData(param,traceFunRegulation);
 
 		return restResult;
 	}

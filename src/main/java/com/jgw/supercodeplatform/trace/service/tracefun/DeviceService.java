@@ -40,7 +40,7 @@ public class DeviceService  extends CommonUtil {
      * @param deviceId
      * @return
      */
-    public JsonNode insertUsageInfo(String deviceId) {
+    public JsonNode insertUsageInfo(String deviceId,String operationalContent) {
 
         Map<String, Object> params = new HashMap<String, Object>();
         Map<String, String> headerMap = new HashMap<String, String>();
@@ -53,7 +53,7 @@ public class DeviceService  extends CommonUtil {
             params.put("usageTime", time.format(formatter));
             params.put("userId", userAccount.getUserId());
             params.put("userName", userAccount.getUserName());
-            params.put("operationalContent", "");
+            params.put("operationalContent", operationalContent);
 
             headerMap.put("super-token", getSuperToken());
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restUserUrl + "/device/usage-record", JSONObject.toJSONString( params), headerMap);
