@@ -455,6 +455,10 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		} else if(userSceneType==TraceUseSceneEnum.CreateBatchInheritNodeData.getKey()) {
 			//批次继承，创建新批次并继承溯源信息
+			if(StringUtils.isEmpty(productId)){
+				productName=getProductName(param.getLineData());
+				productId= getProductId(param.getLineData());
+			}
 			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
