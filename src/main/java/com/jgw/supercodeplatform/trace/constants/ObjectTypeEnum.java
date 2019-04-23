@@ -17,6 +17,7 @@ public enum ObjectTypeEnum {
 	PurchaseBatch(13015,"TraceBatchId","收购批次"),
 	SortingBatch(13016,"TraceBatchId","分拣批次"),*/
 	StoragePlace(13004,"StoragePlaceId","存放地点"),
+	ProductGrade(13006,"ProductGradeId","产品品级"),
 
 	Device(13018,"DeviceId","设备"),
 	CodeAssociate(13010,"AssociateType","码关联方式");
