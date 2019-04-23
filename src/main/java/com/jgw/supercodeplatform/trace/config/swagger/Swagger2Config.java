@@ -104,6 +104,19 @@ public class Swagger2Config {
                  .enable(enable);
      }
 
+
+     @Bean("地块生产信息")
+     public Docket massifApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("地块生产信息")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.massifbatch"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
      @Bean("溯源公共接口")
      public Docket test() {
          return new Docket(DocumentationType.SWAGGER_2)
