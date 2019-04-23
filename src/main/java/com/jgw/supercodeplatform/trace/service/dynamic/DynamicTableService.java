@@ -359,9 +359,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(param.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,false);
 
-		String traceBatchInfoId= identityMap.get("traceBatchInfoId").toString();
-		sqlFieldNameBuilder.append(ObjectTypeEnum.TRACE_BATCH.getFieldCode()).append(",");
-		sqlFieldValueBuilder.append("'").append(traceBatchInfoId).append("'").append(",");
+		if(identityMap.get("traceBatchInfoId")!=null){
+			String traceBatchInfoId=String.valueOf(identityMap.get("traceBatchInfoId"));
+			sqlFieldNameBuilder.append(ObjectTypeEnum.TRACE_BATCH.getFieldCode()).append(",");
+			sqlFieldValueBuilder.append("'").append(traceBatchInfoId).append("'").append(",");
+		}
 
 		String parentId=identityMap.get("ParentId").toString();
 		sqlFieldNameBuilder.append("ParentId").append(",");
