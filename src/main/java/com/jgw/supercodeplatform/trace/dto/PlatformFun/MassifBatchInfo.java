@@ -1,10 +1,18 @@
 package com.jgw.supercodeplatform.trace.dto.PlatformFun;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class MassifBatchInfo  {
 
-    private String traceBatchName;//批次名称
-    private String traceBatchId;//批次号
+    @ApiModelProperty(value = "批次名称")
+    private String traceBatchName;
+    @ApiModelProperty(value = "批次号")
+    private String traceBatchId;
+
+    @ApiModelProperty(value = "操作时间")
     private String time;
+
+    @ApiModelProperty(value = "操作信息")
     private String nodeInfo; //
 
     public MassifBatchInfo(){}
