@@ -14,8 +14,9 @@ public enum ObjectTypeEnum {
 	MassifInfo(13012,"MassIfId","地块"),
 	MassifBatch(13013,"TraceBatchId","地块批次"),
 	/*RecoveryBatch(13014,"TraceBatchId","采收批次"),
-	PurchaseBatch(13015,"TraceBatchId","收购批次"),
-	SortingBatch(13016,"TraceBatchId","分拣批次"),*/
+	PurchaseBatch(13015,"TraceBatchId","收购批次"),*/
+
+	FarmOperation(13005,"FarmOperation","农事操作"),
 	StoragePlace(13004,"StoragePlaceId","存放地点"),
 	ProductGrade(13006,"ProductGradeId","产品品级"),
 
@@ -53,6 +54,8 @@ public enum ObjectTypeEnum {
 				return StoragePlace;
 			case  13006:
 				return ProductGrade;
+			case 13005:
+				return FarmOperation;
 		case 13010:
 			return CodeAssociate;
 		default:

@@ -60,6 +60,8 @@ public class TraceBatchNamedService extends CommonUtil {
         List<TraceBatchNamed> batchNameds= traceBatchNamedMapper.selectByFunId(funId);
         for(int i=0;i<batchNameds.size();i++){
             TraceBatchNamed traceBatchNamed=batchNameds.get(i);
+            if(traceBatchNamed.isDisableFlag())
+                continue;
             String fieldCode= traceBatchNamed.getFieldCode();
             String format= traceBatchNamed.getFieldFormat();
             //TODO fieldFormat
