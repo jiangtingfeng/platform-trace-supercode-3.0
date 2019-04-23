@@ -88,6 +88,7 @@ public class TraceFunFieldConfigParam implements Comparable<TraceFunFieldConfigP
 
 	private String componentId;
 
+
 	public String getComponentId() {
 		return componentId;
 	}
@@ -98,7 +99,7 @@ public class TraceFunFieldConfigParam implements Comparable<TraceFunFieldConfigP
 
 	public TraceFunFieldConfigParam(){}
 
-	public TraceFunFieldConfigParam(String fieldCode,String fieldName,String fieldType, Integer fieldWeight,Integer isRequired,Integer maxSize,Integer minSize,Integer typeClass){
+	public TraceFunFieldConfigParam(String fieldCode,String fieldName,String fieldType, Integer fieldWeight,Integer isRequired,Integer maxSize,Integer minSize,Integer typeClass,String objectType,String objectFieldId){
 		this.fieldCode=fieldCode;
 		this.fieldName=fieldName;
 		this.fieldType=fieldType;
@@ -107,7 +108,8 @@ public class TraceFunFieldConfigParam implements Comparable<TraceFunFieldConfigP
 		this.maxSize=maxSize;
 		this.minSize=minSize;
 		this.typeClass=typeClass;
-
+		this.objectType=objectType;
+		this.objectFieldId=objectFieldId;
 	}
 
 	public String getFunctionId() {

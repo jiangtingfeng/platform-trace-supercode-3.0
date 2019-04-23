@@ -276,7 +276,7 @@ public class TraceFunFieldConfigDelegate {
 		String funId="Materiel_Compent_Field";
 		List<TraceFunFieldConfig> funFieldConfigs= dao.selectDZFPartFieldsByFunctionId(funId);
 		List<TraceFunFieldConfigParam> fieldConfigParams=funFieldConfigs.stream().map(e->new TraceFunFieldConfigParam(e.getFieldCode(),e.getFieldName(),
-				e.getFieldType(),e.getFieldWeight(),e.getIsRequired(),e.getMaxSize(),e.getMinSize(),e.getTypeClass())).collect(Collectors.toList());
+				e.getFieldType(),e.getFieldWeight(),e.getIsRequired(),e.getMaxSize(),e.getMinSize(),e.getTypeClass(),e.getObjectType(),e.getObjectFieldId())).collect(Collectors.toList());
 		return  fieldConfigParams;
 	}
 
