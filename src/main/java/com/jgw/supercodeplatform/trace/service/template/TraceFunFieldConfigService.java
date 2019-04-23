@@ -111,9 +111,9 @@ public class TraceFunFieldConfigService {
 
 		addGroupField(customizeFun);
 
-		 if(!checkAddField(customizeFun,restResult)){
+		/* if(!checkAddField(customizeFun,restResult)){
 		 	return  restResult;
-		 }
+		 }*/
 
 		boolean containsBatch=TraceFunFieldConfigDelegate.checkAddParam(param);
 		/*if (!containsBatch || true) {
