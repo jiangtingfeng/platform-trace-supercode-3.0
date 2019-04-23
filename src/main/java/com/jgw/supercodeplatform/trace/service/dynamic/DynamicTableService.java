@@ -885,7 +885,13 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			if(list!=null && list.size()>0){
 				List<String> ids= list.stream().map(e->e.get("Id").toString()).collect(Collectors.toList());
 				String componentId=traceFunComponent.getComponentId();
-				String sql=queryComponentSqlBuilder(componentId,orgnizationId,ids);
+				String sql=null;
+				try {
+					sql = queryComponentSqlBuilder(componentId, orgnizationId, ids);
+				}catch (Exception e){
+					e.printStackTrace();
+					continue;
+				}
 				DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,componentId);
 				List<LinkedHashMap<String, Object>> componentDataList = dao.select(sql);
 				if (componentDataList!=null && componentDataList.size()>0){
