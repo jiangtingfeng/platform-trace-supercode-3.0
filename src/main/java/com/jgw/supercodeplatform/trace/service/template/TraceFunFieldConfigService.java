@@ -354,7 +354,13 @@ public class TraceFunFieldConfigService {
 		DynamicBaseMapper baseMapper=traceApplicationContextAware.getDynamicMapperByFunctionId(null, functionId);
 		String querySQL="select * from "+traceOrgFunRoute.getTableName()+" limit 1";
 
-		List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
+		List<LinkedHashMap<String, Object>> data=null;
+		try{
+			data=baseMapper.select(querySQL);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
 		if (null!=data && !data.isEmpty()) {
 			restResult = updateWithAddField(customizeFun,traceOrgFunRoute.getTableName());
 			//restResult.setState(500);
