@@ -84,7 +84,8 @@ public class TraceBatchNamedService extends CommonUtil {
                     String incrKey=String.format("%s:%s:%s",RedisKey.BatchSerialNumber,getOrganizationId(),traceFunRegulation.getCreateBatchType());
                     long incr = redisUtil.generate(incrKey);
                     baseBatchInfo.setSerialNumber(incr);
-                    String serial= StringUtils.leftPad(String.valueOf(incr),5,"0");
+                    Integer size= Integer.valueOf( traceBatchNamed.getFieldFormat());
+                    String serial= StringUtils.leftPad(String.valueOf(incr),size,"0");
                     traceBatchName.append(serial);
                     break;
                 case "FunName":
