@@ -287,9 +287,12 @@ public class TraceFunFieldConfigService {
 		List<FunComponent> funComponents=customizeFun.getFunComponentModels();
 		if(funComponents!=null && funComponents.size()>0){
 			for(FunComponent funComponent:funComponents){
+				logger.info("michael:componentId:"+funComponent.getComponentId());
 				if(StringUtils.isEmpty(funComponent.getComponentId())){
+					logger.info("michael:componentId: create component");
 					traceFunFieldConfigDelegate.saveFunComponent(funComponent,functionId);
 				} else {
+					logger.info("michael:componentId: create field");
 					String componentId=funComponent.getComponentId();
 					functionName = funComponent.getComponentName();
 					traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
