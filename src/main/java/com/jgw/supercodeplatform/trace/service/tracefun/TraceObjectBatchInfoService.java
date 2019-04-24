@@ -95,7 +95,7 @@ public class TraceObjectBatchInfoService extends CommonUtil {
                     String nodeInfo=StringUtils.join(nodeFunctionNames,"、");
                     massifBatchInfo.setNodeInfo(nodeInfo);
                     massifBatchInfo.setTime(traceBatchInfo.getCreateTime());
-                    massifBatchInfo.setTraceBatchId(traceBatchInfo.getTraceBatchId());
+                    massifBatchInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
                     massifBatchInfos.add(massifBatchInfo);
                 }
             }
