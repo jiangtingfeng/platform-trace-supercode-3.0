@@ -208,6 +208,26 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return massifId;
 	}
 
+	private String getMassifName(LineBusinessData lineBusinessData) throws SuperCodeTraceException
+	{
+		String massifName="";
+		List<FieldBusinessParam> fields=lineBusinessData.getFields();
+		for (FieldBusinessParam fieldParam : fields) {
+			Integer objectType=fieldParam.getObjectType();
+			if (null!=objectType) {
+				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
+				switch (objectTypeEnum) {
+					case MassifInfo:
+						massifName = fieldParam.getFieldValue();
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return massifName;
+	}
+
 	private String getDeviceId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
 	{
 		String deviceId=null;
@@ -530,7 +550,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String deviceId=getDeviceId(param.getLineData());
 		if(!StringUtils.isEmpty(deviceId)){
 			//添加设备使用记录
-			deviceService.insertUsageInfo(deviceId,traceFunRegulation.getFunctionName());
+			String operationalContent=getMassifName(param.getLineData())+traceFunRegulation.getFunctionName();
+			deviceService.insertUsageInfo(deviceId,operationalContent);
 		}
 		String associateType=getCodeAssociateType(param.getLineData());
 		if(!StringUtils.isEmpty(associateType)){
