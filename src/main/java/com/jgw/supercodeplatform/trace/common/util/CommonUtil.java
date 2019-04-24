@@ -543,5 +543,11 @@ public class CommonUtil extends UserInfoUtil {
         }
         return map;
     }
-	
+
+
+    public <T> T convert(Object obj, Class<T> c){
+        Map<String, Object> map = JSONObject.parseObject(JSONObject.toJSONString(obj), Map.class);
+        T result = JSONObject.parseObject(JSONObject.toJSONString(map), c);
+        return result;
+    }
 }

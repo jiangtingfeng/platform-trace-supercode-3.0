@@ -1,6 +1,7 @@
 package com.jgw.supercodeplatform.trace.common.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.exception.SuperCodeException;
 import com.jgw.supercodeplatform.trace.config.redis.RedisUtil;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author liujianqiang
@@ -143,5 +145,6 @@ public class CommonUtilComponent extends CommonUtil {
         codeGlobalseq.setExpectedMax(expectedMax);
         redisUtil.set(keysType + RedisKey.GLOBAL_SYMBOL, JSON.toJSONString(codeGlobalseq));
     }
+
 
 }

@@ -188,24 +188,24 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return massifId;
 	}
 
-	private String getMassifId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
+	private FieldBusinessParam getObjectParam(LineBusinessData lineBusinessData,String fieldCode)
 	{
-		String massifId=null;
-		List<FieldBusinessParam> fields=lineBusinessData.getFields();
-		for (FieldBusinessParam fieldParam : fields) {
-			Integer objectType=fieldParam.getObjectType();
-			if (null!=objectType) {
-				ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
-				switch (objectTypeEnum) {
-					case MassifInfo:
-						massifId = fieldParam.getObjectUniqueValue();
-						break;
-					default:
-						break;
-				}
-			}
+		List<FieldBusinessParam> params= lineBusinessData.getFields().stream().filter(e->e.getFieldCode().equals(fieldCode)).collect(Collectors.toList());
+		FieldBusinessParam param=null;
+		if(params!=null&&params.size()>0){
+			param=params.get(0);
 		}
-		return massifId;
+		return param;
+	}
+
+	private FieldBusinessParam getObjectParam(LineBusinessData lineBusinessData,Integer objectCode) throws SuperCodeTraceException
+	{
+		List<FieldBusinessParam> params=lineBusinessData.getFields().stream().filter(e->e.getObjectType()!=null&& e.getObjectType().intValue()==objectCode.intValue()).collect(Collectors.toList());
+		FieldBusinessParam param=null;
+		if(params!=null&&params.size()>0){
+			param=params.get(0);
+		}
+		return param;
 	}
 
 	private String getMassifName(LineBusinessData lineBusinessData) throws SuperCodeTraceException
@@ -444,13 +444,18 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
 			if(createBatchType==ObjectTypeEnum.MassifBatch.getCode()){
-				String massifId= getMassifId(param.getLineData());
-
+				String massifId=null;
+				FieldBusinessParam massifParam= getObjectParam(param.getLineData(),ObjectTypeEnum.MassifInfo.getCode());
+				if(massifParam!=null){
+					massifId=massifParam.getObjectUniqueValue();
+				}
 				TraceObjectBatchInfo traceObjectBatchInfo=new TraceObjectBatchInfo();
 				traceObjectBatchInfo.setTraceBatchName(traceBatchName);
 				traceObjectBatchInfo.setBatchType(ObjectTypeEnum.MassifBatch.getCode());
 				traceObjectBatchInfo.setSerialNumber(baseBatchInfo.getSerialNumber());
 				traceObjectBatchInfo.setObjectId(massifId);
+				traceObjectBatchInfo.setTraceTemplateId(traceTemplateId);
+				traceObjectBatchInfo.setTraceTemplateName(traceTemplateName);
 				traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
 				traceBatchInfoId = traceObjectBatchInfo.getTraceBatchInfoId();
 			}else if(createBatchType == ObjectTypeEnum.TRACE_BATCH.getCode()){
@@ -587,6 +592,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return restResult;
 	}
 
+
+
 	/**
 	 * 定制功能保存数据
 	 * @param param
@@ -595,13 +602,27 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	 */
 	public RestResult<String> addFunDataV3(DynamicAddFunParam param) throws Exception
 	{
-		TraceFunRegulation traceFunRegulation= traceFunRegulationMapper.selectByFunId(param.getFunctionId());
+		TraceBatchInfo traceBatchInfo=null;
+		FieldBusinessParam massifParam= getObjectParam(param.getLineData(), ObjectTypeEnum.MassifInfo.getCode());
+		if(massifParam!=null){
+			FieldBusinessParam traceBatchInfoParam= getObjectParam(param.getLineData(),"TraceBatchInfoId");
+			if(traceBatchInfoParam!=null && StringUtils.isEmpty(traceBatchInfoParam.getFieldValue())){
+				TraceObjectBatchInfo traceObjectBatchInfo= traceObjectBatchInfoMapper.selectByObjectId(massifParam.getObjectUniqueValue());
+				if(traceObjectBatchInfo!=null){
+					traceBatchInfoParam.setFieldValue(traceObjectBatchInfo.getTraceBatchInfoId());
+					traceBatchInfo= commonUtil.convert(traceObjectBatchInfo,TraceBatchInfo.class);
+				}
+			}
+		}
 
 		String traceBatchInfoId= getBatchInfoId(param.getLineData());
-		TraceBatchInfo traceBatchInfo=null;
-		if(!StringUtils.isEmpty(traceBatchInfoId)){
-			traceBatchInfo=traceBatchInfoService.selectByTraceBatchInfoId(traceBatchInfoId);
+		if (traceBatchInfo==null){
+			if(!StringUtils.isEmpty(traceBatchInfoId)){
+				traceBatchInfo=traceBatchInfoService.selectByTraceBatchInfoId(traceBatchInfoId);
+			}
 		}
+
+		TraceFunRegulation traceFunRegulation= traceFunRegulationMapper.selectByFunId(param.getFunctionId());
 
 		List<BaseBatchInfo> baseBatchInfos=null;
 		if(traceFunRegulation!=null && traceFunRegulation.getRegulationType() == RegulationTypeEnum.ControlNode.getKey()) //控制节点

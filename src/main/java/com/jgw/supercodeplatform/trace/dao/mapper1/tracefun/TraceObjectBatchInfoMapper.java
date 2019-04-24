@@ -26,15 +26,18 @@ public interface TraceObjectBatchInfoMapper extends CommonSql {
     @Insert(" INSERT INTO trace_objectbatchinfo"
             + "(TraceBatchInfoId,OrganizationId,TraceBatchName,"
             + "TraceBatchId,TraceTemplateId,TraceTemplateName,H5TrancePageId,"
-            + "H5TempleteName,CreateId,CreateMan,NodeDataCount)"
+            + "H5TempleteName,CreateId,CreateMan,NodeDataCount,ObjectId)"
             + "VALUES"
             + "(#{traceBatchInfoId},#{organizationId},#{traceBatchName},"
             + "#{traceBatchId},#{traceTemplateId},#{traceTemplateName},#{h5TrancePageId},"
-            + "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}) ")
+            + "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount},#{objectId}) ")
     int insertTraceObjectBatchInfo(TraceObjectBatchInfo traceBatchInfo);
 
     @Select(selectSql+" from trace_objectbatchinfo a WHERE TraceBatchInfoId = #{traceBatchInfoId}")
     TraceObjectBatchInfo selectByTraceBatchInfoId(String traceBatchInfoId);
+
+    @Select(selectSql+" from trace_objectbatchinfo a where ObjectId = #{objectId} order by id desc limit 0,1")
+    TraceObjectBatchInfo selectByObjectId(String objectId);
 
 
     @Select(startScript + " SELECT COUNT(1) FROM trace_objectbatchinfo a "
