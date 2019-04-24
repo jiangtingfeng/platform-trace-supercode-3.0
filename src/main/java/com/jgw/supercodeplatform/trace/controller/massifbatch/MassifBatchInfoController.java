@@ -12,7 +12,9 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,7 @@ public class MassifBatchInfoController  extends CommonUtil {
             @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
             @ApiImplicitParam(name = "massifId", paramType = "query", defaultValue = "1", value = "地块id",required = true)
     })
-    public RestResult<AbstractPageService.PageResults<List<MassifBatchInfo>>> listTraceBatchInfoByMassifId(Map<String, Object> map) throws Exception
+    public RestResult<AbstractPageService.PageResults<List<MassifBatchInfo>>> listTraceBatchInfoByMassifId(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception
     {
         return new RestResult(200, "success", traceObjectBatchInfoService.listMassifTraceBatchInfo(map));
     }

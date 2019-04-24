@@ -115,8 +115,8 @@ public class TraceFunFieldConfigService {
 		 	return  restResult;
 		 }*/
 
-		boolean containsBatch=TraceFunFieldConfigDelegate.checkAddParam(param);
-		/*if (!containsBatch || true) {
+		/*boolean containsBatch=TraceFunFieldConfigDelegate.checkAddParam(param);
+		if (!containsBatch || true) {
 			restResult.setState(500);
 			restResult.setMsg("新增定制功能必须选择产品和批次对象");
 			return restResult;
