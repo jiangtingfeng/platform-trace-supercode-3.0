@@ -34,6 +34,7 @@ public enum  BatchTableType {
         if(objectTypeEnum!=null){
             switch (objectTypeEnum){
                 case MassifBatch:
+                case MassifInfo:
                     batchTableType=ObjectBatch;
                 default:
                     break;
