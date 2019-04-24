@@ -555,7 +555,14 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String deviceId=getDeviceId(param.getLineData());
 		if(!StringUtils.isEmpty(deviceId)){
 			//添加设备使用记录
-			String operationalContent=getMassifName(param.getLineData())+traceFunRegulation.getFunctionName();
+			String operationalContent=getMassifName(param.getLineData());
+			FieldBusinessParam farmOperation= getObjectParam(param.getLineData(),ObjectTypeEnum.FarmOperation.getCode());
+			if(farmOperation!=null){
+				operationalContent=operationalContent+farmOperation.getFieldValue();
+			} else {
+				operationalContent=operationalContent+traceFunRegulation.getFunctionName();
+			}
+
 			deviceService.insertUsageInfo(deviceId,operationalContent);
 		}
 		String associateType=getCodeAssociateType(param.getLineData());
