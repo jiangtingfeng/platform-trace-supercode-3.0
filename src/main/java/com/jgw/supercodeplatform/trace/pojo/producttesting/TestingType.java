@@ -33,6 +33,16 @@ public class TestingType {
 
     private Date createTime;
 
+    private String organizeId;
+
+    public String getOrganizeId() {
+        return organizeId;
+    }
+
+    public void setOrganizeId(String organizeId) {
+        this.organizeId = organizeId;
+    }
+
     public Integer getId() {
         return id;
     }

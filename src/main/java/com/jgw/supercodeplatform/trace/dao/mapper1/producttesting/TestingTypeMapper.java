@@ -20,11 +20,11 @@ public interface TestingTypeMapper extends CommonSql {
         "insert into trace_TestingType (Id, TestingTypeId, ",
         "OrganizationId, CreateId, ",
         "CreateMan, disableFlag, ",
-        "TestingTypeName, CreateTime,OrganizationName)",
+        "TestingTypeName, CreateTime,OrganizationName, OrganizeId)",
         "values (#{id,jdbcType=INTEGER}, #{testingTypeId,jdbcType=VARCHAR}, ",
         "#{organizationId,jdbcType=VARCHAR}, #{createId,jdbcType=VARCHAR}, ",
         "#{createMan,jdbcType=VARCHAR}, #{disableFlag,jdbcType=INTEGER}, ",
-        "#{testingTypeName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{organizationName,jdbcType=VARCHAR})"
+        "#{testingTypeName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{organizationName,jdbcType=VARCHAR}, #{organizeId,jdbcType=VARCHAR})"
     })
     int insert(TestingType record);
 
@@ -49,11 +49,11 @@ public interface TestingTypeMapper extends CommonSql {
     TestingType selectByPrimaryKey(Integer id);
 
 
-    @Select({" <script>  SELECT COUNT(1) FROM trace_TestingType  <where>  <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if>  <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  </script> "})
+    @Select({" <script>  SELECT COUNT(1) FROM trace_TestingType  <where>  <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND OrganizeId = #{organizeId} </if>  <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  </script> "})
     int getCountByCondition(Map<String, Object> var1);
 
     //<if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if>
-    @Select({" <script> select", "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName, CreateTime, organizationName ", "from trace_TestingType a <where>   <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  ORDER BY a.CreateTime DESC <if test='startNumber != null and pageSize != null '> LIMIT #{startNumber},#{pageSize}</if> </script> "})
+    @Select({" <script> select", "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName, CreateTime, organizationName ", "from trace_TestingType a <where> <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND OrganizeId = #{organizeId} </if>    <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  ORDER BY a.CreateTime DESC <if test='startNumber != null and pageSize != null '> LIMIT #{startNumber},#{pageSize}</if> </script> "})
     @Results({
             @Result(column="Id", property="id", jdbcType=JdbcType.INTEGER, id=true),
             @Result(column="TestingTypeId", property="testingTypeId", jdbcType=JdbcType.VARCHAR),

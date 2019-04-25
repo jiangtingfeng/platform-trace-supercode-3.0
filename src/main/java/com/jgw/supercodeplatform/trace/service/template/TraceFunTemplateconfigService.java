@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunComponentMapper;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +76,9 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
     
 	@Autowired
 	private TraceApplicationContextAware applicationAware;
+
+	@Autowired
+	private TraceFunComponentMapper traceFunComponentMapper;
 	
     @Transactional
 	public RestResult<String> add(List<TraceFunTemplateconfigParam> templateList) throws Exception {
@@ -546,6 +551,14 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			String nodeFunctionId=traceFunTemplateconfigVO.getNodeFunctionId();
 			String businessType=traceFunTemplateconfigVO.getBusinessType();
 			List<LinkedHashMap<String, Object>> nodeData=dynamicTableService.queryTemplateNodeBatchData(traceBatchInfoId,traceTemplateId,nodeFunctionId,traceFunTemplateconfigVO.getEnTableName(),businessType,fromH5,orgnizationId);
+
+			if(businessType.equals("1") && nodeData!=null && nodeData.size()>0){
+				List<TraceFunComponent> traceFunComponents= traceFunComponentMapper.selectByFunId(nodeFunctionId);
+				if(traceFunComponents!=null && traceFunComponents.size()>0){
+					TraceFunComponent traceFunComponent=traceFunComponents.get(0);
+				}
+			}
+
 			Map<String, TraceFunFieldConfig> fieldCacheMap=functionFieldCache.getFunctionIdFields(traceTemplateId, nodeFunctionId, 2);
 			
 			if (null!=nodeData && !nodeData.isEmpty()) {

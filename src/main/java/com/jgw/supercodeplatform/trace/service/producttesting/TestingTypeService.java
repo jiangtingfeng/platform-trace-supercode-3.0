@@ -31,6 +31,7 @@ public class TestingTypeService extends AbstractPageService {
         String organizationId = getOrganizationId();
 
         //testingType.setOrganizationId(organizationId);
+        testingType.setOrganizeId(organizationId);
         testingType.setCreateId(userAccount.getUserId());
         testingType.setCreateMan(userAccount.getUserName());
         testingType.setTestingTypeId(getUUID());
@@ -43,7 +44,7 @@ public class TestingTypeService extends AbstractPageService {
 
     public Map<String, Object> listTestingType(Map<String, Object> map) throws Exception {
         String organizationId=commonUtil.getOrganizationId();
-        map.put("organizationId", getOrganizationId());
+        map.put("organizeId", getOrganizationId());
 
         ReturnParamsMap returnParamsMap=null;
         Map<String, Object> dataMap=null;
