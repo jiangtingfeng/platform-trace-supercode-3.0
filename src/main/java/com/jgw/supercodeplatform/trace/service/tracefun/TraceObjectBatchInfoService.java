@@ -1,9 +1,11 @@
 package com.jgw.supercodeplatform.trace.service.tracefun;
 
 import com.jgw.supercodeplatform.pojo.cache.AccountCache;
+import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.model.ReturnParamsMap;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
+import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceObjectBatchInfoMapper;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.MassifBatchInfo;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
@@ -13,9 +15,11 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 地块批次管理
@@ -80,21 +84,40 @@ public class TraceObjectBatchInfoService extends CommonUtil {
 
         List<MassifBatchInfo> massifBatchInfos=new ArrayList<MassifBatchInfo>();
         if(traceObjectBatchInfos!=null && traceObjectBatchInfos.size()>0){
+            int index=0;
             for (TraceObjectBatchInfo traceBatchInfo: traceObjectBatchInfos){
                 MassifBatchInfo massifBatchInfo=new MassifBatchInfo(traceBatchInfo.getTraceBatchId(),traceBatchInfo.getTraceBatchName());
                 List<Map<String, Object>> allNodeData = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(),
                         true, null).getResults();
                 if (allNodeData!=null && allNodeData.size()>0){
-                    List<String> nodeFunctionNames=new ArrayList<String>();
+                    List<String> nodeInfos=new ArrayList<String>();
                     for (Map<String, Object> nodeData:allNodeData){
                         if(nodeData.get("businessType").toString().equals("1")){
-                            String nodeFunctionName= nodeData.get("nodeFunctionName").toString();
-                            nodeFunctionNames.add(nodeFunctionName);
+                            String nodeInfo= nodeData.get("nodeFunctionName").toString();
+                            List<Field> fields= (List<Field>)nodeData.get("lineData");
+                            if(fields!=null){
+                                fields= fields.stream().filter(e->String.valueOf( ObjectTypeEnum.FarmOperation.getCode()).equals(e.getObjectType())).collect(Collectors.toList());
+                                if(fields!=null&& fields.size()>0){
+                                    String fieldValue=String.valueOf( fields.get(0).getFieldValue());
+                                    if(!StringUtils.isEmpty(fieldValue)){
+                                        nodeInfo=fieldValue;
+                                    }
+                                }
+                            }
+                            nodeInfos.add(nodeInfo);
                         }
                     }
-                    String nodeInfo=StringUtils.join(nodeFunctionNames,"、");
-                    massifBatchInfo.setNodeInfo(nodeInfo);
-                    massifBatchInfo.setTime(traceBatchInfo.getCreateTime());
+                    String allNodeInfo=StringUtils.join(nodeInfos,"、");
+                    massifBatchInfo.setNodeInfo(allNodeInfo);
+                    SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd" );
+                    String time=sdf.format(traceBatchInfo.getCreateTime());
+                    if(index==0){
+                        time=time+" 至今";
+                    }else {
+                        time=time+"-"+sdf.format(traceObjectBatchInfos.get(index-1).getCreateTime());
+                    }
+                    index++;
+                    massifBatchInfo.setTime(time);
                     massifBatchInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
                     massifBatchInfos.add(massifBatchInfo);
                 }

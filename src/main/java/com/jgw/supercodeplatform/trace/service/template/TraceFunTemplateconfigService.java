@@ -579,6 +579,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 							field.setTypeClass(fieldCacheMap.get(key).getTypeClass());
 							field.setFieldName(fieldCacheMap.get(key).getFieldName());
 							field.setFieldType(fieldCacheMap.get(key).getFieldType());
+							field.setObjectType(fieldCacheMap.get(key).getObjectType());
 						} catch (Exception e) {
 							logger.error(e.getMessage());
 							e.printStackTrace();

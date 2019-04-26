@@ -9,6 +9,16 @@ public 	class Field implements Comparable<Field>{
 	String fieldType;
 	Object fieldValue;
 	Integer typeClass;
+
+	public String getObjectType() {
+		return objectType;
+	}
+
+	public void setObjectType(String objectType) {
+		this.objectType = objectType;
+	}
+
+	String objectType;  //对象类型
     private Integer fieldWeight;//字段权重用于字段排序
     
 	public Integer getTypeClass() {

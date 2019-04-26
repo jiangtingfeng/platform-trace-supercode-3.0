@@ -1,6 +1,7 @@
 package com.jgw.supercodeplatform.trace.pojo.tracefun;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class TraceObjectBatchInfo implements Serializable {
 
@@ -18,14 +19,14 @@ public class TraceObjectBatchInfo implements Serializable {
     private String h5TempleteName;//H5溯源页模板名称
     private String createId;//创建人id
     private String createMan;//创建人
-    private String createTime;//创建时间
+    private Date createTime;//创建时间
     private String updateTime;//修改时间
     private Integer nodeDataCount;
     private String traceBatchPlatformId;
 
     public TraceObjectBatchInfo(){}
 
-    public TraceObjectBatchInfo(String traceBatchName,String traceBatchId,String traceBatchInfoId,String traceTemplateId,String traceTemplateName,String h5TrancePageId,String h5TempleteName,String createMan,String createId,String createTime){
+    public TraceObjectBatchInfo(String traceBatchName,String traceBatchId,String traceBatchInfoId,String traceTemplateId,String traceTemplateName,String h5TrancePageId,String h5TempleteName,String createMan,String createId){
         this.traceBatchName=traceBatchName;
         this.traceBatchId=traceBatchId;
         this.traceBatchInfoId=traceBatchInfoId;
@@ -35,8 +36,6 @@ public class TraceObjectBatchInfo implements Serializable {
         this.h5TempleteName=h5TempleteName;
         this.createMan=createMan;
         this.createId=createId;
-        this.createTime=createTime;
-
     }
 
     public String getObjectId() {
@@ -158,11 +157,11 @@ public class TraceObjectBatchInfo implements Serializable {
         this.createMan = createMan;
     }
 
-    public String getCreateTime() {
+    public Date getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(String createTime) {
+    public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 

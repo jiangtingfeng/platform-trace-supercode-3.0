@@ -74,8 +74,9 @@ public interface TraceObjectBatchInfoMapper extends CommonSql {
      * @return
      */
     @Select(startScript+
-            "SELECT * FROM trace_objectbatchinfo\n" +
+            "SELECT * FROM trace_objectbatchinfo a \n" +
             "where objectid =#{objectid}"
+            + orderBy
             + page
             + endScript)
     List<TraceObjectBatchInfo> getTraceBatchInfoByObjectId(Map<String,Object> map);
