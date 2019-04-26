@@ -10,14 +10,19 @@ import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtilComponent;
 import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
+import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
+import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFuntemplateStatisticalMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.*;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.*;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.node.DynamicUpdateNodeParam;
+import com.jgw.supercodeplatform.trace.dto.template.query.TraceFunTemplateconfigListParam;
 import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.RegulationTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.TraceUseSceneEnum;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTesting;
+import com.jgw.supercodeplatform.trace.pojo.template.TraceFunTemplateconfig;
+import com.jgw.supercodeplatform.trace.pojo.template.TraceFuntemplateStatistical;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
 import com.jgw.supercodeplatform.trace.service.tracefun.*;
@@ -118,6 +123,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private CodeRelationService codeRelationService;
+
+	@Autowired
+	private TraceFuntemplateStatisticalMapper traceFuntemplateStatisticalDao;
 
 
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
@@ -413,8 +421,15 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	 */
 	private List<BaseBatchInfo> CreateBatchInfoWithRelation(TraceFunRegulation traceFunRegulation, DynamicAddFunParam param,TraceBatchInfo parentTraceBatchInfo) throws Exception
 	{
-		String traceTemplateId="cd153b772694428e8435ad5e594f90c5";
-		String traceTemplateName="桃溯源模板419";
+		String traceTemplateId=null;
+		String traceTemplateName=null;
+		String organizationId= commonUtil.getOrganizationId();
+		TraceFuntemplateStatistical traceFunTemplateconfig= traceFuntemplateStatisticalDao.selectOrgDefaultTemplate(organizationId);
+		if(traceFunTemplateconfig!=null ){
+			traceTemplateId=traceFunTemplateconfig.getTraceTemplateId();
+			traceTemplateName=traceFunTemplateconfig.getTraceTemplateName();
+		}
+
 		Integer userSceneType= traceFunRegulation.getUseSceneType();
 		String productName=null,productId=null,parentTraceBatchInfoId=null;
 		if(parentTraceBatchInfo!=null){

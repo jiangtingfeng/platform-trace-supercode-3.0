@@ -93,6 +93,7 @@ public class MaterialService  extends CommonUtil {
 
             if (rest.getStatusCode().value() == 200) {
                 String body = rest.getBody();
+
                 JsonNode node = new ObjectMapper().readTree(body);
                 if (200 == node.get("state").asInt()) {
                     return node.get("results");

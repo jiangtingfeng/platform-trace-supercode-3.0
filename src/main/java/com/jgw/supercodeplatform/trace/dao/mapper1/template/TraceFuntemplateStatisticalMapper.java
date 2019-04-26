@@ -1,5 +1,6 @@
 package com.jgw.supercodeplatform.trace.dao.mapper1.template;
 
+import com.jgw.supercodeplatform.trace.pojo.template.TraceFunTemplateconfig;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -68,4 +69,7 @@ public interface TraceFuntemplateStatisticalMapper extends CommonSql{
 
 	@Select("select count(*) from trace_funtemplatestatistical where TraceTemplateName= #{templateName} and TraceTemplateId !=#{traceTemplateId}")
 	Integer countOtherTemplateNameByTemplateId(@Param("templateName")String templateConfigName, @Param("traceTemplateId")String templateConfigId);
+
+	@Select("select * from trace_funtemplatestatistical where OrganizationId = #{organizationId}  order by Id asc limit 0,1")
+	TraceFuntemplateStatistical selectOrgDefaultTemplate(@Param("organizationId")String organizationId);
 }
