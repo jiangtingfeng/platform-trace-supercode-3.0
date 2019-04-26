@@ -22,14 +22,14 @@ public interface ProductTestingMapper extends CommonSql {
         "TestingDate, TestingMan, ",
         "CreateMan, CreateTime, ",
         "CreateId, TestingType, Excel, CertifyNumber," ,
-        "TraceBatchInfoName,ProductName,TestingManName)",
+        "TraceBatchInfoName,ProductName,TestingManName, OrganizeId, OrganizationName)",
         "values (#{id,jdbcType=INTEGER}, #{productTestingId,jdbcType=VARCHAR}, ",
         "#{organizationId,jdbcType=VARCHAR}, #{thirdpartyOrganizationId,jdbcType=VARCHAR}, ",
         "#{productID,jdbcType=VARCHAR}, #{traceBatchInfoId,jdbcType=VARCHAR}, ",
         "#{testingDate,jdbcType=VARCHAR}, #{testingMan,jdbcType=VARCHAR}, ",
         "#{createMan,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},  ",
         "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER},#{excel,jdbcType=VARCHAR},#{certifyNumber,jdbcType=VARCHAR}" ,
-        ",#{traceBatchInfoName,jdbcType=VARCHAR},#{productName,jdbcType=VARCHAR},#{testingManName,jdbcType=VARCHAR})"
+        ",#{traceBatchInfoName,jdbcType=VARCHAR},#{productName,jdbcType=VARCHAR},#{testingManName,jdbcType=VARCHAR},#{organizeId,jdbcType=VARCHAR},#{organizationName,jdbcType=VARCHAR})"
     })
     int insert(ProductTesting record);
 
@@ -98,7 +98,7 @@ public interface ProductTestingMapper extends CommonSql {
             "SELECT COUNT(1) FROM trace_ProductTesting a"
                     +startWhere
                     +" a.TestingType = #{testingType} "
-                    + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
+                    + " <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND a.OrganizeId = #{organizeId} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +page
@@ -111,11 +111,11 @@ public interface ProductTestingMapper extends CommonSql {
             startScript+
                     "select "+
                     "Id, ProductTestingId, OrganizationId, ThirdpartyOrganizationId, ProductID, TraceBatchInfoId, "+
-                    "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType, CertifyNumber,Excel,TraceBatchInfoName,ProductName,TestingManName "+
+                    "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType, CertifyNumber,Excel,TraceBatchInfoName,ProductName,TestingManName, OrganizationName "+
                     "from trace_ProductTesting a"
                     +startWhere
                     +" a.TestingType = #{testingType} "
-                    + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
+                    + " <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND a.OrganizeId = #{organizeId} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +orderBy

@@ -43,6 +43,26 @@ public class ProductTesting {
 
     private  String productName;
 
+    private String organizationName;
+
+    private String organizeId;
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public String getOrganizeId() {
+        return organizeId;
+    }
+
+    public void setOrganizeId(String organizeId) {
+        this.organizeId = organizeId;
+    }
+
     public String getTestingManName() {
         return testingManName;
     }

@@ -91,6 +91,16 @@ public class ProductTestingParam  {
     @ApiModelProperty(value = "内部检测为1，第三方检测为2")
     private Integer testingType;
 
+    private String organizationName;
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
     public Integer getTestingType() {
         return testingType;
     }
