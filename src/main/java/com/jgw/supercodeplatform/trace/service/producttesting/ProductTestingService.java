@@ -78,7 +78,7 @@ public class ProductTestingService extends AbstractPageService {
 
     public Map<String, Object> listProductTesting(Map<String, Object> map) throws Exception {
         String organizationId=commonUtil.getOrganizationId();
-        //map.put("organizationId", getOrganizationId());
+        map.put("organizeId", getOrganizationId());
 
         ReturnParamsMap returnParamsMap=null;
         Map<String, Object> dataMap=null;
