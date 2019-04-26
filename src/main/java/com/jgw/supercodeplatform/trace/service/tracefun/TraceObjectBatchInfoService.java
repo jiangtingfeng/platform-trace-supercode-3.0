@@ -114,7 +114,7 @@ public class TraceObjectBatchInfoService extends CommonUtil {
                     if(index==0){
                         time=time+" 至今";
                     }else {
-                        time=time+"-"+sdf.format(traceObjectBatchInfos.get(index-1).getCreateTime());
+                        time=time+" - "+sdf.format(traceObjectBatchInfos.get(index-1).getCreateTime());
                     }
                     index++;
                     massifBatchInfo.setTime(time);

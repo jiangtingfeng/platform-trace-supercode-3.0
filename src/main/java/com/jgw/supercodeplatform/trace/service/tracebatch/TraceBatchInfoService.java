@@ -83,26 +83,27 @@ public class TraceBatchInfoService extends CommonUtil {
     public String insertTraceBatchInfo(TraceBatchInfo traceBatchInfo) throws Exception {
         //新增溯源批次记录
         AccountCache userAccount = getUserLoginCache();
-        String traceBatchInfoId = getUUID();
         String organizationId = getOrganizationId();
-        traceBatchInfo.setTraceBatchInfoId(traceBatchInfoId);
+
         traceBatchInfo.setOrganizationId(organizationId);//组织id
         traceBatchInfo.setCreateId(userAccount.getUserId());
         traceBatchInfo.setNodeDataCount(0);
         traceBatchInfo.setCreateMan(userAccount.getUserName());
         String traceBatchName=traceBatchInfo.getTraceBatchName();
+
+        String traceBatchInfoId= insertTraceBatchInfoToPlatform(traceBatchInfo);
+        if(StringUtils.isEmpty(traceBatchInfoId)){
+            throw new SuperCodeTraceException("新增溯源批次记录失败");
+        } else {
+            traceBatchInfo.setTraceBatchPlatformId(traceBatchInfoId);
+            traceBatchInfo.setTraceBatchInfoId(traceBatchInfoId);
+        }
+
         checkBatchIdAndBatchName(traceBatchInfo.getTraceBatchId(), traceBatchName, organizationId, traceBatchInfoId);
         traceBatchInfo.setTraceBatchName(traceBatchName.replaceAll(" ", ""));
         Integer record = traceBatchInfoMapper.insertTraceBatchInfo(traceBatchInfo);
         if (record != 1) {
             throw new SuperCodeTraceException("新增溯源批次记录失败");
-        }
-        try {
-            JsonNode traceBatchPlatformIdNode= insertTraceBatchInfoToPlatform(traceBatchInfo);
-            traceBatchInfo.setTraceBatchPlatformId(traceBatchPlatformIdNode.asText());
-            traceBatchInfoMapper.updateTraceBatchInfo(traceBatchInfo);
-        }catch (Exception e){
-            e.printStackTrace();
         }
 
         //修改模板统计表的批次数量为原数量+1
@@ -254,34 +255,39 @@ public class TraceBatchInfoService extends CommonUtil {
         return null;
     }
 
-    public JsonNode insertTraceBatchInfoToPlatform(TraceBatchInfo traceBatchInfo) {
+    public String insertTraceBatchInfoToPlatform(TraceBatchInfo traceBatchInfo) throws Exception {
+        String traceBatchInfoId=null;
 
-            Map<String, Object> batchModel=new HashMap<String, Object>();
-            batchModel.put("batchName",traceBatchInfo.getTraceBatchName());
-            batchModel.put("batchId",traceBatchInfo.getTraceBatchId());
-            batchModel.put("marketDate",traceBatchInfo.getListedTime());
-            batchModel.put("productId",traceBatchInfo.getProductId());
-            batchModel.put("productName",traceBatchInfo.getProductName());
+        Map<String, Object> batchModel=new HashMap<String, Object>();
+        batchModel.put("batchName",traceBatchInfo.getTraceBatchName());
+        batchModel.put("batchId",traceBatchInfo.getTraceBatchId());
+        batchModel.put("marketDate",traceBatchInfo.getListedTime());
+        batchModel.put("productId",traceBatchInfo.getProductId());
+        batchModel.put("productName",traceBatchInfo.getProductName());
 
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("addProductBatchModel", batchModel);
-            Map<String, String> headerMap = new HashMap<String, String>();
-            try {
-                headerMap.put("super-token", getSuperToken());
-                ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restUserUrl + "/product-batch",JSONObject.toJSONString( batchModel), headerMap);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("addProductBatchModel", batchModel);
+        Map<String, String> headerMap = new HashMap<String, String>();
+        try {
+            headerMap.put("super-token", getSuperToken());
+            ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restUserUrl + "/product-batch",JSONObject.toJSONString( batchModel), headerMap);
 
-                if (rest.getStatusCode().value() == 200) {
-                    String body = rest.getBody();
-                    JsonNode node = new ObjectMapper().readTree(body);
-                    if (200 == node.get("state").asInt()) {
-                        return node.get("results");
-                    }
+            if (rest.getStatusCode().value() == 200) {
+                String body = rest.getBody();
+                JsonNode node = new ObjectMapper().readTree(body);
+                if (200 == node.get("state").asInt()) {
+                    traceBatchInfoId= node.get("results").asText();
+                }else {
+                    String msg= node.get("msg").asText();
+                    throw new SuperCodeTraceException(msg);
                 }
-            } catch (SuperCodeTraceException | IOException | SuperCodeException e) {
-                e.printStackTrace();
             }
+        } catch (SuperCodeTraceException | IOException | SuperCodeException e) {
+            e.printStackTrace();
+            throw e;
+        }
 
-        return null;
+        return traceBatchInfoId;
     }
 
     /**
