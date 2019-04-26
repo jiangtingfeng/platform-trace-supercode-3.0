@@ -87,8 +87,7 @@ public interface ProductTestingItemMapper {
 
     @Update({
         "update trace_ProductTestingItem",
-        "set ProductTestingItemId = #{productTestingItemId,jdbcType=VARCHAR},",
-          "ProductTestingId = #{productTestingId,jdbcType=VARCHAR},",
+        "set ",
           "TestingTypeId = #{testingTypeId,jdbcType=VARCHAR},",
           "TestingStandard = #{testingStandard,jdbcType=INTEGER},",
           "TestingResult = #{testingResult,jdbcType=INTEGER},",

@@ -31,6 +31,7 @@ public class TestingTypeService extends AbstractPageService {
         String organizationId = getOrganizationId();
 
         //testingType.setOrganizationId(organizationId);
+
         testingType.setOrganizeId(organizationId);
         testingType.setCreateId(userAccount.getUserId());
         testingType.setCreateMan(userAccount.getUserName());

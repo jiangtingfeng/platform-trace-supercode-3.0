@@ -400,16 +400,12 @@ public class CommonUtil extends UserInfoUtil {
      * @Description //TODO
      * @Date 18:27 2018/11/13
      * @Param
-     **//*
-    public String getOrganizationName() throws SuperCodeTraceException {
-        OrganizationCache organizationCache = getUserLoginCache().getOrganizationCache();
-        if (organizationCache == null || organizationCache.getOrganizationFullName() == null) {
-            throw new SuperCodeTraceException("请先选择组织", 500);
-        }
-        return organizationCache.getOrganizationFullName();
+     **/
+    public String getOrganizationName() throws SuperCodeException {
+        return this.getOrganization().getOrganizationFullName();
     }
 
-    *//**
+    /**//**
      * 功能描述：获取当前登录的系统id
      *
      * @return

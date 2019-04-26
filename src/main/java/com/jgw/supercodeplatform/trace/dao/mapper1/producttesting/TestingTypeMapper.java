@@ -53,7 +53,7 @@ public interface TestingTypeMapper extends CommonSql {
     int getCountByCondition(Map<String, Object> var1);
 
     //<if test='organizationId !=null and organizationId != &apos;&apos; '>  AND OrganizationId = #{organizationId} </if>
-    @Select({" <script> select", "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName, CreateTime, organizationName ", "from trace_TestingType a <where> <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND OrganizeId = #{organizeId} </if>    <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  ORDER BY a.CreateTime DESC <if test='startNumber != null and pageSize != null '> LIMIT #{startNumber},#{pageSize}</if> </script> "})
+    @Select({" <script> select", "Id, TestingTypeId, OrganizationId, CreateId, CreateMan, disableFlag, TestingTypeName, CreateTime, organizationName, TestingTypeId ", "from trace_TestingType a <where> <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND OrganizeId = #{organizeId} </if>    <if test='search !=null and search != &apos;&apos; '> AND (  TestingTypeName LIKE CONCAT('%',#{search},'%')  OR CreateMan LIKE CONCAT('%',#{search},'%') )</if>  </where>  ORDER BY a.CreateTime DESC <if test='startNumber != null and pageSize != null '> LIMIT #{startNumber},#{pageSize}</if> </script> "})
     @Results({
             @Result(column="Id", property="id", jdbcType=JdbcType.INTEGER, id=true),
             @Result(column="TestingTypeId", property="testingTypeId", jdbcType=JdbcType.VARCHAR),
@@ -62,6 +62,7 @@ public interface TestingTypeMapper extends CommonSql {
             @Result(column="CreateMan", property="createMan", jdbcType=JdbcType.VARCHAR),
             @Result(column="disableFlag", property="disableFlag", jdbcType=JdbcType.INTEGER),
             @Result(column="TestingTypeName", property="testingTypeName", jdbcType=JdbcType.VARCHAR),
+            @Result(column="TestingTypeId", property="testingTypeId", jdbcType=JdbcType.VARCHAR),
             @Result(column="CreateTime", property="createTime", jdbcType=JdbcType.TIMESTAMP),
             @Result(column="OrganizationName", property="organizationName", jdbcType=JdbcType.VARCHAR)
     })
@@ -69,8 +70,7 @@ public interface TestingTypeMapper extends CommonSql {
 
     @Update({
         "update trace_TestingType",
-        "set TestingTypeId = #{testingTypeId,jdbcType=VARCHAR},",
-          "disableFlag = #{disableFlag,jdbcType=INTEGER},",
+        "set disableFlag = #{disableFlag,jdbcType=INTEGER},",
             "OrganizationId = #{organizationId,jdbcType=VARCHAR},",
           "TestingTypeName = #{testingTypeName,jdbcType=VARCHAR},",
             "OrganizationName = #{organizationName,jdbcType=VARCHAR}",

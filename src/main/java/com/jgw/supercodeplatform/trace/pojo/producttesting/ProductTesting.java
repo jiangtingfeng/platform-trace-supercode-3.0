@@ -47,6 +47,16 @@ public class ProductTesting {
 
     private String organizeId;
 
+    public String getOrganizeName() {
+        return organizeName;
+    }
+
+    public void setOrganizeName(String organizeName) {
+        this.organizeName = organizeName;
+    }
+
+    private String organizeName;
+
     public String getOrganizationName() {
         return organizationName;
     }
