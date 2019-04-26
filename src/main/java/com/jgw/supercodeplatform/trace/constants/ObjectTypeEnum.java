@@ -25,6 +25,8 @@ public enum ObjectTypeEnum {
 
 	Device(13018,"DeviceId","设备"),
 	Material(13019,"MaterialId","物料"),
+	MaterialSpecific(13020,"MaterialSpecificId","物料规格"),
+	MaterialBatch(13021,"MaterialBatchId","物料批次"),
 
 	CodeAssociate(13010,"AssociateType","码关联方式");
 
@@ -61,8 +63,10 @@ public enum ObjectTypeEnum {
 		case 13019:
 			return Material;
 
-		/*case 13017:
-			return PackingBatch;*/
+		case 13020:
+			return MaterialBatch;
+		case 13021:
+			return MaterialSpecific;
 
 		case 13010:
 			return CodeAssociate;

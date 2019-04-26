@@ -589,11 +589,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 							if(funComponentDataModel.getComponentType()== ComponentTypeEnum.MaterielCompent.getKey()){
 								//添加物料出库记录
-								String publicMaterialId = getObjectParam(param.getLineData(),"publicMaterialId").getObjectUniqueValue();
-								String outboundNum = getObjectParam(param.getLineData(),"outboundNum").getFieldValue();
-								FieldBusinessParam materialBatch= getObjectParam(param.getLineData(),"materialBatch");
+								String publicMaterialId = getObjectParam(lineBusinessData,"publicMaterialId").getObjectUniqueValue();
+								String outboundNum = getObjectParam(lineBusinessData,"outboundNum").getFieldValue();
+								String materialBatch= getObjectParam(lineBusinessData,"materialbatchId").getFieldValue();
 
-								materialService.insertOutOfStockInfo(publicMaterialId,outboundNum,null);
+								materialService.insertOutOfStockInfo(publicMaterialId,outboundNum,materialBatch);
 							}
 						}
 					}

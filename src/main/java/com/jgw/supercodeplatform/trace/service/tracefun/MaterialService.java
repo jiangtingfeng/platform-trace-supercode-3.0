@@ -70,7 +70,7 @@ public class MaterialService  extends CommonUtil {
      * @param fields
      * @return
      */
-    public JsonNode insertOutOfStockInfo(String publicMaterialId,String outboundNum,String materialBatch ) {
+    public JsonNode insertOutOfStockInfo(String publicMaterialId,String outboundNum,String materialBatch ) throws Exception {
 
         Map<String, Object> params = new HashMap<String, Object>();
         Map<String, String> headerMap = new HashMap<String, String>();
@@ -96,10 +96,14 @@ public class MaterialService  extends CommonUtil {
                 JsonNode node = new ObjectMapper().readTree(body);
                 if (200 == node.get("state").asInt()) {
                     return node.get("results");
+                }else {
+                    String msg=node.get("msg").asText();
+                    //throw new SuperCodeTraceException(msg);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
 
         return null;
