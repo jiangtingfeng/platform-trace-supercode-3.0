@@ -2,15 +2,13 @@ package com.jgw.supercodeplatform.trace.service.tracebatch;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
 
 
+import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.model.page.Page;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceObjectBatchInfoMapper;
@@ -597,6 +595,21 @@ public class TraceBatchInfoService extends CommonUtil {
                 }
             }
         }
+        Collections.sort(batchDatas,new Comparator(){
+            public int compare(Object a, Object b){
+                int ret = 0;
+                Map<String, Object> m1= (Map<String, Object>)a;
+                Map<String, Object> m2= (Map<String, Object>)b;
+                List<Field> lines1= (List<Field>)m1.get("defaultLineData");
+                List<Field> lines2= (List<Field>)m2.get("defaultLineData");
+                List<Field> sortDates1= lines1.stream().filter(e->e.getFieldCode().equals("SortDateTime")).collect(Collectors.toList());
+                List<Field> sortDates2= lines2.stream().filter(e->e.getFieldCode().equals("SortDateTime")).collect(Collectors.toList());
+                String sortDateTime1=sortDates1.get(0).getFieldValue().toString();
+                String sortDateTime2=sortDates2.get(0).getFieldValue().toString();
+                ret=sortDateTime1.compareTo(sortDateTime2);
+                return ret;
+            }
+        });
 
         if (nodeDataResult.getState() != 200) {
             throw new SuperCodeTraceException(nodeDataResult.getMsg(), 500);
