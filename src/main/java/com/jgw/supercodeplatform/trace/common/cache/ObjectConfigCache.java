@@ -69,7 +69,7 @@ public class ObjectConfigCache {
 			}
 			url=objectServiceUrlCache.get(codeId);
 			if (StringUtils.isBlank(url)) {
-				throw new SuperCodeTraceException("对象--"+codeId+"没有配置ServiceAddress", 500);
+				//throw new SuperCodeTraceException("对象--"+codeId+"没有配置ServiceAddress", 500);
 			}
 		}
 	}
