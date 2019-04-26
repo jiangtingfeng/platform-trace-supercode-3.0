@@ -23,6 +23,22 @@ public class TraceObjectBatchInfo implements Serializable {
     private Integer nodeDataCount;
     private String traceBatchPlatformId;
 
+    public TraceObjectBatchInfo(){}
+
+    public TraceObjectBatchInfo(String traceBatchName,String traceBatchId,String traceBatchInfoId,String traceTemplateId,String traceTemplateName,String h5TrancePageId,String h5TempleteName,String createMan,String createId,String createTime){
+        this.traceBatchName=traceBatchName;
+        this.traceBatchId=traceBatchId;
+        this.traceBatchInfoId=traceBatchInfoId;
+        this.traceTemplateId=traceTemplateId;
+        this.traceTemplateName=traceTemplateName;
+        this.h5TrancePageId=h5TrancePageId;
+        this.h5TempleteName=h5TempleteName;
+        this.createMan=createMan;
+        this.createId=createId;
+        this.createTime=createTime;
+
+    }
+
     public String getObjectId() {
         return objectId;
     }

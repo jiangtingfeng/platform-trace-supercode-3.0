@@ -128,7 +128,13 @@ public class TraceBatchInfoController extends CommonUtil {
             @ApiImplicitParam(name = "batchType", paramType = "query", defaultValue = "1", value = "批次类型,产品批次为1/地块批次为2,非必需")
     })
     public RestResult listTraceBatchInfoByOrgPage(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
-        return new RestResult(200, "success", traceBatchInfoService.listTraceBatchInfoByOrgPage(map));
+        Map<String, Object> result=traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
+       /* if (map.get("batchType")!=null && map.get("batchType").toString().equals("2")){
+            result=traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
+        }else {
+            result=traceBatchInfoService.listProductBatchInfo(map);
+        }*/
+        return new RestResult(200, "success", result);
     }
 
     /**

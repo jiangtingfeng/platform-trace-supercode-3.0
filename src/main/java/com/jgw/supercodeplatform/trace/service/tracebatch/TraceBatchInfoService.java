@@ -9,7 +9,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
+
+
+import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
+import com.jgw.supercodeplatform.trace.common.model.page.Page;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceObjectBatchInfoMapper;
+import com.jgw.supercodeplatform.trace.dto.tracebatch.ProductBatchRelationSysView;
 import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchRelation;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceObjectBatchInfo;
@@ -324,6 +329,53 @@ public class TraceBatchInfoService extends CommonUtil {
         }else {
             dataMap.put("addressWithTemplate", new ArrayList<>());
         }
+        return dataMap;
+    }
+
+    public Map<String, Object> listProductBatchInfo(Map<String, Object> params) throws Exception{
+
+        AbstractPageService.PageResults<List<TraceBatchInfo>> pageResults=null;
+        Map<String, String> headerMap = new HashMap<String, String>();
+        Map<String, Object> dataMap=new HashMap<String, Object>();
+        try {
+            headerMap.put("super-token", getSuperToken());
+            ResponseEntity<String> rest = restTemplateUtil.getRequestAndReturnJosn(restUserUrl + "/product-batch/list", params, headerMap);
+            if (rest.getStatusCode().value() == 200) {
+                String body = rest.getBody();
+                JsonNode resultsNode=new ObjectMapper().readTree(body).get("results");
+                List<JSONObject> productBatchRelationSysViews= (List<JSONObject>)JSONObject.parseObject(resultsNode.get("list").toString(), ArrayList.class);
+                Page page= (Page)JSONObject.parseObject(resultsNode.get("pagination").toString(), Page.class);
+
+                StringBuilder idsBuilder = new StringBuilder();
+
+                List<TraceBatchInfo> traceBatchInfos=null;
+                if (productBatchRelationSysViews!=null&& productBatchRelationSysViews.size()>0){
+                    traceBatchInfos= productBatchRelationSysViews.stream().map(e->new TraceBatchInfo(
+                            e.get("batchName").toString(),e.get("productId").toString(),e.get("productName").toString(),e.get("batchId").toString()
+                    )).collect(Collectors.toList());
+
+                    for (TraceBatchInfo returnTraceBatchInfo : traceBatchInfos) {
+                        idsBuilder.append(returnTraceBatchInfo.getTraceTemplateId()).append(",");
+                    }
+                }
+                dataMap.put("list",traceBatchInfos);
+                dataMap.put("pagination",page);
+
+                JsonNode node;
+                if (idsBuilder.length() > 0) {
+                    String ids = idsBuilder.substring(0, idsBuilder.length() - 1);
+                    node = getAddressUrl(ids);
+                    dataMap.put("addressWithTemplate", node);
+                }else {
+                    dataMap.put("addressWithTemplate", new ArrayList<>());
+                }
+                //pageResults=new AbstractPageService.PageResults<List<TraceBatchInfo>>(traceBatchInfos,page);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         return dataMap;
     }
 

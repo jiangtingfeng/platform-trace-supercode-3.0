@@ -52,12 +52,25 @@ public class MaterialService  extends CommonUtil {
         return fieldValue;
     }
 
+    private String getCode(Map<String, String> headerMap) throws Exception{
+        String code=null;
+        ResponseEntity<String> rest =  restTemplateUtil.getRequestAndReturnJosn(restUserUrl + "/material/warehouse/code", null, headerMap);
+        if (rest.getStatusCode().value() == 200) {
+            String body = rest.getBody();
+            JsonNode node = new ObjectMapper().readTree(body);
+            if (200 == node.get("state").asInt()) {
+                code= node.get("results").asText();
+            }
+        }
+        return code;
+    }
+
     /**
      * 添加物料出库记录
      * @param fields
      * @return
      */
-    public JsonNode insertOutOfStockInfo(List<FieldBusinessParam> fields) {
+    public JsonNode insertOutOfStockInfo(String publicMaterialId,String outboundNum,String materialBatch ) {
 
         Map<String, Object> params = new HashMap<String, Object>();
         Map<String, String> headerMap = new HashMap<String, String>();
@@ -65,14 +78,17 @@ public class MaterialService  extends CommonUtil {
         LocalDateTime time = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
         try {
-            params.put("publicMaterialId", getMaterialInfoFieldValue(fields,"publicMaterialId"));
-            params.put("materialBatch", getMaterialInfoFieldValue(fields,"materialBatch"));
-            params.put("outboundNum", getMaterialInfoFieldValue(fields,"outboundNum"));
+            params.put("publicMaterialId", publicMaterialId);
+            params.put("materialBatch", materialBatch);
+            params.put("outboundNum", outboundNum);
             params.put("outboundTime", time.format(formatter));
-            params.put("outboundTypeName", "生成出库");
-            params.put("outboundType", "1");
+            params.put("outboundTypeName", "生产出库");
+            params.put("outboundType", "022001");
 
             headerMap.put("super-token", getSuperToken());
+            String outboundCode=getCode(headerMap);
+            params.put("outboundCode", outboundCode);
+
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restUserUrl + "/material/warehouse/out", JSONObject.toJSONString( params), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
@@ -82,7 +98,7 @@ public class MaterialService  extends CommonUtil {
                     return node.get("results");
                 }
             }
-        } catch (SuperCodeTraceException | IOException | SuperCodeException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
