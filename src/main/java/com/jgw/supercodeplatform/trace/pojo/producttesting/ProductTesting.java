@@ -47,6 +47,16 @@ public class ProductTesting {
 
     private String organizeId;
 
+    public String getThirdpartyOrganizationName() {
+        return thirdpartyOrganizationName;
+    }
+
+    public void setThirdpartyOrganizationName(String thirdpartyOrganizationName) {
+        this.thirdpartyOrganizationName = thirdpartyOrganizationName;
+    }
+
+    private String thirdpartyOrganizationName;
+
     public String getOrganizeName() {
         return organizeName;
     }

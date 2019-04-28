@@ -17,6 +17,9 @@ public class ProductTestingParam  {
     @ApiModelProperty(value = "机构id，第三方检测")
     private String thirdpartyOrganizationId;
 
+    @ApiModelProperty(value = "第三方检测机构名称")
+    private String thirdpartyOrganizationName;
+
     @ApiModelProperty(value = "产品id",required=true)
     private String productID;
 
