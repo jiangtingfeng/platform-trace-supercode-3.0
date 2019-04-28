@@ -428,6 +428,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		if(traceFunTemplateconfig!=null ){
 			traceTemplateId=traceFunTemplateconfig.getTraceTemplateId();
 			traceTemplateName=traceFunTemplateconfig.getTraceTemplateName();
+		} else{
+			throw new SuperCodeTraceException("请先创建溯源模版");
 		}
 
 		Integer userSceneType= traceFunRegulation.getUseSceneType();

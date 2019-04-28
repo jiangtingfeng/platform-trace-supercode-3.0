@@ -84,8 +84,6 @@ public interface ProductTestingMapper extends CommonSql {
           "TraceBatchInfoId = #{traceBatchInfoId,jdbcType=VARCHAR},",
           "TestingDate = #{testingDate,jdbcType=VARCHAR},",
           "TestingMan = #{testingMan,jdbcType=VARCHAR},",
-          "CreateMan = #{createMan,jdbcType=VARCHAR},",
-          "CreateId = #{certifyNumber,jdbcType=VARCHAR},",
             "TestingType = #{testingType,jdbcType=VARCHAR}",
         "where Id = #{id,jdbcType=INTEGER}"
     })
