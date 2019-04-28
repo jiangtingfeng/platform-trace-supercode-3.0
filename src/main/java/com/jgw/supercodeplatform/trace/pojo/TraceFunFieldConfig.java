@@ -65,6 +65,11 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
     public TraceFunFieldConfig() {
     }
 
+	public TraceFunFieldConfig(Long id,Integer fieldWeight) {
+    	this.id=id;
+    	this.fieldWeight=fieldWeight;
+	}
+
 	public Long getId() {
 		return id;
 	}
