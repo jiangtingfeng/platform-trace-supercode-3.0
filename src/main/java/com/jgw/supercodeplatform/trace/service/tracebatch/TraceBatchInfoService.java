@@ -472,7 +472,11 @@ public class TraceBatchInfoService extends CommonUtil {
             throw new SuperCodeTraceException("无此批次号记录", 500);
         }
         String orgnizationId = commonUtil.getOrganizationId();
-        return traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), false, orgnizationId);
+        RestResult<List<Map<String, Object>>> nodeDataResult=null;
+        nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), false, orgnizationId);
+        List<Map<String, Object>> batchDatas = nodeDataResult.getResults();
+        getParentNodeInfo(traceBatchInfoId,batchDatas);
+        return nodeDataResult;
     }
 
     public TraceBatchInfo getOneByUnkonwnOneField(String plainSql) {
@@ -575,6 +579,19 @@ public class TraceBatchInfoService extends CommonUtil {
         batchDatas =nodeDataResult.getResults();
 
         //递归查询所有父级批次，查询所有父级批次对应的溯源信息数据并返回
+        getParentNodeInfo(traceBatchInfoId,batchDatas);
+
+        if (nodeDataResult.getState() != 200) {
+            throw new SuperCodeTraceException(nodeDataResult.getMsg(), 500);
+        }
+
+        backResult.setState(200);
+        backResult.setResults(dataMap);
+        return backResult;
+    }
+
+    private void getParentNodeInfo(String traceBatchInfoId,List<Map<String, Object>> batchDatas) throws Exception
+    {
         List<TraceBatchRelation> traceBatchRelations= traceBatchRelationService.selectByBatchId(traceBatchInfoId);
         if (traceBatchRelations!=null && traceBatchRelations.size()>0){
 
@@ -612,13 +629,5 @@ public class TraceBatchInfoService extends CommonUtil {
                 return ret;
             }
         });
-
-        if (nodeDataResult.getState() != 200) {
-            throw new SuperCodeTraceException(nodeDataResult.getMsg(), 500);
-        }
-
-        backResult.setState(200);
-        backResult.setResults(dataMap);
-        return backResult;
     }
 }
