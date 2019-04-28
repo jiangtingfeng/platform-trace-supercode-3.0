@@ -10,6 +10,7 @@ import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtilComponent;
 import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
+import com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo.TraceBatchInfoMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFuntemplateStatisticalMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.*;
@@ -126,6 +127,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private TraceFuntemplateStatisticalMapper traceFuntemplateStatisticalDao;
+
+	@Autowired
+	private TraceBatchInfoMapper traceBatchInfoMapper;
 
 
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
@@ -521,6 +525,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
 				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
+				int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
+				traceBatchInfo.setNodeDataCount(nodeDataCount);
 				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
 				baseBatchInfo.setTraceBatchName(traceBatchName);
@@ -546,6 +552,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 					String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
 					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
+					int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
+					traceBatchInfo.setNodeDataCount(nodeDataCount);
 					traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
 					baseBatchInfo.setTraceBatchName(traceBatchName);
@@ -560,6 +568,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		}
 
 		return baseBatchInfos;
+	}
+
+	private int getParentNodeCount(String traceBatchInfoId){
+		TraceBatchInfo traceBatchInfo= traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+		return traceBatchInfo.getNodeDataCount();
 	}
 
 	private RestResult<String> addFunData(DynamicAddFunParam param,TraceFunRegulation traceFunRegulation,Integer batchindex) throws Exception{
