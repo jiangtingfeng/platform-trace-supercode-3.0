@@ -29,7 +29,7 @@ public class DataSyncSchedule {
 
         Map<String,String> params=new HashMap<String,String>();
         params.put("startdate","2019-04-20");
-        dataSyncMapper.execute(params);
+        //dataSyncMapper.execute(params);
 
         logger.debug("同步完成");
     }

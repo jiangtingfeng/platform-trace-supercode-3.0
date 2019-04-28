@@ -146,7 +146,7 @@ public class DynamicServiceDelegate {
 						}
 					}
 				}
-				if (StringUtils.isBlank(adDataModel.getTraceBatchInfoId())) {
+				//if (StringUtils.isBlank(adDataModel.getTraceBatchInfoId())) {
 					List<FieldBusinessParam> batchParams= fields.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
 					String batchInfoId= batchParams.get(0).getFieldValue();
 					if(StringUtils.isEmpty(batchInfoId)){
@@ -154,7 +154,7 @@ public class DynamicServiceDelegate {
 					}else {
 						adDataModel.setTraceBatchInfoId(batchInfoId);
 					}
-				}
+				//}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -221,8 +221,10 @@ public class DynamicServiceDelegate {
 				//新增数据设置批次id时只有定制功能才需要在字段数据里找，节点数据新增有单独的字段接收批次唯一id
 				case TRACE_BATCH:
 					if (!isNode) {
-						sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
-						sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
+						if(sqlFieldNameBuilder.toString().indexOf("TraceBatchInfoId")<0){
+							sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
+							sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
+						}
 					}
 					break;
 				case PRODUCT:

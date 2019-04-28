@@ -72,7 +72,7 @@ public class TraceBatchNamedService extends CommonUtil {
                 case  "CreateDate":
                     Date date = new Date();
                     Integer batchTimeControl=traceFunRegulation.getBatchTimeControl();
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+                    SimpleDateFormat sdf = new SimpleDateFormat(format);
                     String strDate=sdf.format(date);
                     if(batchTimeControl>0){
                         strDate=sdf.format(new Date(date.getTime() + batchTimeControl * 24 * 60 * 60 * 1000));
@@ -89,7 +89,7 @@ public class TraceBatchNamedService extends CommonUtil {
                     }
                     long incr = redisUtil.generate(incrKey);
                     baseBatchInfo.setSerialNumber(incr);
-                    Integer size= Integer.valueOf( traceBatchNamed.getFieldFormat());
+                    Integer size= Integer.valueOf( format);
                     String serial= StringUtils.leftPad(String.valueOf(incr),size,"0");
                     traceBatchName.append(serial);
                     break;
