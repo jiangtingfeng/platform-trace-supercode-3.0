@@ -58,6 +58,7 @@ public class TraceBatchRelationEsService extends CommonUtil {
      */
     public void insertTraceBatchRelation(TraceBatchRelation traceBatchRelation)  throws Exception
     {
+        traceBatchRelation.setSysId(getSysId());
         traceBatchRelationMapper.insertTraceBatchRelation(traceBatchRelation);
 
         if(enableElastic){

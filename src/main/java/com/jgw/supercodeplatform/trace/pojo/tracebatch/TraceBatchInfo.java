@@ -29,7 +29,15 @@ public class TraceBatchInfo implements Serializable{
 	private Integer nodeDataCount;
 	private String traceBatchPlatformId;
 	private Long serialNumber;
+	private String sysId;
 
+	public String getSysId() {
+		return sysId;
+	}
+
+	public void setSysId(String sysId) {
+		this.sysId = sysId;
+	}
 
 	public int getBatchType() {
 		return batchType;

@@ -56,6 +56,16 @@ public class ProductTestingParam  {
     @ApiModelProperty(value = "检测人名称")
     private String testingManName;
 
+
+
+    public String getThirdpartyOrganizationName() {
+        return thirdpartyOrganizationName;
+    }
+
+    public void setThirdpartyOrganizationName(String thirdpartyOrganizationName) {
+        this.thirdpartyOrganizationName = thirdpartyOrganizationName;
+    }
+
     public String getTraceBatchInfoName() {
         return traceBatchInfoName;
     }

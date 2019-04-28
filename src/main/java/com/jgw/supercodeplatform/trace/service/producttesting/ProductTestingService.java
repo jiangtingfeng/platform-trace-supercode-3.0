@@ -44,6 +44,7 @@ public class ProductTestingService extends AbstractPageService {
         String organizationId = getOrganizationId();
         String organizeName=getOrganizationName();
 
+        productTesting.setSysId(getSysId());
         productTesting.setOrganizeName(organizeName);
         productTesting.setOrganizeId(organizationId);
         productTesting.setCreateId(userAccount.getUserId());

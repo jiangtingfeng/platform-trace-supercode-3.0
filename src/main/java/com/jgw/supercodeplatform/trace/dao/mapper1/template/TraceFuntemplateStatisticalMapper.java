@@ -27,7 +27,7 @@ public interface TraceFuntemplateStatisticalMapper extends CommonSql{
 				+ "<if test='createMan != null and createMan != &apos;&apos;'>CreateMan,</if> "
 				+ "<if test='organizationId != null and organizationId != &apos;&apos;'>OrganizationId,</if> "
 				+" CreateTime,"
-				+" UpdateTime"
+				+" UpdateTime, SysId"
 			+ "</trim>"
 			+ "<trim prefix='values (' suffix=')' suffixOverrides=','>"
 				+ "<if test='traceTemplateId != null and traceTemplateId != &apos;&apos;'>#{traceTemplateId},</if> "
@@ -36,7 +36,7 @@ public interface TraceFuntemplateStatisticalMapper extends CommonSql{
 				+ "<if test='createMan != null and createMan != &apos;&apos;'>#{createMan},</if> "
 				+ "<if test='organizationId != null and organizationId != &apos;&apos;'>#{organizationId},</if> "
 				+"now(),"
-				+"now()"
+				+"now(), #{sysId,jdbcType=VARCHAR}"
 			+ "</trim>"
 			+ endScript)
 	void insert(TraceFuntemplateStatistical traceFuntemplateStatistical);

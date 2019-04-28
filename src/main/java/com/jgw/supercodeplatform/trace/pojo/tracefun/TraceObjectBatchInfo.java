@@ -23,6 +23,15 @@ public class TraceObjectBatchInfo implements Serializable {
     private String updateTime;//修改时间
     private Integer nodeDataCount;
     private String traceBatchPlatformId;
+    private String sysId;
+
+    public String getSysId() {
+        return sysId;
+    }
+
+    public void setSysId(String sysId) {
+        this.sysId = sysId;
+    }
 
     public TraceObjectBatchInfo(){}
 

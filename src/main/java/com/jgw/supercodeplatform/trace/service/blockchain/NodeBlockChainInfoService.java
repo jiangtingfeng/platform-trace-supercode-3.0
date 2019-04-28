@@ -441,6 +441,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			nodeBlockChainInfo.setTransactionHash(blockChainResultInfo.getTransactionHash());
 			SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			nodeBlockChainInfo.setTransactionTime(format.format(new Date(blockChainResultInfo.getTransactionTime())));
+			nodeBlockChainInfo.setSysId(getSysId());
 			int len=nodeBlockChainInfoDao.insert(nodeBlockChainInfo);
 			return len;
 		}

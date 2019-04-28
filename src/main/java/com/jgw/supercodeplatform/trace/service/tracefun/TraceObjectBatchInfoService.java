@@ -48,6 +48,7 @@ public class TraceObjectBatchInfoService extends CommonUtil {
         String organizationId = getOrganizationId();
         traceObjectBatchInfo.setTraceBatchInfoId(traceBatchInfoId);
         traceObjectBatchInfo.setOrganizationId(organizationId);//组织id
+        traceObjectBatchInfo.setSysId(getSysId());
         traceObjectBatchInfo.setCreateId(userAccount.getUserId());
         traceObjectBatchInfo.setNodeDataCount(0);
         traceObjectBatchInfo.setCreateMan(userAccount.getUserName());

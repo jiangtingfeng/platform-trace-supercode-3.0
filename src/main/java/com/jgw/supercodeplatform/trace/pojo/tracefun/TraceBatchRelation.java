@@ -17,6 +17,16 @@ public class TraceBatchRelation implements Serializable {
     private String currentBatchType;
     private int parentBatchType; //父级批次类型
 
+    public String getSysId() {
+        return sysId;
+    }
+
+    public void setSysId(String sysId) {
+        this.sysId = sysId;
+    }
+
+    private String sysId;
+
     public TraceBatchRelation(){}
 
     public TraceBatchRelation(String batchRelationId,String currentBatchId,String parentBatchId, int parentBatchType){

@@ -326,6 +326,7 @@ public class AntChainInfoService extends AbstractPageService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		antchainInfo.setSysId(getSysId());
 		antChainMapper.insert(antchainInfo);
 		realCoChain(antchainInfo, list);
 	}

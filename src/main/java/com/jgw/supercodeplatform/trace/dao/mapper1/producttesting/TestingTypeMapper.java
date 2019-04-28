@@ -20,11 +20,11 @@ public interface TestingTypeMapper extends CommonSql {
         "insert into trace_TestingType (Id, TestingTypeId, ",
         "OrganizationId, CreateId, ",
         "CreateMan, disableFlag, ",
-        "TestingTypeName, CreateTime,OrganizationName, OrganizeId)",
+        "TestingTypeName, CreateTime,OrganizationName, OrganizeId, SysId)",
         "values (#{id,jdbcType=INTEGER}, #{testingTypeId,jdbcType=VARCHAR}, ",
         "#{organizationId,jdbcType=VARCHAR}, #{createId,jdbcType=VARCHAR}, ",
         "#{createMan,jdbcType=VARCHAR}, #{disableFlag,jdbcType=INTEGER}, ",
-        "#{testingTypeName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{organizationName,jdbcType=VARCHAR}, #{organizeId,jdbcType=VARCHAR})"
+        "#{testingTypeName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{organizationName,jdbcType=VARCHAR}, #{organizeId,jdbcType=VARCHAR}, #{sysId,jdbcType=VARCHAR})"
     })
     int insert(TestingType record);
 

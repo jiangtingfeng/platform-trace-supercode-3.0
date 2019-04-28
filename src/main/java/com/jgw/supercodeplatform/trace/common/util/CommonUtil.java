@@ -405,6 +405,10 @@ public class CommonUtil extends UserInfoUtil {
         return this.getOrganization().getOrganizationFullName();
     }
 
+    public String getSysId() throws SuperCodeException {
+        return this.getSys().getSysId();
+    }
+
     /**//**
      * 功能描述：获取当前登录的系统id
      *

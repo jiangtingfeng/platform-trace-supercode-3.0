@@ -35,6 +35,16 @@ public class TestingType {
 
     private String organizeId;
 
+    private String sysId;
+
+    public String getSysId() {
+        return sysId;
+    }
+
+    public void setSysId(String sysId) {
+        this.sysId = sysId;
+    }
+
     public String getOrganizeId() {
         return organizeId;
     }

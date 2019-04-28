@@ -22,14 +22,14 @@ public interface ProductTestingMapper extends CommonSql {
         "TestingDate, TestingMan, ",
         "CreateMan, CreateTime, ",
         "CreateId, TestingType, Excel, CertifyNumber," ,
-        "TraceBatchInfoName,ProductName,TestingManName, OrganizeId, OrganizationName, organizeName, thirdpartyOrganizationName)",
+        "TraceBatchInfoName,ProductName,TestingManName, OrganizeId, OrganizationName, organizeName, thirdpartyOrganizationName, SysId)",
         "values (#{id,jdbcType=INTEGER}, #{productTestingId,jdbcType=VARCHAR}, ",
         "#{organizationId,jdbcType=VARCHAR}, #{thirdpartyOrganizationId,jdbcType=VARCHAR}, ",
         "#{productID,jdbcType=VARCHAR}, #{traceBatchInfoId,jdbcType=VARCHAR}, ",
         "#{testingDate,jdbcType=VARCHAR}, #{testingMan,jdbcType=VARCHAR}, ",
         "#{createMan,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},  ",
         "#{createId,jdbcType=VARCHAR},#{testingType,jdbcType=INTEGER},#{excel,jdbcType=VARCHAR},#{certifyNumber,jdbcType=VARCHAR}" ,
-        ",#{traceBatchInfoName,jdbcType=VARCHAR},#{productName,jdbcType=VARCHAR},#{testingManName,jdbcType=VARCHAR},#{organizeId,jdbcType=VARCHAR},#{organizationName,jdbcType=VARCHAR},#{organizeName,jdbcType=VARCHAR},#{thirdpartyOrganizationName,jdbcType=VARCHAR})"
+        ",#{traceBatchInfoName,jdbcType=VARCHAR},#{productName,jdbcType=VARCHAR},#{testingManName,jdbcType=VARCHAR},#{organizeId,jdbcType=VARCHAR},#{organizationName,jdbcType=VARCHAR},#{organizeName,jdbcType=VARCHAR},#{thirdpartyOrganizationName,jdbcType=VARCHAR}, #{sysId,jdbcType=VARCHAR})"
     })
     int insert(ProductTesting record);
 

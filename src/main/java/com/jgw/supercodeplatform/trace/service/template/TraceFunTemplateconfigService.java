@@ -403,6 +403,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			traceFuntemplateStatistical.setOrganizationId(organizationId);
 			traceFuntemplateStatistical.setCreateMan(accountCache.getUserName());
 			traceFuntemplateStatistical.setCreateId(accountCache.getUserId());
+			traceFuntemplateStatistical.setSysId(getSysId());
 			traceFuntemplateStatisticalDao.insert(traceFuntemplateStatistical);
 		}else {
 			traceFuntemplateStatistical.setNodeCount(traceFuntemplateStatistical.getNodeCount()+size);

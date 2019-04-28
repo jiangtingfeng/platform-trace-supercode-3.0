@@ -44,6 +44,16 @@ public class AntChainInfo {
 	// 当前批次上链数量--不保存数据库
 	private Integer blockNum;
 
+	private String sysId;
+
+	public String getSysId() {
+		return sysId;
+	}
+
+	public void setSysId(String sysId) {
+		this.sysId = sysId;
+	}
+
 	public Long getBlockChainId() {
 		return blockChainId;
 	}

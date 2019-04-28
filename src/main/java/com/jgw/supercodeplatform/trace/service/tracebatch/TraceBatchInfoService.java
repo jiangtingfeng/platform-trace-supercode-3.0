@@ -83,6 +83,7 @@ public class TraceBatchInfoService extends CommonUtil {
         AccountCache userAccount = getUserLoginCache();
         String organizationId = getOrganizationId();
 
+        traceBatchInfo.setSysId(getSysId());
         traceBatchInfo.setOrganizationId(organizationId);//组织id
         traceBatchInfo.setCreateId(userAccount.getUserId());
         if(traceBatchInfo.getNodeDataCount()==null){

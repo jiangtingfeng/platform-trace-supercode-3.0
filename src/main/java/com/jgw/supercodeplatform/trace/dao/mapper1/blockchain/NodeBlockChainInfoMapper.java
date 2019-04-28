@@ -64,6 +64,7 @@ public interface NodeBlockChainInfoMapper extends CommonSql{
 					+ "cmtTime, "
 					+ "<if test='organizationId != null and organizationId != &apos;&apos;'>OrganizationId,</if> "
 					+ "<if test='organizationName != null and organizationName != &apos;&apos;'>OrganizationName</if> "
+					+", SysId"
 				+ "</trim>"
 				+ "<trim prefix='values (' suffix=')' suffixOverrides=','>"
 					+ "<if test='productId != null and productId != &apos;&apos;'>#{productId},</if> "
@@ -81,6 +82,7 @@ public interface NodeBlockChainInfoMapper extends CommonSql{
 					+ "now(), "
 					+ "<if test='organizationId != null and organizationId != &apos;&apos;'>#{organizationId},</if> "
 					+ "<if test='organizationName != null and organizationName != &apos;&apos;'>#{organizationName}</if> "
+					+", #{sysId}"
 			+ "</trim>"
 			+ endScript)
     int insert(NodeBlockChainInfo nodeBlockChainInfo);
