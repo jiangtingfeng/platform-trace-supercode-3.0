@@ -36,7 +36,7 @@ public interface ProductTestingMapper extends CommonSql {
     @Select({
         "select",
         "Id, ProductTestingId, OrganizationId, ThirdpartyOrganizationId, ProductID, TraceBatchInfoId, ",
-         "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType, CertifyNumber,Excel,TraceBatchInfoName,ProductName,TestingManName "+
+         "TestingDate, TestingMan, CreateMan, CreateTime, CreateId, TestingType, CertifyNumber,Excel,TraceBatchInfoName,ProductName,TestingManName,ThirdpartyOrganizationName "+
         "from trace_ProductTesting",
         "where Id = #{id,jdbcType=INTEGER}"
     })
@@ -51,6 +51,7 @@ public interface ProductTestingMapper extends CommonSql {
         @Result(column="TestingMan", property="testingMan", jdbcType=JdbcType.VARCHAR),
         @Result(column="CreateMan", property="createMan", jdbcType=JdbcType.VARCHAR),
         @Result(column="CreateTime", property="createTime", jdbcType=JdbcType.TIMESTAMP),
+        @Result(column="ThirdpartyOrganizationName", property="thirdpartyOrganizationName", jdbcType=JdbcType.VARCHAR),
         @Result(column="CreateId", property="createId", jdbcType=JdbcType.VARCHAR)
     })
     ProductTesting selectByPrimaryKey(Integer id);
