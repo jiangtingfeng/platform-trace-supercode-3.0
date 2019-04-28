@@ -15,7 +15,7 @@ public class ProductTestingItem {
     private String testingTypeId;
 
     @ApiModelProperty(value = "检测标准")
-    private Integer testingStandard;
+    private String testingStandard;
 
     @ApiModelProperty(value = "检测结果")
     private Integer testingResult;
@@ -82,11 +82,11 @@ public class ProductTestingItem {
         this.testingTypeId = testingTypeId == null ? null : testingTypeId.trim();
     }
 
-    public Integer getTestingStandard() {
+    public String getTestingStandard() {
         return testingStandard;
     }
 
-    public void setTestingStandard(Integer testingStandard) {
+    public void setTestingStandard(String testingStandard) {
         this.testingStandard = testingStandard;
     }
 

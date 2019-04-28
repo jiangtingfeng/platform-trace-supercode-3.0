@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 批次命名规则管理
@@ -58,6 +59,7 @@ public class TraceBatchNamedService extends CommonUtil {
         StringBuilder traceBatchName=new StringBuilder();
         String funId=traceFunRegulation.getFunId();
         List<TraceBatchNamed> batchNameds= traceBatchNamedMapper.selectByFunId(funId);
+        batchNameds = batchNameds.stream().filter(e->!e.isDisableFlag()).collect(Collectors.toList());
         for(int i=0;i<batchNameds.size();i++){
             TraceBatchNamed traceBatchNamed=batchNameds.get(i);
             if(traceBatchNamed.isDisableFlag())
