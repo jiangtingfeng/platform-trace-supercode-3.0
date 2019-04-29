@@ -89,7 +89,7 @@ public class TraceObjectBatchInfoService extends CommonUtil {
             for (TraceObjectBatchInfo traceBatchInfo: traceObjectBatchInfos){
                 MassifBatchInfo massifBatchInfo=new MassifBatchInfo(traceBatchInfo.getTraceBatchId(),traceBatchInfo.getTraceBatchName());
                 List<Map<String, Object>> allNodeData = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(),
-                        true, null).getResults();
+                        true, null,null,null).getResults();
                 if (allNodeData!=null && allNodeData.size()>0){
                     List<String> nodeInfos=new ArrayList<String>();
                     for (Map<String, Object> nodeData:allNodeData){
