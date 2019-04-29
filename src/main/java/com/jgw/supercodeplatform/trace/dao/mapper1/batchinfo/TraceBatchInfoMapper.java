@@ -26,7 +26,7 @@ public interface TraceBatchInfoMapper extends CommonSql{
 			+ "a.ProductName productName,a.TraceBatchName traceBatchName,a.TraceTemplateName traceTemplateName,"
 			+ "a.TraceBatchId traceBatchId,a.ListedTime listedTime,a.TraceTemplateId traceTemplateId,"
 			+"a.NodeDataCount nodeDataCount,"
-			+ "a.H5TrancePageId h5TrancePageId,a.H5TempleteName h5TempleteName,a.CreateId createId,a.CreateMan createMan"
+			+ "a.H5TrancePageId h5TrancePageId,a.H5TempleteName h5TempleteName,a.CreateId createId,a.CreateMan createMan, a.TraceBatchPlatformId traceBatchPlatformId"
 			+ createTime + updateTime ;
 	
 	/**
@@ -39,11 +39,11 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	@Insert(" INSERT INTO trace_batchinfo"
 			+ "(TraceBatchInfoId,OrganizationId,ProductID,ProductName,TraceBatchName,"
 			+ "TraceBatchId,ListedTime,TraceTemplateId,TraceTemplateName,H5TrancePageId,"
-			+ "H5TempleteName,CreateId,CreateMan,NodeDataCount)"
+			+ "H5TempleteName,CreateId,CreateMan,NodeDataCount, SysId)"
 			+ "VALUES"
 			+ "(#{traceBatchInfoId},#{organizationId},#{productId},#{productName},#{traceBatchName},"
 			+ "#{traceBatchId},#{listedTime},#{traceTemplateId},#{traceTemplateName},#{h5TrancePageId},"
-			+ "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}) ")
+			+ "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}, #{sysId}) ")
 	int insertTraceBatchInfo(TraceBatchInfo traceBatchInfo);
 	
 	/**
@@ -65,6 +65,7 @@ public interface TraceBatchInfoMapper extends CommonSql{
             + " <if test='h5TrancePageId !=null and h5TrancePageId != &apos;&apos; '>  H5TrancePageId = #{h5TrancePageId} ,</if> "
             + " <if test='h5TempleteName !=null and h5TempleteName != &apos;&apos; '>  H5TempleteName = #{h5TempleteName} ,</if> "
 			+ " <if test='nodeDataCount !=null and nodeDataCount != &apos;&apos; '>  NodeDataCount = #{nodeDataCount} ,</if> "
+			+ " <if test='traceBatchPlatformId !=null and traceBatchPlatformId != &apos;&apos; '>  TraceBatchPlatformId = #{traceBatchPlatformId} ,</if> "
             + " </set>"
             + " WHERE TraceBatchInfoId = #{traceBatchInfoId} "
             + endScript
@@ -147,8 +148,11 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	 */
 	@Select(selectSql+" from trace_batchinfo a WHERE ${plainSql}")
 	TraceBatchInfo getOneByUnkonwnOneField(@Param("plainSql")String plainSql);
-    
+
+
 	@Update("update trace_batchinfo set TraceTemplateName=#{templateName} where TraceTemplateId = #{traceTemplateId}")
 	void updateTemplateNameByTemplateId(@Param("templateName")String templateName, @Param("traceTemplateId")String templateConfigId);
-	
+
+	@Select("SELECT * FROM trace_batchinfo where TraceBatchInfoId in (${traceBatchInfoIds})")
+	List<TraceBatchInfo> selectByTraceBatchInfoIds(@Param("traceBatchInfoIds")String traceBatchInfoIds);
 }

@@ -17,9 +17,11 @@ import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.beans.BeanMap;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -79,6 +81,20 @@ public class CommonUtil extends UserInfoUtil {
             throw new Exception("不是六位随机数,number= " + result);
         }
         return result;
+    }
+
+    /**
+     * 验证参数是否为空
+     * @author liujianqiang
+     * @data 2018年12月26日
+     * @param obj
+     * @param message
+     * @throws Exception
+     */
+    public void checkNull(Object obj, String message) throws SuperCodeException {
+        if (obj == null) {
+            throw new SuperCodeException(message);
+        }
     }
 
 
@@ -384,16 +400,16 @@ public class CommonUtil extends UserInfoUtil {
      * @Description //TODO
      * @Date 18:27 2018/11/13
      * @Param
-     **//*
-    public String getOrganizationName() throws SuperCodeTraceException {
-        OrganizationCache organizationCache = getUserLoginCache().getOrganizationCache();
-        if (organizationCache == null || organizationCache.getOrganizationFullName() == null) {
-            throw new SuperCodeTraceException("请先选择组织", 500);
-        }
-        return organizationCache.getOrganizationFullName();
+     **/
+    public String getOrganizationName() throws SuperCodeException {
+        return this.getOrganization().getOrganizationFullName();
     }
 
-    *//**
+    public String getSysId() throws SuperCodeException {
+        return this.getSys().getSysId();
+    }
+
+    /**//**
      * 功能描述：获取当前登录的系统id
      *
      * @return
@@ -517,5 +533,21 @@ public class CommonUtil extends UserInfoUtil {
 		}
 	}
 
-	
+    public static <T> Map<String, Object> beanToMap(T bean) {
+        Map<String, Object> map = Maps.newHashMap();
+        if (bean != null) {
+            BeanMap beanMap = BeanMap.create(bean);
+            for (Object key : beanMap.keySet()) {
+                map.put(key + "", beanMap.get(key));
+            }
+        }
+        return map;
+    }
+
+
+    public <T> T convert(Object obj, Class<T> c){
+        Map<String, Object> map = JSONObject.parseObject(JSONObject.toJSONString(obj), Map.class);
+        T result = JSONObject.parseObject(JSONObject.toJSONString(map), c);
+        return result;
+    }
 }

@@ -14,6 +14,9 @@ public class LineBusinessData {
 	@ApiModelProperty(name = "data", value = "新增或修改表实际字段数据--新增获取修改接口使用", example = "", required = false)
 	private List<FieldBusinessParam> fields;
 
+
+	private List<FunComponentDataModel> funComponentDataModels;
+
 	public List<FieldBusinessParam> getFields() {
 		return fields;
 	}
@@ -21,5 +24,12 @@ public class LineBusinessData {
 	public void setFields(List<FieldBusinessParam> fields) {
 		this.fields = fields;
 	}
-	
+
+	public List<FunComponentDataModel> getFunComponentDataModels() {
+		return funComponentDataModels;
+	}
+
+	public void setFunComponentDataModels(List<FunComponentDataModel> funComponentDataModels) {
+		this.funComponentDataModels = funComponentDataModels;
+	}
 }

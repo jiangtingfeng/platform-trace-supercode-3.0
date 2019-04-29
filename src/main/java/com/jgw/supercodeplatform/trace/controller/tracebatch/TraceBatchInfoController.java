@@ -126,10 +126,17 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
             @ApiImplicitParam(name = "pageSize", paramType = "query", defaultValue = "30", value = "每页记录数,不传默认10条,非必需"),
-            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需")
+            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
+            @ApiImplicitParam(name = "batchType", paramType = "query", defaultValue = "1", value = "批次类型,产品批次为1/地块批次为2,非必需")
     })
     public RestResult listTraceBatchInfoByOrgPage(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
-        return new RestResult(200, "success", traceBatchInfoService.listTraceBatchInfoByOrgPage(map));
+        Map<String, Object> result=traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
+        if (map.get("batchType")!=null && map.get("batchType").toString().equals("2")){
+            result=traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
+        }else {
+            result=traceBatchInfoService.listProductBatchInfo(map);
+        }
+        return new RestResult(200, "success", result);
     }
 
     /**
@@ -303,7 +310,7 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true)//,
         /*@ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),*/
     })
-	public RestResult<Map<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, String startTime, String endTime) throws Exception{
+	public RestResult<HashMap<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam(required = false) Integer traceBatchType, String startTime, String endTime) throws Exception{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date start=null,end=null;
         try{
@@ -323,7 +330,7 @@ public class TraceBatchInfoController extends CommonUtil {
             throw new  Exception("日期格式错误");
         }
 
-		return traceBatchInfoService.h5PageData(traceBatchInfoId,start,end);
+	    return traceBatchInfoService.h5PageData(traceBatchInfoId,traceBatchType,start,end);
 	}
 	
 }

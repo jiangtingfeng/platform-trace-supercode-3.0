@@ -3,12 +3,21 @@ package com.jgw.supercodeplatform.trace.controller.common;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Hashtable;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
+
+import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,6 +40,9 @@ import io.swagger.annotations.ApiOperation;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @Api(tags = "额外接口")
 public class CommonController {
+
+    @Autowired
+    private CommonUtil commonUtil;
 
    /**
     * 创建二维码
@@ -70,6 +82,34 @@ public class CommonController {
                }
            }
            return ImageIO.write(image, "JPEG", response.getOutputStream());  
-   }  
+   }
+
+   @RequestMapping(value = "/download", method = RequestMethod.GET)
+   @ApiOperation(value = "下载文件", notes = "")
+   @ApiImplicitParams({
+           @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true)
+   })
+   public InputStreamResource download(String url,String fileName,HttpServletResponse response) {
+
+       File directory = new File("");
+       try{
+           String root=directory.getAbsolutePath();
+           System.out.println(root);
+
+           String path=root+"/files/"+ commonUtil.getUUID()+"/"+fileName;
+
+           FileUtils.copyURLToFile(new URL(url), new File(path));
+
+           response.setContentType("application/octet-stream");
+           response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+           InputStreamResource resource = new InputStreamResource(new FileInputStream(path));
+           return resource;
+
+       }catch(Exception e){
+            e.printStackTrace();
+       }
+
+	    return null;
+   }
 
 }

@@ -173,17 +173,22 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			for (NodeBlockChainInfo nodeBlockChainInfo : list) {
 				String transactionHash=nodeBlockChainInfo.getTransactionHash();
 				String nodeInfo=nodeBlockChainInfo.getNodeInfo();
-				
-				BlockChainResultInfo blockChainResultInfo=blockChainPlatformService.getBlockChainInfo(interfaceId, transactionHash);
-				if (null==blockChainResultInfo) {
-					dataMap.put(traceBatchInfoId, "校验不通过");
-					continue outer;
-				}else {
-					String blockNodeInfo=blockChainResultInfo.getData();
-					if (!nodeInfo.equals(blockNodeInfo)) {
+
+				try{
+					BlockChainResultInfo blockChainResultInfo=blockChainPlatformService.getBlockChainInfo(interfaceId, transactionHash);
+					if (null==blockChainResultInfo) {
 						dataMap.put(traceBatchInfoId, "校验不通过");
 						continue outer;
+					}else {
+						String blockNodeInfo=blockChainResultInfo.getData();
+						if (!nodeInfo.equals(blockNodeInfo)) {
+							dataMap.put(traceBatchInfoId, "校验不通过");
+							continue outer;
+						}
 					}
+				} catch (Exception e){
+					dataMap.put(traceBatchInfoId, "");
+					e.printStackTrace();
 				}
 			}
 			dataMap.put(traceBatchInfoId, "校验通过");
@@ -286,6 +291,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 				}
 				noStruct.setFieldValue(fieldValue);
 				noStruct.setObjectType(objectType);
+				noStruct.setFieldType(traceFunFieldConfig.getFieldType());
 				list.add(noStruct);
 			}
 		}
@@ -436,6 +442,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			nodeBlockChainInfo.setTransactionHash(blockChainResultInfo.getTransactionHash());
 			SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			nodeBlockChainInfo.setTransactionTime(format.format(new Date(blockChainResultInfo.getTransactionTime())));
+			nodeBlockChainInfo.setSysId(getSysId());
 			int len=nodeBlockChainInfoDao.insert(nodeBlockChainInfo);
 			return len;
 		}

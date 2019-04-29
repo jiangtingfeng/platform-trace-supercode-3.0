@@ -160,6 +160,8 @@ public interface TraceFunTemplateconfigMapper extends CommonSql{
 			+ ")T </script>")
 	int countByTemplateName(@Param("daoSearch") DaoSearch daoSearch, @Param("organizationId")String organizationId);
 
+
+
 	@Select("select "+allFields+" from trace_fun_templateconfig where NodeFunctionId=#{nodeFunctionId}")
 	TraceFunTemplateconfig selectByNodeFunctionId(@Param("nodeFunctionId")String nodeFunctionId);
 

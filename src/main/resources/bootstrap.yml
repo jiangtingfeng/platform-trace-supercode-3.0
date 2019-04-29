@@ -31,6 +31,3 @@ eureka:
 #logging:
 #    level:
 #      com.jgw.supercodeplatform.user.dao : DEBUG
-
-
-

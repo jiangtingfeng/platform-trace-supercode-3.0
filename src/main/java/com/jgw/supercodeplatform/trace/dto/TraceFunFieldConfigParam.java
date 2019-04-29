@@ -28,7 +28,7 @@ public class TraceFunFieldConfigParam implements Comparable<TraceFunFieldConfigP
 	private String functionName; //功能名称
 	
 	@NotEmpty
-	@ApiModelProperty(value = "**-字段类型,1、表示文本，2、多行文本，3 表示单选 4、多选 5、表示金额，6 表示日期，7表示时间，8表示日期和时间，9 表示图片，10 表示附件，11 表示邮箱，12 表示网址，13_表示对象，14表示手机，15数字",notes="注意如果选择的是13对象类型传递的字段类型为13_具体类型，如：13_varchar(10)", required=true)
+	@ApiModelProperty(value = "**-字段类型,1、表示文本，2、多行文本，3 表示单选 4、多选 5、表示金额，6 表示日期，7表示时间，8表示日期和时间，9 表示图片，10 表示附件，11 表示邮箱，12 表示网址，13_表示对象，14表示手机，15数字，16操作人，17操作时间，18设备，19物料",notes="注意如果选择的是13对象类型传递的字段类型为13_具体类型，如：13_varchar(10)", required=true)
     private String fieldType;  //字段类型 1、表示文本，2、多行文本，3 表示单选 4、多选 5、表示金额，6 表示日期，7表示时间，8表示日期和时间，8表示手机，9 表示图片，10 表示附件，11 表示邮箱，12 表示网址，13 表示对象
 	
 	@NotNull
@@ -85,6 +85,32 @@ public class TraceFunFieldConfigParam implements Comparable<TraceFunFieldConfigP
     
     @ApiModelProperty(value = "显示隐藏，1显示 0隐藏 不传默认显示")
     private Integer showHidden;  //显示隐藏
+
+	private String componentId;
+
+
+	public String getComponentId() {
+		return componentId;
+	}
+
+	public void setComponentId(String componentId) {
+		this.componentId = componentId;
+	}
+
+	public TraceFunFieldConfigParam(){}
+
+	public TraceFunFieldConfigParam(String fieldCode,String fieldName,String fieldType, Integer fieldWeight,Integer isRequired,Integer maxSize,Integer minSize,Integer typeClass,String objectType,String objectFieldId){
+		this.fieldCode=fieldCode;
+		this.fieldName=fieldName;
+		this.fieldType=fieldType;
+		this.fieldWeight=fieldWeight;
+		this.isRequired=isRequired;
+		this.maxSize=maxSize;
+		this.minSize=minSize;
+		this.typeClass=typeClass;
+		this.objectType=objectType;
+		this.objectFieldId=objectFieldId;
+	}
 
 	public String getFunctionId() {
 		return functionId;

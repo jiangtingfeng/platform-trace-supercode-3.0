@@ -37,6 +37,7 @@ public class NodeBlockChainInfoController {
 	@ApiOperation(value = "区块链列表接口", notes = "")
 	@ApiImplicitParam(paramType="header",value = "新平台token--开发联调使用",name="super-token")
 	public RestResult<PageResults<List<NodeBlockChainInfoListVO>>> page(DaoSearch searchParams) throws Exception {
+		if(searchParams.getFlag()==null) searchParams.setFlag(1);
 		PageResults<List<NodeBlockChainInfoListVO>> listPageResults = service.listSearchViewLike(searchParams);
 		RestResult<PageResults<List<NodeBlockChainInfoListVO>>> reslt=new RestResult<PageResults<List<NodeBlockChainInfoListVO>>>();
 		reslt.setResults(listPageResults);

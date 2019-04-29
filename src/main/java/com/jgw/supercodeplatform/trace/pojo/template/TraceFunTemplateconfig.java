@@ -20,6 +20,15 @@ public class TraceFunTemplateconfig implements Serializable{
     private Integer nodeWeight;          //节点顺序
     private String createTime;//创建时间
 	private String updateTime;//修改时间
+    private String sysId;
+
+    public String getSysId() {
+        return sysId;
+    }
+
+    public void setSysId(String sysId) {
+        this.sysId = sysId;
+    }
 
     public TraceFunTemplateconfig() {
     }

@@ -7,8 +7,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunComponentMapper;
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunRegulationMapper;
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.BatchNamedRuleField;
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
+import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponent;
 import com.jgw.supercodeplatform.trace.dto.TraceFunFieldSortCaram;
+import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchNamed;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunRegulation;
+import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchNamedService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +41,8 @@ import com.jgw.supercodeplatform.trace.dto.TraceFunFieldConfigParam;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 import com.jgw.supercodeplatform.trace.pojo.TraceOrgFunRoute;
+
+
 /**
  * 负责字段配置及模板节点字段管理
  * @author czm
@@ -52,6 +65,15 @@ public class TraceFunFieldConfigDelegate {
 	
 	@Autowired
 	private FunctionFieldCache functionFieldManageService;
+
+	@Autowired
+	private TraceFunComponentMapper traceFunComponentMapper;
+
+	@Autowired
+	private TraceFunRegulationMapper traceFunRegulationMapper;
+
+	@Autowired
+	private TraceBatchNamedService traceBatchNamedService;
 	
 	//字段默认值的最大长度
 	private static int defaultValueMaxSise;
@@ -103,7 +125,7 @@ public class TraceFunFieldConfigDelegate {
 
 			
 			//默认添加主键即系统id和组织id为了区分不同系统和组织下的数据，创建的时候前端会根据字段顺序排列好，所以建表时字段是有序的不需要查询的时候再次排序，在修改表结构时要对顺序重新处理
-			build.append("create table ").append(tableName).append(" (Id bigint primary key auto_increment,SysId varchar(50),OrganizationId varchar(50),TraceTemplateId varchar(50),DeleteStatus int(2),TraceBatchInfoId varchar(50),ProductId varchar(50),UserId varchar(50),SortDateTime bigint(100),");
+			build.append("create table ").append(tableName).append(" (Id bigint primary key auto_increment,SysId varchar(50),OrganizationId varchar(50),TraceTemplateId varchar(50),DeleteStatus int(2),TraceBatchInfoId varchar(50),ProductId varchar(50),UserId varchar(50),SortDateTime bigint(100), ParentId bigint(20),  ");
 			
 			//封装字段表行数据，顺序必须在dynamicCreateTable之前因为sql拼装依赖这个方法
 			List<TraceFunFieldConfig> tffcList=buildFunFieldConfig(param,nodeFunctionId,nodeFunctionName,tableName,2,traceTemplateId,true, build);
@@ -114,6 +136,8 @@ public class TraceFunFieldConfigDelegate {
             	tffcList.addAll(extraFields);
 			}
 			//保存字段
+
+
 			dao.batchInsert(tffcList);
 			
 			//只在新建溯源模板能获取组织id时才能执行,如果该功能为自动节点可能已创建了企业路由关系，则不需要再建立
@@ -199,7 +223,7 @@ public class TraceFunFieldConfigDelegate {
 			String tableName="trace_dynamic_"+time+"_"+"fun_"+param.get(0).getFunctionId();
 			
 			//默认添加主键即系统id和组织id为了区分不同系统和组织下的数据，创建的时候前端会根据字段顺序排列好，所以建表时字段是有序的不需要查询的时候再次排序，在修改表结构时要对顺序重新处理
-			build.append("create table ").append(tableName).append(" (Id bigint primary key auto_increment,SysId varchar(50),OrganizationId varchar(50),TraceTemplateId varchar(50),DeleteStatus int(2),TraceBatchInfoId varchar(50),ProductId varchar(50),UserId varchar(50),SortDateTime bigint(100),");
+			build.append("create table ").append(tableName).append(" (Id bigint primary key auto_increment,SysId varchar(50),OrganizationId varchar(50),TraceTemplateId varchar(50),DeleteStatus int(2),TraceBatchInfoId varchar(50),ProductId varchar(50),UserId varchar(50),SortDateTime bigint(100), ParentId bigint(20), ");
 			
 			//封装字段表行数据，顺序必须在dynamicCreateTable之前因为sql拼装依赖这个方法
 			List<TraceFunFieldConfig> tffcList=buildFunFieldConfig(param,functionId,functionName,tableName,1,null,true, build);
@@ -243,6 +267,96 @@ public class TraceFunFieldConfigDelegate {
 		}
 	}
 
+	/**
+	 * 获取预定义的物料组件字段
+	 * @return
+	 */
+	private List<TraceFunFieldConfigParam> getMaterielFieldConfigs()
+	{
+		String funId="Materiel_Compent_Field";
+		List<TraceFunFieldConfig> funFieldConfigs= dao.selectDZFPartFieldsByFunctionId(funId);
+		List<TraceFunFieldConfigParam> fieldConfigParams=funFieldConfigs.stream().map(e->new TraceFunFieldConfigParam(e.getFieldCode(),e.getFieldName(),
+				e.getFieldType(),e.getFieldWeight(),e.getIsRequired(),e.getMaxSize(),e.getMinSize(),e.getTypeClass(),e.getObjectType(),e.getObjectFieldId())).collect(Collectors.toList());
+		return  fieldConfigParams;
+	}
+
+	public void saveFunComponent(FunComponent funComponent,String funId) throws Exception
+	{
+		String traceFunComponentId= commonUtil.getUUID();
+
+		if(ComponentTypeEnum.isNestComponent(funComponent.getComponentType())){
+			if(ComponentTypeEnum.MaterielCompent.getKey() == Integer.valueOf(funComponent.getComponentType())){
+				// 物料组件
+				List<TraceFunFieldConfigParam> fieldConfigParams= getMaterielFieldConfigs();
+				funComponent.setTraceFunFieldConfigModel(fieldConfigParams);
+			}
+			List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
+			if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
+				for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
+					fieldConfigParam.setFunctionId(traceFunComponentId);
+					fieldConfigParam.setFunctionName(funComponent.getComponentName());
+				}
+				createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
+			}
+		}else {
+			List<TraceFunFieldConfigParam> traceFunFieldConfigParams= funComponent.getTraceFunFieldConfigModel();
+			if (traceFunFieldConfigParams!=null || traceFunFieldConfigParams.size()>0){
+				for(TraceFunFieldConfigParam fieldConfigParam:traceFunFieldConfigParams){
+					fieldConfigParam.setComponentId(traceFunComponentId);
+				}
+				//createTableAndGerenteOrgFunRouteAndSaveFields(traceFunFieldConfigParams,true,traceFunComponentId,funComponent.getComponentName());
+			}
+		}
+
+		TraceFunComponent traceFunComponent=new TraceFunComponent();
+		traceFunComponent.setComponentId(traceFunComponentId);
+		traceFunComponent.setComponentName(funComponent.getComponentName());
+		traceFunComponent.setComponentType(funComponent.getComponentType());
+		traceFunComponent.setFunId(funId);
+		traceFunComponent.setFieldWeight(funComponent.getFieldWeight());
+		traceFunComponentMapper.insertTraceFunComponent(traceFunComponent);
+	}
+
+	public void saveFunRegulation(CustomizeFun customizeFun){
+		String funId=customizeFun.getFunId();
+		TraceFunRegulation traceFunRegulation=new TraceFunRegulation();
+		traceFunRegulation.setFunId(funId);
+		traceFunRegulation.setObjectAssociatedType(customizeFun.getObjectAssociatedType());
+		traceFunRegulation.setRegulationType(customizeFun.getRegulationType());
+		traceFunRegulation.setMultipleInput(customizeFun.isMultipleInput());
+		traceFunRegulation.setUseSceneType(customizeFun.getUseSceneType());
+		traceFunRegulation.setBatchNamingLinkCharacter(customizeFun.getBatchNamedLinkCharacter());
+		traceFunRegulation.setBatchTimeControl(customizeFun.getBatchTimeControl());
+		traceFunRegulation.setCreateBatchType(customizeFun.getCreateBatchType());
+		traceFunRegulation.setSplittingRule(customizeFun.getSplittingRule());
+		traceFunRegulation.setLayoutType(customizeFun.getLayoutType());
+		traceFunRegulation.setFunctionName(customizeFun.getFunName());
+		traceFunRegulationMapper.insertTraceFunRegulation(traceFunRegulation);
+
+		List<BatchNamedRuleField> batchNamedRuleFields= customizeFun.getBatchNamedRuleFieldModels();
+		if (batchNamedRuleFields!=null && batchNamedRuleFields.size()>0){
+			List<TraceBatchNamed> traceBatchNameds= batchNamedRuleFields.stream().map(e->new TraceBatchNamed(e.getFieldName(),e.getFieldCode(),funId,e.getFieldFormat(),e.isDisableFlag())).collect(Collectors.toList());
+			traceBatchNamedService.insertTraceBatchNamed(traceBatchNameds);
+		}
+	}
+
+	/**
+	 * 创建定制功能使用规则、功能组件、字段
+	 * @param customizeFun
+	 * @throws Exception
+	 */
+	public void saveFunComponentAndRegulation(CustomizeFun customizeFun) throws Exception
+	{
+		String funId=customizeFun.getFunId();
+		List<FunComponent> funComponentModels=customizeFun.getFunComponentModels();
+		if (funComponentModels!=null && funComponentModels.size()>0){
+			for (FunComponent funComponent:funComponentModels){
+				saveFunComponent(funComponent,funId);
+			}
+		}
+
+		saveFunRegulation(customizeFun);
+	}
 
 	public RestResult<String> updateFields(List<TraceFunFieldConfigParam> param, String tableName, boolean isAdd,
 										   boolean formTemplate, String nodeFunctionId, String nodeFunctionName, String traceTemplateId,
@@ -477,6 +591,7 @@ public class TraceFunFieldConfigDelegate {
 			tffc.setTypeClass(typeClass);
 			tffc.setObjectType(objectType);
 			tffc.setFieldWeight(traceFunConfigParam.getFieldWeight());
+			tffc.setComponentId(traceFunConfigParam.getComponentId());
 			tffcList.add(tffc);
 
 		}
@@ -526,7 +641,7 @@ public class TraceFunFieldConfigDelegate {
 	public static boolean checkAddParam(List<TraceFunFieldConfigParam> param) throws SuperCodeTraceException {
 		
 	  if (null==param || param.isEmpty()) {
-		  throw new SuperCodeTraceException("新增字段不能为空", 500);
+		  throw new SuperCodeTraceException("组件外层至少添加一个字段", 500);
 	  }	
 	  Map<String, Integer> fieldMap=new HashMap<String, Integer>();
 	  boolean containBtach=false;

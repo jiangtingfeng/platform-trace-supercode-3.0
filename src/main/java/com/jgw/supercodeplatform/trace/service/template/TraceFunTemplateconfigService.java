@@ -1,9 +1,10 @@
 package com.jgw.supercodeplatform.trace.service.template;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunComponentMapper;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +71,9 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
     
 	@Autowired
 	private TraceApplicationContextAware applicationAware;
+
+	@Autowired
+	private TraceFunComponentMapper traceFunComponentMapper;
 	
     @Transactional
 	public RestResult<String> add(List<TraceFunTemplateconfigParam> templateList) throws Exception {
@@ -394,6 +398,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			traceFuntemplateStatistical.setOrganizationId(organizationId);
 			traceFuntemplateStatistical.setCreateMan(accountCache.getUserName());
 			traceFuntemplateStatistical.setCreateId(accountCache.getUserId());
+			traceFuntemplateStatistical.setSysId(getSysId());
 			traceFuntemplateStatisticalDao.insert(traceFuntemplateStatistical);
 		}else {
 			traceFuntemplateStatistical.setNodeCount(traceFuntemplateStatistical.getNodeCount()+size);
@@ -520,6 +525,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		return restResult;
 	}
 
+
 	private boolean dateAfter(String dateStr,Date date)
 	{
 		boolean ret=true;
@@ -551,6 +557,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		return ret;
 	}
 
+
 	/**
 	 * 根据追溯模板id排序查询模板下节点业务数据
 	 * @param traceTemplateId
@@ -558,8 +565,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 	 * @param orgnizationId 
 	 * @throws Exception 
 	 */
-	public RestResult<List<Map<String, Object>>> queryNodeInfo(String traceBatchInfoId, String traceTemplateId, boolean fromH5, String orgnizationId
-		, Date start, Date end) throws Exception {
+	public RestResult<List<Map<String, Object>>> queryNodeInfo(String traceBatchInfoId,String traceTemplateId, boolean fromH5, String orgnizationId, Date start, Date end) throws Exception {
 		RestResult<List<Map<String, Object>>> restResult=new RestResult<List<Map<String, Object>>>();
 		//查询顺序节点信息拼装对应动态表名用于查询节点业务数据
 		List<TraceFunTemplateconfigVO> templateConfigList=traceFunTemplateconfigDao.getTemplateAndFieldInfoByTemplateId(traceTemplateId);
@@ -582,6 +588,13 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 				nodeData = nodeData.stream().filter(e->dateAfter(e.get("SortDateTime").toString(),start) && dateBefore(e.get("SortDateTime").toString(),end) ).collect(Collectors.toList());
 			}
 
+			if(businessType.equals("1") && nodeData!=null && nodeData.size()>0){
+				List<TraceFunComponent> traceFunComponents= traceFunComponentMapper.selectByFunId(nodeFunctionId);
+				if(traceFunComponents!=null && traceFunComponents.size()>0){
+					TraceFunComponent traceFunComponent=traceFunComponents.get(0);
+				}
+			}
+
 			Map<String, TraceFunFieldConfig> fieldCacheMap=functionFieldCache.getFunctionIdFields(traceTemplateId, nodeFunctionId, 2);
 			
 			if (null!=nodeData && !nodeData.isEmpty()) {
@@ -602,6 +615,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 							field.setTypeClass(fieldCacheMap.get(key).getTypeClass());
 							field.setFieldName(fieldCacheMap.get(key).getFieldName());
 							field.setFieldType(fieldCacheMap.get(key).getFieldType());
+							field.setObjectType(fieldCacheMap.get(key).getObjectType());
 						} catch (Exception e) {
 							logger.error(e.getMessage());
 							e.printStackTrace();

@@ -45,6 +45,17 @@ public class Swagger2Config {
                  .apiInfo(apiInfo())
                  .enable(enable);
      }
+     @Bean("蚂蚁金服区块链模块")
+     public Docket antchainApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("蚂蚁金服溯源区块链")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.antchain"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
      @Bean("动态表增删改查")
      public Docket dynamicApis() {
          return new Docket(DocumentationType.SWAGGER_2)
@@ -56,13 +67,50 @@ public class Swagger2Config {
                  .apiInfo(apiInfo())
                  .enable(enable);
      }
-     
+
      @Bean("批次管理")
      public Docket batchApis() {
          return new Docket(DocumentationType.SWAGGER_2)
                  .groupName("批次管理")
                  .select()
                  .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.tracebatch"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
+     @Bean("产品检测")
+     public Docket testingTypeApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("产品检测")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.producttesting"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
+     @Bean("码关联")
+     public Docket codeApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("码关联")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.code"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
+
+     @Bean("地块生产信息")
+     public Docket massifApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("地块生产信息")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.massifbatch"))
                  .paths(PathSelectors.any())
                  .build()
                  .apiInfo(apiInfo())

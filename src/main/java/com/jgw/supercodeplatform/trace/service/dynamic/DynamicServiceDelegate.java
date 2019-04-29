@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.service.dynamic;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +90,7 @@ public class DynamicServiceDelegate {
 		}
 		sqlFieldValueBuilder.append(")");
 	}
-	
+
 	
     /**
      *  新增和修改时参数校验，一定会获取模板id
@@ -131,20 +132,29 @@ public class DynamicServiceDelegate {
 					Integer objectType=fieldParam.getObjectType();
 					if (null!=objectType) {
 						ObjectTypeEnum objectTypeEnum=ObjectTypeEnum.getType(objectType);
-						switch (objectTypeEnum) {
-						case TRACE_BATCH:
-							//如果不是自动节点的插入修改则必须传模板id
-							//如果是自动节点则新增时无模板id但必须有批次号
-							adDataModel.setTraceBatchInfoId(fieldParam.getObjectUniqueValue());
-							break;
-						default:
-							break;
+						if(objectTypeEnum!=null){
+							switch (objectTypeEnum) {
+								case TRACE_BATCH:
+								case MassifBatch:
+									//如果不是自动节点的插入修改则必须传模板id
+									//如果是自动节点则新增时无模板id但必须有批次号
+									adDataModel.setTraceBatchInfoId(fieldParam.getObjectUniqueValue());
+									break;
+								default:
+									break;
+							}
 						}
 					}
 				}
-				if (StringUtils.isBlank(adDataModel.getTraceBatchInfoId())) {
-					throw new SuperCodeTraceException("生产管理新增数据无法获取到批次唯一id", 500);
-				}
+				//if (StringUtils.isBlank(adDataModel.getTraceBatchInfoId())) {
+					List<FieldBusinessParam> batchParams= fields.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
+					String batchInfoId= batchParams.get(0).getFieldValue();
+					if(StringUtils.isEmpty(batchInfoId)){
+						//throw new SuperCodeTraceException("生产管理新增数据无法获取到批次唯一id", 500);
+					}else {
+						adDataModel.setTraceBatchInfoId(batchInfoId);
+					}
+				//}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -211,8 +221,10 @@ public class DynamicServiceDelegate {
 				//新增数据设置批次id时只有定制功能才需要在字段数据里找，节点数据新增有单独的字段接收批次唯一id
 				case TRACE_BATCH:
 					if (!isNode) {
-						sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
-						sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
+						if(sqlFieldNameBuilder.toString().indexOf("TraceBatchInfoId")<0){
+							sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
+							sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
+						}
 					}
 					break;
 				case PRODUCT:

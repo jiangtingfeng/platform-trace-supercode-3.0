@@ -27,7 +27,51 @@ public class TraceBatchInfo implements Serializable{
 	private String createTime;//创建时间
 	private String updateTime;//修改时间
 	private Integer nodeDataCount;
-	
+	private String traceBatchPlatformId;
+	private Long serialNumber;
+	private String sysId;
+
+	public String getSysId() {
+		return sysId;
+	}
+
+	public void setSysId(String sysId) {
+		this.sysId = sysId;
+	}
+
+	public int getBatchType() {
+		return batchType;
+	}
+
+	public void setBatchType(int batchType) {
+		this.batchType = batchType;
+	}
+
+	private int batchType;
+
+	public TraceBatchInfo(){}
+
+	public TraceBatchInfo(String traceBatchName,String productId,String productName,String traceBatchId,String listedTime,String createMan,String createTime,String traceBatchInfoId){
+		this.traceBatchName=traceBatchName;
+		this.productId=productId;
+		this.productName=productName;
+		this.traceBatchId=traceBatchId;
+		this.listedTime=listedTime;
+		this.createMan=createMan;
+		this.createTime=createTime;
+		this.traceBatchInfoId=traceBatchInfoId;
+	}
+
+	public TraceBatchInfo(String traceBatchName,String productId,String productName,String traceBatchId,String traceTemplateId,String traceTemplateName,int batchType,Long serialNumber){
+		this.traceBatchName=traceBatchName;
+		this.productId=productId;
+		this.productName=productName;
+		this.traceBatchId=traceBatchId;
+		this.traceTemplateId=traceTemplateId;
+		this.traceTemplateName=traceTemplateName;
+		this.batchType=batchType;
+		this.serialNumber=serialNumber;
+	}
 
 	public String getTraceBatchInfoId() {
 		return traceBatchInfoId;
@@ -126,5 +170,12 @@ public class TraceBatchInfo implements Serializable{
 	public void setCreateMan(String createMan) {
 		this.createMan = createMan;
 	}
-	
+
+	public String getTraceBatchPlatformId() {
+		return traceBatchPlatformId;
+	}
+
+	public void setTraceBatchPlatformId(String traceBatchPlatformId) {
+		this.traceBatchPlatformId = traceBatchPlatformId;
+	}
 }

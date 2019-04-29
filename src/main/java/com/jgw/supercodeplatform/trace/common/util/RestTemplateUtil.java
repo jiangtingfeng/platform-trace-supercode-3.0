@@ -86,6 +86,48 @@ public class RestTemplateUtil {
         return result;
     }
 
+	public ResponseEntity<String> putJsonDataAndReturnJosn(String url,String json,Map<String, String> headerMap) throws SuperCodeTraceException {
+		if (StringUtils.isBlank(url)) {
+			throw new SuperCodeTraceException("postJsonDataAndReturnJosn参数url不能为空", 500);
+		}
+		HttpHeaders headers = new HttpHeaders();
+		//默认值 发送json数据
+		headers.add("content-Type", "application/json");
+		if (null!=headerMap && !headerMap.isEmpty()) {
+			for(String key:headerMap.keySet()) {
+				headers.add(key, headerMap.get(key));
+			}
+		}
+		HttpEntity<String> requestEntity = new HttpEntity<String>(json, headers);
+		ResponseEntity<String> result = restTemplate.exchange(url,
+				HttpMethod.PUT, requestEntity, String.class);
+		return result;
+	}
+
+
+	public ResponseEntity<String> deleteJsonDataAndReturnJosn(String url,Map<String, Object> params,Map<String, String> headerMap) throws SuperCodeTraceException {
+		if (StringUtils.isBlank(url)) {
+			throw new SuperCodeTraceException("postJsonDataAndReturnJosn参数url不能为空", 500);
+		}
+		url+="?";
+		for (Map.Entry<String, Object> entry: params.entrySet())
+		{
+			url+=entry.getKey()+"="+entry.getValue().toString()+"&";
+		}
+		HttpHeaders headers = new HttpHeaders();
+		//默认值 发送json数据
+		headers.add("content-Type", "application/json");
+		if (null!=headerMap && !headerMap.isEmpty()) {
+			for(String key:headerMap.keySet()) {
+				headers.add(key, headerMap.get(key));
+			}
+		}
+		HttpEntity<String> requestEntity = new HttpEntity<String>(null, headers);
+		ResponseEntity<String> result = restTemplate.exchange(url,
+				HttpMethod.DELETE, requestEntity, String.class);
+		return result;
+	}
+
     /**
      * 上传文件
      * @param url

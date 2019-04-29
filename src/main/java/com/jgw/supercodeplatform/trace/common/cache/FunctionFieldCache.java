@@ -21,7 +21,7 @@ import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 public class FunctionFieldCache {
 	private static Logger logger = LoggerFactory.getLogger(FunctionFieldCache.class);
 	
-	public static  List<String> defaultCreateFields=new ArrayList<>(Arrays.asList(new String[]{"UserId","ProductId","TraceBatchInfoId","OrganizationId","TraceTemplateId","SysId","Id","SortDateTime","DeleteStatus"}));
+	public static  List<String> defaultCreateFields=new ArrayList<>(Arrays.asList(new String[]{"UserId","ProductId","TraceBatchInfoId","OrganizationId","TraceTemplateId","SysId","Id","SortDateTime","DeleteStatus","ParentId"}));
 	
 	@Autowired
 	private TraceFunFieldConfigMapper traceFunFieldConfigDao;
