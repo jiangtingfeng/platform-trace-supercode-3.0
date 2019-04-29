@@ -66,7 +66,7 @@ public class TraceBatchInfo implements Serializable{
 		this.traceBatchName=traceBatchName;
 		this.productId=productId;
 		this.productName=productName;
-		this.traceBatchId=traceBatchId;
+		//this.traceBatchId=traceBatchId;
 		this.traceTemplateId=traceTemplateId;
 		this.traceTemplateName=traceTemplateName;
 		this.batchType=batchType;
