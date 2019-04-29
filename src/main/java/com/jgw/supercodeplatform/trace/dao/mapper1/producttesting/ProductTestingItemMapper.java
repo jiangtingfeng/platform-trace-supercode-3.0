@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.dao.mapper1.producttesting;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItem;
 import java.util.List;
 
+import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItemEx;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.type.JdbcType;
 
@@ -103,4 +104,12 @@ public interface ProductTestingItemMapper {
         "where Id = #{id,jdbcType=INTEGER}"
     })
     int updateByPrimaryKey(ProductTestingItem record);
+
+    @Select("SELECT i.*,t.TestingType\n" +
+            "from trace_ProductTesting t\n" +
+            "inner join trace_ProductTestingItem i on t.ProductTestingId = i.ProductTestingId\n" +
+            "where tracebatchinfoid=#{traceBatchInfoId} and\n" +
+            " (LENGTH(imgs)>0  or LENGTH(pdfs)>0)\n" +
+            "order by testingtype desc\n" )
+    List<ProductTestingItemEx> selectProductTestingItem(String tracebatchinfoid);
 }

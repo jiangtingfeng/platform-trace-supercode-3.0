@@ -1,5 +1,6 @@
 package com.jgw.supercodeplatform.trace.service.producttesting;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.pojo.cache.AccountCache;
 import com.jgw.supercodeplatform.trace.common.model.ReturnParamsMap;
@@ -10,6 +11,7 @@ import com.jgw.supercodeplatform.trace.dao.mapper1.producttesting.ProductTesting
 import com.jgw.supercodeplatform.trace.dto.producttesting.ProductTestingParam;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTesting;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItem;
+import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItemEx;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.TestingType;
 import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
 import org.apache.commons.lang.StringUtils;
@@ -134,6 +136,32 @@ public class ProductTestingService extends AbstractPageService {
                 productTestingItemMapper.updateByPrimaryKey(productTestingItem);
             }
         }
+    }
+
+    public List<JSONObject> getProductTesting(String tracebatchinfoid){
+        List<ProductTestingItemEx> productTestingItemExes= productTestingItemMapper.selectProductTestingItem(tracebatchinfoid);
+        List<ProductTestingItemEx> testingItemExes=null,imgItems=null,pdfItems=null;
+        List<JSONObject> result=null;
+        if(productTestingItemExes!=null && productTestingItemExes.size()>0){
+            List<ProductTestingItemEx> thirtyTesting= productTestingItemExes.stream().filter(e->e.getTestingType()==2).collect(Collectors.toList());
+            if(thirtyTesting!=null && thirtyTesting.size()>0){
+                testingItemExes=thirtyTesting;
+            } else {
+                List<ProductTestingItemEx> insideTesting= productTestingItemExes.stream().filter(e->e.getTestingType()==1).collect(Collectors.toList());
+                if(insideTesting!=null && insideTesting.size()>0){
+                    testingItemExes=insideTesting;
+                }
+            }
+            imgItems= testingItemExes.stream().filter(e->!StringUtils.isEmpty(e.getImgs())).collect(Collectors.toList());
+            String json=null;
+            if(imgItems!=null && imgItems.size()>0){
+                json= imgItems.get(0).getImgs();
+            } else {
+                json =testingItemExes.get(0).getPdfs();
+            }
+            result= (List<JSONObject>)JSONObject.parseObject(json, ArrayList.class);
+        }
+        return result;
     }
 
 }

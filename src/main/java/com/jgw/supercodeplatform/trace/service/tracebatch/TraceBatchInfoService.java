@@ -16,6 +16,7 @@ import com.jgw.supercodeplatform.trace.dto.tracebatch.ProductBatchRelationSysVie
 import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchRelation;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceObjectBatchInfo;
+import com.jgw.supercodeplatform.trace.service.producttesting.ProductTestingService;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchRelationService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,9 @@ public class TraceBatchInfoService extends CommonUtil {
 
     @Autowired
     private TraceBatchRelationService traceBatchRelationService;
+
+    @Autowired
+    private ProductTestingService productTestingService;
 
     @Value("${rest.user.url}")
     private String restUserUrl;
@@ -557,6 +561,9 @@ public class TraceBatchInfoService extends CommonUtil {
         List<Map<String, Object>> batchDatas = null;
 
         RestResult<List<Map<String, Object>>> nodeDataResult=null;
+
+        List<JSONObject> productTestings= productTestingService.getProductTesting(traceBatchInfoId);
+        dataMap.put("testingInfo",productTestings);
 
         if(traceBatchType !=null && traceBatchType.intValue()==2){
             TraceObjectBatchInfo traceBatchInfo=traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
