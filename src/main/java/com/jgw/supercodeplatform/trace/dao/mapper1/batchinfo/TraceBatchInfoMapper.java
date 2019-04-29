@@ -153,6 +153,6 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	@Update("update trace_batchinfo set TraceTemplateName=#{templateName} where TraceTemplateId = #{traceTemplateId}")
 	void updateTemplateNameByTemplateId(@Param("templateName")String templateName, @Param("traceTemplateId")String templateConfigId);
 
-	@Select("SELECT * FROM jgw_trace.trace_batchinfo where TraceBatchInfoId in (#{traceBatchInfoIds})")
+	@Select("SELECT * FROM trace_batchinfo where TraceBatchInfoId in (${traceBatchInfoIds})")
 	List<TraceBatchInfo> selectByTraceBatchInfoIds(@Param("traceBatchInfoIds")String traceBatchInfoIds);
 }

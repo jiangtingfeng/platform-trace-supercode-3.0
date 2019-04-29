@@ -361,12 +361,14 @@ public class TraceBatchInfoService extends CommonUtil {
 
                 List<TraceBatchInfo> traceBatchInfos=null;
                 if (productBatchRelationSysViews!=null&& productBatchRelationSysViews.size()>0){
+
                     traceBatchInfos= productBatchRelationSysViews.stream().map(e->new TraceBatchInfo(
-                            e.get("batchName").toString(),e.get("productId").toString(),e.get("productName").toString(),e.get("batchId").toString(),e.get("marketDate").toString(),e.get("founder").toString(),e.get("createTime").toString(),e.get("traceBatchInfoId").toString()
+                            e.get("batchName").toString(),e.get("productId").toString(),e.get("productName").toString(),e.get("batchId").toString(),String.valueOf(e.get("marketDate")),String.valueOf(e.get("founder")),String.valueOf(e.get("createTime")),String.valueOf(e.get("traceBatchInfoId"))
                     )).collect(Collectors.toList());
 
                     List<String> traceBatchInfoIds= traceBatchInfos.stream().map(e->String.format("'%s'",e.getTraceBatchInfoId())).collect(Collectors.toList());
-                    List<TraceBatchInfo> localBatchs= traceBatchInfoMapper.selectByTraceBatchInfoIds(StringUtils.join(traceBatchInfoIds,","));
+                    String ids=StringUtils.join(traceBatchInfoIds,",");
+                    List<TraceBatchInfo> localBatchs=traceBatchInfoMapper.selectByTraceBatchInfoIds(ids);
                     for(TraceBatchInfo traceBatchInfo: traceBatchInfos){
                         List<TraceBatchInfo> currBatchs= localBatchs.stream().filter(e->e.getTraceBatchInfoId().equals(traceBatchInfo.getTraceBatchInfoId())).collect(Collectors.toList());
                         if(currBatchs!=null && currBatchs.size()>0){
