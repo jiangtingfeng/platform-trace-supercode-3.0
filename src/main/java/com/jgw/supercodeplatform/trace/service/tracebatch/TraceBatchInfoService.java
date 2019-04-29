@@ -578,7 +578,7 @@ public class TraceBatchInfoService extends CommonUtil {
      * @return
      * @throws Exception
      */
-    public RestResult<HashMap<String, Object>> h5PageData(String traceBatchInfoId, Integer traceBatchType) throws Exception {
+    public RestResult<HashMap<String, Object>> h5PageData(String traceBatchInfoId, Integer traceBatchType, Date start, Date end) throws Exception {
         RestResult<HashMap<String, Object>> backResult = new RestResult<HashMap<String, Object>>();
         HashMap<String, Object> dataMap = new HashMap<String, Object>();
         List<Map<String, Object>> batchDatas = null;
@@ -602,7 +602,7 @@ public class TraceBatchInfoService extends CommonUtil {
                 throw new SuperCodeTraceException("无此批次号记录", 500);
             }
             //h5查询不需要登陆 没有组织id
-            nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null);
+            nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null,start,end);
 
             dataMap.put("productInfo", traceBatchInfo);
         }

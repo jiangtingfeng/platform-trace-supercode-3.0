@@ -1,8 +1,10 @@
 package com.jgw.supercodeplatform.trace.controller.tracebatch;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -308,8 +310,27 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true),
         @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
     })
-	public RestResult<HashMap<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam(required = false) Integer traceBatchType) throws Exception{
-		return traceBatchInfoService.h5PageData(traceBatchInfoId,traceBatchType);
+	public RestResult<HashMap<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam(required = false) Integer traceBatchType, String startTime, String endTime) throws Exception{
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date start=null,end=null;
+        try{
+            if(!StringUtils.isEmpty(startTime)){
+                if(startTime.length()==10){
+                    startTime=startTime+" 00:00:00";
+                }
+                start=sdf.parse(startTime);
+            }
+            if(!StringUtils.isEmpty(endTime)){
+                if (endTime.length()==10){
+                    endTime=endTime+" 23:59:59";
+                }
+                end=sdf.parse(endTime);
+            }
+        }catch (Exception e){
+            throw new  Exception("日期格式错误");
+        }
+
+	    return traceBatchInfoService.h5PageData(traceBatchInfoId,traceBatchType,start,end);
 	}
 	
 }
