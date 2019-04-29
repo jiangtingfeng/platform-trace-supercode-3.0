@@ -81,7 +81,7 @@ public class TraceBatchInfoService extends CommonUtil {
      * @author liujianqiang
      * @data 2018年12月12日
      */
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     public String insertTraceBatchInfo(TraceBatchInfo traceBatchInfo) throws Exception {
         //新增溯源批次记录
         AccountCache userAccount = getUserLoginCache();
