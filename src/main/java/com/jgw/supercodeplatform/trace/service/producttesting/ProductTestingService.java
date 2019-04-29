@@ -141,25 +141,24 @@ public class ProductTestingService extends AbstractPageService {
     public List<JSONObject> getProductTesting(String tracebatchinfoid){
         List<ProductTestingItemEx> productTestingItemExes= productTestingItemMapper.selectProductTestingItem(tracebatchinfoid);
         List<ProductTestingItemEx> testingItemExes=null,imgItems=null,pdfItems=null;
-        List<JSONObject> result=null;
+        List<JSONObject> result=new ArrayList<JSONObject>();
         if(productTestingItemExes!=null && productTestingItemExes.size()>0){
-            List<ProductTestingItemEx> thirtyTesting= productTestingItemExes.stream().filter(e->e.getTestingType()==2).collect(Collectors.toList());
-            if(thirtyTesting!=null && thirtyTesting.size()>0){
-                testingItemExes=thirtyTesting;
-            } else {
-                List<ProductTestingItemEx> insideTesting= productTestingItemExes.stream().filter(e->e.getTestingType()==1).collect(Collectors.toList());
-                if(insideTesting!=null && insideTesting.size()>0){
-                    testingItemExes=insideTesting;
-                }
-            }
-            imgItems= testingItemExes.stream().filter(e->!StringUtils.isEmpty(e.getImgs())).collect(Collectors.toList());
+            imgItems= productTestingItemExes.stream().filter(e->!StringUtils.isEmpty(e.getImgs())).collect(Collectors.toList());
+
             String json=null;
             if(imgItems!=null && imgItems.size()>0){
-                json= imgItems.get(0).getImgs();
+                for(ProductTestingItemEx productTestingItemEx:imgItems){
+                    json= productTestingItemEx.getImgs();
+                    List<JSONObject> itemImgs= (List<JSONObject>)JSONObject.parseObject(json, ArrayList.class);
+                    result.addAll(itemImgs);
+                }
             } else {
-                json =testingItemExes.get(0).getPdfs();
+                for(ProductTestingItemEx productTestingItemEx:productTestingItemExes){
+                    json= productTestingItemEx.getPdfs();
+                    List<JSONObject> itemImgs= (List<JSONObject>)JSONObject.parseObject(json, ArrayList.class);
+                    result.addAll(itemImgs);
+                }
             }
-            result= (List<JSONObject>)JSONObject.parseObject(json, ArrayList.class);
         }
         return result;
     }
