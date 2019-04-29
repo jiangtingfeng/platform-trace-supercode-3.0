@@ -607,8 +607,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				if(ComponentTypeEnum.isNestComponent(funComponentDataModel.getComponentType())){
 					List<List<FieldBusinessParam>> fieldRows= funComponentDataModel.getFieldRows();
 					if (fieldRows!=null && fieldRows.size()>0 && fieldRows.size()>batchindex){
-						List<FieldBusinessParam> fields=fieldRows.get(batchindex);
-						//for(List<FieldBusinessParam> fields: fieldRows){
+						//List<FieldBusinessParam> fields=fieldRows.get(batchindex);
+						for(List<FieldBusinessParam> fields: fieldRows){
 							DynamicAddFunParam componentFunParam=new DynamicAddFunParam();
 							componentFunParam.setFunctionId(funComponentDataModel.getComponentId());
 							LineBusinessData lineBusinessData=new LineBusinessData();
@@ -626,7 +626,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 								materialService.insertOutOfStockInfo(publicMaterialId,outboundNum,materialBatch);
 							}
-						//}
+						}
 					}
 				}
 			}
@@ -684,7 +684,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		RestResult<String> restResult=null;
 
 		Integer index=0;
-		if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
+/*		if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
 			for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
 				List<FieldBusinessParam> fieldBusinessParams= param.getLineData().getFields();
 				List<FieldBusinessParam> batchParams= fieldBusinessParams.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
@@ -695,9 +695,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			}
 		}else {
 			restResult= addFunData(param,traceFunRegulation,index++);
-		}
+		}*/
 
-		//restResult= addFunData(param,traceFunRegulation,index++);
+		restResult= addFunData(param,traceFunRegulation,index++);
 
 		return restResult;
 	}
