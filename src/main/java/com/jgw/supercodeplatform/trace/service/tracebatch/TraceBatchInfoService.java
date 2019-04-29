@@ -343,6 +343,13 @@ public class TraceBatchInfoService extends CommonUtil {
         return dataMap;
     }
 
+    public String toString(Object param){
+        String result=null;
+        if(param!=null)
+            result=String.valueOf(param);
+        return  result;
+    }
+
     public Map<String, Object> listProductBatchInfo(Map<String, Object> params) throws Exception{
 
         AbstractPageService.PageResults<List<TraceBatchInfo>> pageResults=null;
@@ -363,7 +370,7 @@ public class TraceBatchInfoService extends CommonUtil {
                 if (productBatchRelationSysViews!=null&& productBatchRelationSysViews.size()>0){
 
                     traceBatchInfos= productBatchRelationSysViews.stream().map(e->new TraceBatchInfo(
-                            e.get("batchName").toString(),e.get("productId").toString(),e.get("productName").toString(),e.get("batchId").toString(),String.valueOf(e.get("marketDate")),String.valueOf(e.get("founder")),String.valueOf(e.get("createTime")),String.valueOf(e.get("traceBatchInfoId"))
+                            e.get("batchName").toString(),e.get("productId").toString(),e.get("productName").toString(),e.get("batchId").toString(),toString(e.get("marketDate")),String.valueOf(e.get("founder")),String.valueOf(e.get("createTime")),String.valueOf(e.get("traceBatchInfoId"))
                     )).collect(Collectors.toList());
 
                     List<String> traceBatchInfoIds= traceBatchInfos.stream().map(e->String.format("'%s'",e.getTraceBatchInfoId())).collect(Collectors.toList());
