@@ -291,6 +291,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 				}
 				noStruct.setFieldValue(fieldValue);
 				noStruct.setObjectType(objectType);
+				noStruct.setFieldType(traceFunFieldConfig.getFieldType());
 				list.add(noStruct);
 			}
 		}
