@@ -346,11 +346,6 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 					throw new SuperCodeTraceException("无此功能字段", 500);
 				}
 
-				Boolean flag=commonUtil.getTraceSeniorFunFlag();
-				if (null!=flag && flag) {
-					blockChainService.coChain(param.getLineData(),false,null,fieldsMap,null);
-				}
-
 				Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
 				if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
 					antChainInfoService.coChain(param.getLineData(),false,null,fieldsMap,null);
@@ -372,6 +367,13 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		backResult.setState(200);
 		backResult.setMsg("操作成功");
 		return backResult;
+	}
+
+	public void coChain(LineBusinessData lineData,TraceBatchInfo traceBatchInfo,Map<String, TraceFunFieldConfig> fieldsMap)throws Exception {
+		Boolean flag=commonUtil.getTraceSeniorFunFlag();
+		if (null!=flag && flag) {
+			blockChainService.coChain(lineData,false,null,fieldsMap,traceBatchInfo);
+		}
 	}
 
 	/**
@@ -698,6 +700,20 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		}*/
 
 		restResult= addFunData(param,traceFunRegulation,index++);
+
+		try{
+			Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,param.getFunctionId(),1);
+			if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
+				for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
+					TraceBatchInfo traceBatchInfo1= traceBatchInfoMapper.selectByTraceBatchInfoId(baseBatchInfo.getTraceBatchInfoId());
+					coChain(param.getLineData(),traceBatchInfo1,fieldsMap);
+				}
+			}else {
+				coChain(param.getLineData(),null,fieldsMap);
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 
 		return restResult;
 	}

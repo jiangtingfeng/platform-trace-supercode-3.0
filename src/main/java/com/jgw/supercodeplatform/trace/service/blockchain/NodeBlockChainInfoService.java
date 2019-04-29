@@ -262,7 +262,8 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 					e.printStackTrace();
 				}
 				//如果是新增节点溯源信息则使用参数的批次实体填充数据
-				if (isNode) {
+				if (isNode || traceBatchInfo!=null)
+				{
 					nodeBlockChainInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
 					nodeBlockChainInfo.setTraceBatchName(traceBatchInfo.getTraceBatchName());
 					nodeBlockChainInfo.setProductId(traceBatchInfo.getProductId());
