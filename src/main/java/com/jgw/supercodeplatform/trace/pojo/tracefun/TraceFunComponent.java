@@ -16,6 +16,12 @@ public class TraceFunComponent implements Serializable {
     private String updateDate;
     private String tableName;
 
+    public TraceFunComponent(){}
+    public TraceFunComponent(String componentId,int fieldWeight){
+        this.componentId=componentId;
+        this.fieldWeight=fieldWeight;
+    }
+
     public int getFieldWeight() {
         return fieldWeight;
     }

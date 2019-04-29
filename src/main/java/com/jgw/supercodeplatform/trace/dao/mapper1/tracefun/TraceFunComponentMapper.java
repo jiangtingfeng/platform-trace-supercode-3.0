@@ -53,4 +53,7 @@ public interface TraceFunComponentMapper extends CommonSql {
     @Select("SELECT "+allFields+" FROM trace_fun_component where ComponentId=#{componentId}")
     TraceFunComponent selectByComponentId(@Param("componentId")String componentId);
 
+    @Update("update trace_fun_component set fieldWeight=#{fieldWeight} where componentid=#{componentId}")
+    int updateTraceFunComponent(TraceFunComponent traceFunComponent);
+
 }

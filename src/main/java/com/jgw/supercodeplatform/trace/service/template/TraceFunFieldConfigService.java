@@ -308,6 +308,9 @@ public class TraceFunFieldConfigService {
 							}
 						}
 					}
+					TraceFunComponent traceFunComponent=new TraceFunComponent(funComponent.getComponentId(),funComponent.getFieldWeight());
+					traceFunComponentMapper.updateTraceFunComponent(traceFunComponent);
+
 				}
 
 			}
