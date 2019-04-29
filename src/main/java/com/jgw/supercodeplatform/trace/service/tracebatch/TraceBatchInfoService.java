@@ -501,7 +501,7 @@ public class TraceBatchInfoService extends CommonUtil {
         }
         String orgnizationId = commonUtil.getOrganizationId();
         RestResult<List<Map<String, Object>>> nodeDataResult=null;
-        nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), false, orgnizationId);
+        nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), false, orgnizationId, null,null);
         List<Map<String, Object>> batchDatas = nodeDataResult.getResults();
         getParentNodeInfo(traceBatchInfoId,batchDatas);
         return nodeDataResult;
@@ -534,7 +534,7 @@ public class TraceBatchInfoService extends CommonUtil {
                     TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
                     traceTemplateId=traceBatchInfo.getTraceTemplateId();
                 }
-                RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, true, null);
+                RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, true, null, null,null);
                 List<Map<String,Object>> parentNodeData=nodeDataResult.getResults();
                 if(parentNodeData!=null && parentNodeData.size()>0) {
                     nodeDatas.addAll(0,nodeDataResult.getResults());
@@ -558,7 +558,7 @@ public class TraceBatchInfoService extends CommonUtil {
                 traceTemplateId=traceBatchInfo.getTraceTemplateId();
                 batchInfo=traceBatchInfo;
             }
-            RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, true, null);
+            RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, true, null,null, null);
             parentNodeData=nodeDataResult.getResults();
 
 
@@ -593,7 +593,7 @@ public class TraceBatchInfoService extends CommonUtil {
             if (null == traceBatchInfo) {
                 throw new SuperCodeTraceException("无此批次号记录", 500);
             }
-            nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null);
+            nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null,null,null);
 
             dataMap.put("productInfo", traceBatchInfo);
         } else {
