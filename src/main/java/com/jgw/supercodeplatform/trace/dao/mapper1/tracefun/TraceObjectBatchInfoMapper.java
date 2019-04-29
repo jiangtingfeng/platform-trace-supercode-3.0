@@ -30,7 +30,7 @@ public interface TraceObjectBatchInfoMapper extends CommonSql {
             + "VALUES"
             + "(#{traceBatchInfoId},#{organizationId},#{traceBatchName},"
             + "#{traceBatchId},#{traceTemplateId},#{traceTemplateName},#{h5TrancePageId},"
-            + "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount},#{objectId}, #{sysId) ")
+            + "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount},#{objectId}, #{sysId}) ")
     int insertTraceObjectBatchInfo(TraceObjectBatchInfo traceBatchInfo);
 
     @Select(selectSql+" from trace_objectbatchinfo a WHERE TraceBatchInfoId = #{traceBatchInfoId}")
