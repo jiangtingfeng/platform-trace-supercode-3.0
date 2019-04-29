@@ -585,7 +585,9 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 
 			//平安项目
 			if(!nodeFunctionName.equals("基地管理")){
-				nodeData = nodeData.stream().filter(e->dateAfter(e.get("SortDateTime").toString(),start) && dateBefore(e.get("SortDateTime").toString(),end) ).collect(Collectors.toList());
+				if(start!=null && end!=null){
+					nodeData = nodeData.stream().filter(e->dateAfter(e.get("SortDateTime").toString(),start) && dateBefore(e.get("SortDateTime").toString(),end) ).collect(Collectors.toList());
+				}
 			}
 
 			if(businessType.equals("1") && nodeData!=null && nodeData.size()>0){

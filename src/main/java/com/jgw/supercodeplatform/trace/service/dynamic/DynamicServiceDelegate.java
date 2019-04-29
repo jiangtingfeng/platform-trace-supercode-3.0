@@ -232,8 +232,10 @@ public class DynamicServiceDelegate {
 					sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
 					break;
 				case USER:
-					sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
-					sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
+					if(sqlFieldNameBuilder.indexOf("UserId")<0){
+						sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
+						sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
+					}
 					break;
 				default:
 					break;
