@@ -129,11 +129,11 @@ public class TraceBatchInfoController extends CommonUtil {
     })
     public RestResult listTraceBatchInfoByOrgPage(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
         Map<String, Object> result=traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
-       /* if (map.get("batchType")!=null && map.get("batchType").toString().equals("2")){
+        if (map.get("batchType")!=null && map.get("batchType").toString().equals("2")){
             result=traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
         }else {
             result=traceBatchInfoService.listProductBatchInfo(map);
-        }*/
+        }
         return new RestResult(200, "success", result);
     }
 

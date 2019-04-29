@@ -362,8 +362,22 @@ public class TraceBatchInfoService extends CommonUtil {
                 List<TraceBatchInfo> traceBatchInfos=null;
                 if (productBatchRelationSysViews!=null&& productBatchRelationSysViews.size()>0){
                     traceBatchInfos= productBatchRelationSysViews.stream().map(e->new TraceBatchInfo(
-                            e.get("batchName").toString(),e.get("productId").toString(),e.get("productName").toString(),e.get("batchId").toString()
+                            e.get("batchName").toString(),e.get("productId").toString(),e.get("productName").toString(),e.get("batchId").toString(),e.get("marketDate").toString(),e.get("founder").toString(),e.get("createTime").toString(),e.get("traceBatchInfoId").toString()
                     )).collect(Collectors.toList());
+
+                    List<String> traceBatchInfoIds= traceBatchInfos.stream().map(e->String.format("'%s'",e.getTraceBatchInfoId())).collect(Collectors.toList());
+                    List<TraceBatchInfo> localBatchs= traceBatchInfoMapper.selectByTraceBatchInfoIds(StringUtils.join(traceBatchInfoIds,","));
+                    for(TraceBatchInfo traceBatchInfo: traceBatchInfos){
+                        List<TraceBatchInfo> currBatchs= localBatchs.stream().filter(e->e.getTraceBatchInfoId().equals(traceBatchInfo.getTraceBatchInfoId())).collect(Collectors.toList());
+                        if(currBatchs!=null && currBatchs.size()>0){
+                            TraceBatchInfo currBatch= currBatchs.get(0);
+                            traceBatchInfo.setTraceTemplateId(currBatch.getTraceTemplateId());
+                            traceBatchInfo.setTraceTemplateName(currBatch.getTraceTemplateName());
+                            traceBatchInfo.setNodeDataCount(currBatch.getNodeDataCount());
+                            traceBatchInfo.setH5TempleteName(currBatch.getH5TempleteName());
+                            traceBatchInfo.setH5TrancePageId(currBatch.getH5TrancePageId());
+                        }
+                    }
 
                     for (TraceBatchInfo returnTraceBatchInfo : traceBatchInfos) {
                         idsBuilder.append(returnTraceBatchInfo.getTraceTemplateId()).append(",");

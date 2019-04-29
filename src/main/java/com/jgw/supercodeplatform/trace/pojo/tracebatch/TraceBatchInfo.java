@@ -51,11 +51,15 @@ public class TraceBatchInfo implements Serializable{
 
 	public TraceBatchInfo(){}
 
-	public TraceBatchInfo(String traceBatchName,String productId,String productName,String traceBatchId){
+	public TraceBatchInfo(String traceBatchName,String productId,String productName,String traceBatchId,String listedTime,String createMan,String createTime,String traceBatchInfoId){
 		this.traceBatchName=traceBatchName;
 		this.productId=productId;
 		this.productName=productName;
 		this.traceBatchId=traceBatchId;
+		this.listedTime=listedTime;
+		this.createMan=createMan;
+		this.createTime=createTime;
+		this.traceBatchInfoId=traceBatchInfoId;
 	}
 
 	public TraceBatchInfo(String traceBatchName,String productId,String productName,String traceBatchId,String traceTemplateId,String traceTemplateName,int batchType,Long serialNumber){
