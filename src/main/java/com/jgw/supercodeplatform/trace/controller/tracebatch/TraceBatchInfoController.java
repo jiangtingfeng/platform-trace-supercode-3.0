@@ -307,8 +307,8 @@ public class TraceBatchInfoController extends CommonUtil {
      */
 	@GetMapping("/h5PageData")
 	@ApiOperation(value = "根据批次号获取h5溯源页数据接口", notes = "h5溯源页数据",consumes="application/x-www-form-urlencoded;charset=UTF-8")
-    @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true),
-        @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+    @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true)//,
+        /*@ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),*/
     })
 	public RestResult<HashMap<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam(required = false) Integer traceBatchType, String startTime, String endTime) throws Exception{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
