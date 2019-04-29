@@ -553,7 +553,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
 					int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
-					traceBatchInfo.setNodeDataCount(nodeDataCount);
+					traceBatchInfo.setNodeDataCount(nodeDataCount+1);
 					traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
 					baseBatchInfo.setTraceBatchName(traceBatchName);
