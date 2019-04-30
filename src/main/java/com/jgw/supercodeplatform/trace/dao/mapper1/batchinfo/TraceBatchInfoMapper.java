@@ -39,11 +39,11 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	@Insert(" INSERT INTO trace_batchinfo"
 			+ "(TraceBatchInfoId,OrganizationId,ProductID,ProductName,TraceBatchName,"
 			+ "TraceBatchId,ListedTime,TraceTemplateId,TraceTemplateName,H5TrancePageId,"
-			+ "H5TempleteName,CreateId,CreateMan,NodeDataCount, SysId)"
+			+ "H5TempleteName,CreateId,CreateMan,NodeDataCount, SysId, traceBatchPlatformId)"
 			+ "VALUES"
 			+ "(#{traceBatchInfoId},#{organizationId},#{productId},#{productName},#{traceBatchName},"
 			+ "#{traceBatchId},#{listedTime},#{traceTemplateId},#{traceTemplateName},#{h5TrancePageId},"
-			+ "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}, #{sysId}) ")
+			+ "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}, #{sysId}, #{traceBatchPlatformId}) ")
 	int insertTraceBatchInfo(TraceBatchInfo traceBatchInfo);
 	
 	/**
