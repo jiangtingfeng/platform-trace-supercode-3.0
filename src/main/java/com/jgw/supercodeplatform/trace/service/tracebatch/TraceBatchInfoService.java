@@ -73,17 +73,8 @@ public class TraceBatchInfoService extends CommonUtil {
     @Value("${rest.user.url}")
     private String restUserUrl;
 
-    /**
-     * 新增溯源批次记录,并将溯源模板统计表的批次数量为原数量加1
-     *
-     * @param traceBatchInfo
-     * @throws Exception
-     * @author liujianqiang
-     * @data 2018年12月12日
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public String insertTraceBatchInfo(TraceBatchInfo traceBatchInfo) throws Exception {
-        //新增溯源批次记录
+
+    private void setDefaultField(TraceBatchInfo traceBatchInfo) throws Exception {
         AccountCache userAccount = getUserLoginCache();
         String organizationId = getOrganizationId();
 
@@ -94,6 +85,21 @@ public class TraceBatchInfoService extends CommonUtil {
             traceBatchInfo.setNodeDataCount(0);
         }
         traceBatchInfo.setCreateMan(userAccount.getUserName());
+    }
+
+    /**
+     * 新增溯源批次记录,并将溯源模板统计表的批次数量为原数量加1
+     *
+     * @param traceBatchInfo
+     * @throws Exception
+     * @author liujianqiang
+     * @data 2018年12月12日
+     */
+    //@Transactional(rollbackFor = Exception.class)
+    public String insertTraceBatchInfo(TraceBatchInfo traceBatchInfo) throws Exception {
+        //新增溯源批次记录
+
+        setDefaultField(traceBatchInfo);
         String traceBatchName=traceBatchInfo.getTraceBatchName();
 
         String traceBatchInfoId= insertTraceBatchInfoToPlatform(traceBatchInfo);
@@ -104,7 +110,7 @@ public class TraceBatchInfoService extends CommonUtil {
             traceBatchInfo.setTraceBatchInfoId(traceBatchInfoId);
         }
 
-        checkBatchIdAndBatchName(traceBatchInfo.getTraceBatchId(), traceBatchName, organizationId, traceBatchInfoId);
+        checkBatchIdAndBatchName(traceBatchInfo.getTraceBatchId(), traceBatchName, traceBatchInfo.getOrganizationId(), traceBatchInfoId);
         traceBatchInfo.setTraceBatchName(traceBatchName.replaceAll(" ", ""));
         Integer record = traceBatchInfoMapper.insertTraceBatchInfo(traceBatchInfo);
         if (record != 1) {
@@ -142,7 +148,10 @@ public class TraceBatchInfoService extends CommonUtil {
         traceBatchInfo.setTraceBatchName(traceBatchName.replaceAll(" ", ""));
         Integer record = traceBatchInfoMapper.updateTraceBatchInfo(traceBatchInfo);
         if (record != 1) {
-            throw new SuperCodeTraceException("修改溯源批次记录失败");
+            setDefaultField(traceBatchInfo);
+            traceBatchInfo.setTraceBatchPlatformId(traceBatchInfo.getTraceBatchInfoId());
+            record = traceBatchInfoMapper.insertTraceBatchInfo(traceBatchInfo);
+            //throw new SuperCodeTraceException("修改溯源批次记录失败");
         }
 
         try{
