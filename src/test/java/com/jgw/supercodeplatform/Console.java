@@ -1,4 +1,4 @@
-package com.jgw.supercodeplatform;
+﻿package com.jgw.supercodeplatform;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ public class Console {
 
         List<String> list=new ArrayList<String>();
         list.add("yyyy年MM月dd日");
-        list.add("Y/MM/d");
+
         list.add("YMMd");
         list.add("Y.MM.d");
 
