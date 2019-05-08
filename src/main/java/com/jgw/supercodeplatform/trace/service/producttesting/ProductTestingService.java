@@ -20,10 +20,13 @@ import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItem;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItemEx;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.TestingType;
 import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
+import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchRelationEsService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -43,6 +46,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductTestingService extends AbstractPageService {
+
+    private static Logger logger= LoggerFactory.getLogger(ProductTestingService.class);
 
     @Autowired
     private ProductTestingMapper productTestingMapper;
@@ -237,17 +242,22 @@ public class ProductTestingService extends AbstractPageService {
     }
 
     public String getImageJson(String pdfJson) throws Exception{
-        JsonNode jsonNode = new ObjectMapper().readTree(pdfJson);
-        ArrayNode arrayNode= (ArrayNode)jsonNode;
-        List<String> imageIds=new ArrayList<String>();
-        for(JsonNode node:arrayNode){
-            String url= arrayNode.get(0).get("url").asText();
-            String name= arrayNode.get(0).get("name").asText();
-            List<String> ids= getImages(url,name);
-            imageIds.addAll(ids);
+        String imageJson=null;
+        try{
+            JsonNode jsonNode = new ObjectMapper().readTree(pdfJson);
+            ArrayNode arrayNode= (ArrayNode)jsonNode;
+            List<String> imageIds=new ArrayList<String>();
+            for(JsonNode node:arrayNode){
+                String url= arrayNode.get(0).get("url").asText();
+                String name= arrayNode.get(0).get("name").asText();
+                List<String> ids= getImages(url,name);
+                imageIds.addAll(ids);
+            }
+            List<ImageItem> imageItems= imageIds.stream().map(e->new ImageItem(e)).collect(Collectors.toList());
+            imageJson= JSONObject.toJSONString(imageItems);
+        }catch (Exception e){
+            logger.error(e.getMessage(),e);
         }
-        List<ImageItem> imageItems= imageIds.stream().map(e->new ImageItem(e)).collect(Collectors.toList());
-        String imageJson= JSONObject.toJSONString(imageItems);
 
         return imageJson;
     }
@@ -258,7 +268,9 @@ public class ProductTestingService extends AbstractPageService {
         List<String> imageIds=new ArrayList<String>();
         File file = new File(pdfPath);
         try {
+            logger.info("PDDocument.load: "+file);
             PDDocument doc = PDDocument.load(file);
+            logger.info("PDDocument.load complete");
             PDFRenderer renderer = new PDFRenderer(doc);
             int pageCount = doc.getNumberOfPages();
             for(int i=0;i<pageCount;i++){
@@ -272,11 +284,14 @@ public class ProductTestingService extends AbstractPageService {
                     imagefile.createNewFile();
                 }
 
+                logger.info("renderer.renderImage: "+String.valueOf(i));
                 BufferedImage image = renderer.renderImageWithDPI(i, 296);
-                //          BufferedImage image = renderer.renderImage(i, 2.5f);
+                logger.info("renderer.renderImage complete ");
                 ImageIO.write(image, "PNG", imagefile);
+                logger.info("ImageIO.write complete ");
 
                 String fileId= uploadImage(path);
+                logger.info("file.upload complete ");
                 fileId= pdfUrl.substring(0,pdfUrl.lastIndexOf("/")+1)+fileId;
                 imageIds.add(fileId);
             }
