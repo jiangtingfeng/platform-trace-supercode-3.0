@@ -22,14 +22,14 @@ public interface ProductTestingItemMapper {
         "TestingDate, TestingAccording, ",
         "Quantity, TestingMethod, ",
         "TestingDevice, Excel, ",
-        "Imgs, Pdfs, Remark,TestingDeviceName)",
+        "Imgs, Pdfs, Remark,TestingDeviceName, PdfImgs)",
         "values (#{id,jdbcType=INTEGER}, #{productTestingItemId,jdbcType=VARCHAR}, ",
         "#{productTestingId,jdbcType=VARCHAR}, #{testingTypeId,jdbcType=VARCHAR}, ",
         "#{testingStandard,jdbcType=INTEGER}, #{testingResult,jdbcType=INTEGER}, ",
         "#{testingDate,jdbcType=TIMESTAMP}, #{testingAccording,jdbcType=VARCHAR}, ",
         "#{quantity,jdbcType=INTEGER}, #{testingMethod,jdbcType=VARCHAR}, ",
         "#{testingDevice,jdbcType=VARCHAR}, #{excel,jdbcType=VARCHAR}, ",
-        "#{imgs,jdbcType=VARCHAR}, #{pdfs,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{testingDeviceName,jdbcType=VARCHAR})"
+        "#{imgs,jdbcType=VARCHAR}, #{pdfs,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{testingDeviceName,jdbcType=VARCHAR}, #{pdfImgs,jdbcType=VARCHAR})"
     })
     int insert(ProductTestingItem record);
 
@@ -100,6 +100,7 @@ public interface ProductTestingItemMapper {
           "Excel = #{excel,jdbcType=VARCHAR},",
           "Imgs = #{imgs,jdbcType=VARCHAR},",
           "Pdfs = #{pdfs,jdbcType=VARCHAR},",
+            "PdfImgs = #{pdfImgs,jdbcType=VARCHAR},",
           "Remark = #{remark,jdbcType=VARCHAR}",
         "where Id = #{id,jdbcType=INTEGER}"
     })

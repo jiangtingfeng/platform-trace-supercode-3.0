@@ -50,6 +50,24 @@ public class ProductTestingItem {
     @ApiModelProperty(value = "检测设备名称")
     private String testingDeviceName;
 
+    public String getTestingDeviceName() {
+        return testingDeviceName;
+    }
+
+    public void setTestingDeviceName(String testingDeviceName) {
+        this.testingDeviceName = testingDeviceName;
+    }
+
+    public String getPdfImgs() {
+        return pdfImgs;
+    }
+
+    public void setPdfImgs(String pdfImgs) {
+        this.pdfImgs = pdfImgs;
+    }
+
+    private String pdfImgs;
+
     public Integer getId() {
         return id;
     }

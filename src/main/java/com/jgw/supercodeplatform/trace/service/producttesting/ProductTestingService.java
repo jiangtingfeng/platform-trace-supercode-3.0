@@ -2,26 +2,43 @@ package com.jgw.supercodeplatform.trace.service.producttesting;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jgw.supercodeplatform.pojo.cache.AccountCache;
 import com.jgw.supercodeplatform.trace.common.model.ReturnParamsMap;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
+import com.jgw.supercodeplatform.trace.common.util.RestTemplateUtil;
 import com.jgw.supercodeplatform.trace.dao.mapper1.producttesting.ProductTestingItemMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.producttesting.ProductTestingMapper;
+import com.jgw.supercodeplatform.trace.dto.producttesting.ImageItem;
 import com.jgw.supercodeplatform.trace.dto.producttesting.ProductTestingParam;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTesting;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItem;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItemEx;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.TestingType;
 import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +52,12 @@ public class ProductTestingService extends AbstractPageService {
 
     @Autowired
     private CommonUtil commonUtil;
+
+    @Autowired
+    private RestTemplateUtil restTemplateUtil;
+
+    @Value("${rest.user.url}")
+    private String restUserUrl;
 
 
     public String insert(ProductTestingParam productTestingParam) throws Exception{
@@ -60,6 +83,10 @@ public class ProductTestingService extends AbstractPageService {
 
             productTestingItem.setProductTestingId(productTestingId);
             productTestingItem.setProductTestingItemId(getUUID());
+            if(StringUtils.isNotEmpty(productTestingItem.getPdfs())){
+                String imageJson= getImageJson(productTestingItem.getPdfs());
+                productTestingItem.setPdfImgs(imageJson);
+            }
             productTestingItemMapper.insert(productTestingItem);
         }
 
@@ -118,7 +145,7 @@ public class ProductTestingService extends AbstractPageService {
         productTestingMapper.deleteByPrimaryKey(id);
     }
 
-    public void update(ProductTestingParam productTestingParam){
+    public void update(ProductTestingParam productTestingParam)  throws Exception {
         Map<String, Object> map = JSONObject.parseObject(JSONObject.toJSONString(productTestingParam), Map.class);
 
         ProductTesting productTesting = JSONObject.parseObject(JSONObject.toJSONString(map), ProductTesting.class);
@@ -131,6 +158,10 @@ public class ProductTestingService extends AbstractPageService {
             if(productTestingItem.getId()==null){
                 productTestingItem.setProductTestingId(productTestingId);
                 productTestingItem.setProductTestingItemId(getUUID());
+                if(StringUtils.isNotEmpty(productTestingItem.getPdfs())){
+                    String imageJson= getImageJson(productTestingItem.getPdfs());
+                    productTestingItem.setPdfImgs(imageJson);
+                }
                 productTestingItemMapper.insert(productTestingItem);
             }else {
                 productTestingItemMapper.updateByPrimaryKey(productTestingItem);
@@ -154,7 +185,7 @@ public class ProductTestingService extends AbstractPageService {
                 }
             } else {
                 for(ProductTestingItemEx productTestingItemEx:productTestingItemExes){
-                    json= productTestingItemEx.getPdfs();
+                    json= productTestingItemEx.getPdfImgs();
                     List<JSONObject> itemImgs= (List<JSONObject>)JSONObject.parseObject(json, ArrayList.class);
                     result.addAll(itemImgs);
                 }
@@ -163,4 +194,95 @@ public class ProductTestingService extends AbstractPageService {
         return result;
     }
 
+    public String uploadImage(String fileName) throws Exception{
+        String fileId=null;
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, String> headerMap = new HashMap<String, String>();
+
+        headerMap.put("super-token", commonUtil.getSuperToken());
+
+        File resource = new File(fileName);
+        params.put("file", resource);
+        params.put("name",fileName);
+
+        ResponseEntity<String> rest = restTemplateUtil.uploadFile(restUserUrl + "/file/upload","file", params,headerMap);
+        if (rest.getStatusCode().value() == 200) {
+            String body = rest.getBody();
+
+            JsonNode node = new ObjectMapper().readTree(body);
+            if (200 == node.get("state").asInt()) {
+                fileId=node.get("results").asText();
+            }
+        }
+        return fileId;
+    }
+
+    public String download(String url, String fileName) {
+        String path=null;
+        try{
+            path=getRoot()+ commonUtil.getUUID()+"/"+fileName;
+            FileUtils.copyURLToFile(new URL(url), new File(path));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return path;
+    }
+
+    private String getRoot(){
+        File directory = new File("");
+        String root=directory.getAbsolutePath()+"/files/";
+        System.out.println(root);
+        return root;
+    }
+
+    public String getImageJson(String pdfJson) throws Exception{
+        JsonNode jsonNode = new ObjectMapper().readTree(pdfJson);
+        ArrayNode arrayNode= (ArrayNode)jsonNode;
+        List<String> imageIds=new ArrayList<String>();
+        for(JsonNode node:arrayNode){
+            String url= arrayNode.get(0).get("url").asText();
+            String name= arrayNode.get(0).get("name").asText();
+            List<String> ids= getImages(url,name);
+            imageIds.addAll(ids);
+        }
+        List<ImageItem> imageItems= imageIds.stream().map(e->new ImageItem(e)).collect(Collectors.toList());
+        String imageJson= JSONObject.toJSONString(imageItems);
+
+        return imageJson;
+    }
+
+    public List<String> getImages(String pdfUrl,String pdfName)
+    {
+        String pdfPath=download(pdfUrl,pdfName);
+        List<String> imageIds=new ArrayList<String>();
+        File file = new File(pdfPath);
+        try {
+            PDDocument doc = PDDocument.load(file);
+            PDFRenderer renderer = new PDFRenderer(doc);
+            int pageCount = doc.getNumberOfPages();
+            for(int i=0;i<pageCount;i++){
+                String path=getRoot()+ commonUtil.getUUID()+"/"+String.valueOf(i)+".png";
+                File imagefile = new File(path);
+                File fileParent = imagefile.getParentFile();
+                if(!fileParent.exists()){
+                    fileParent.mkdirs();
+                }
+                if (!imagefile.exists()) {
+                    imagefile.createNewFile();
+                }
+
+                BufferedImage image = renderer.renderImageWithDPI(i, 296);
+                //          BufferedImage image = renderer.renderImage(i, 2.5f);
+                ImageIO.write(image, "PNG", imagefile);
+
+                String fileId= uploadImage(path);
+                imageIds.add(fileId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return imageIds;
+    }
 }

@@ -18,12 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.jgw.supercodeplatform.trace.service.producttesting.ProductTestingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -140,5 +137,16 @@ public class TestController {
 			res2t.setState(200);
 			res2t.setResults(all);
 			return res2t;
-	   } 
+	   }
+
+	   @Autowired
+	   private ProductTestingService productTestingService;
+
+	@PostMapping("/getval")
+	@ApiOperation(value = "test", notes = "")
+	public String getval(String json) throws Exception{
+
+		productTestingService.getImageJson(json);
+		return "ok";
+	}
 }
