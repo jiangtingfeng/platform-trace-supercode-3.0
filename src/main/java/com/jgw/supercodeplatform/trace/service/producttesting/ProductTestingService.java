@@ -277,6 +277,7 @@ public class ProductTestingService extends AbstractPageService {
                 ImageIO.write(image, "PNG", imagefile);
 
                 String fileId= uploadImage(path);
+                fileId= pdfUrl.substring(0,pdfUrl.lastIndexOf("/")+1)+fileId;
                 imageIds.add(fileId);
             }
         } catch (Exception e) {
