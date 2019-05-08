@@ -169,6 +169,11 @@ public class ProductTestingService extends AbstractPageService {
                 }
                 productTestingItemMapper.insert(productTestingItem);
             }else {
+                ProductTestingItem productTestingItem1= productTestingItemMapper.selectByPrimaryKey(productTestingItem.getId());
+                if(!productTestingItem.getPdfs().equals(productTestingItem1.getPdfs())){
+                    String imageJson= getImageJson(productTestingItem.getPdfs());
+                    productTestingItem.setPdfImgs(imageJson);
+                }
                 productTestingItemMapper.updateByPrimaryKey(productTestingItem);
             }
         }
