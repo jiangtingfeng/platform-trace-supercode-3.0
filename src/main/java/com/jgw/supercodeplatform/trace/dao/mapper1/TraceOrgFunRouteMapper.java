@@ -58,4 +58,7 @@ public interface TraceOrgFunRouteMapper extends CommonSql{
 	@Delete("delete from trace_fun where FunctionId=#{functionId} and TraceTemplateId is null")
 	void deleteByDzFunctionId(@Param("functionId")String functionId);
 
+	@Delete("update trace_fun set TraceTemplateId=#{traceTemplateId} where FunctionId=#{functionId}")
+	void deleteFun(@Param("functionId")String functionId, @Param("traceTemplateId")String templateId);
+
 }

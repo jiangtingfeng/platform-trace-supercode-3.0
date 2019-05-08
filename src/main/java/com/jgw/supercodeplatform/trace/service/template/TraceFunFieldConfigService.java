@@ -381,7 +381,8 @@ public class TraceFunFieldConfigService {
 			}
 
 			//删除企业路由关系
-			traceOrgFunRouteDao.deleteByDzFunctionId(param.get(0).getFunctionId());
+			traceOrgFunRouteDao.deleteFun(param.get(0).getFunctionId(),"DELETE");
+			//traceOrgFunRouteDao.deleteByDzFunctionId(param.get(0).getFunctionId());
 
 			//删除字段
 			dao.deleteDzFieldsByFunctionId(functionId);
