@@ -189,7 +189,7 @@ public interface TraceFunTemplateconfigMapper extends CommonSql{
 	@Select("select "+allFields+" from trace_fun_templateconfig where Id =#{id}")
 	TraceFunTemplateconfig selectById(Long id);
 
-	@Select("select "+allFields+" from trace_fun_templateconfig where  NodeFunctionId =#{nodeFunctionId} and TraceTemplateId=#{traceTemplateId}")
+	@Select("select "+allFields+" from trace_fun_templateconfig where  NodeFunctionId =#{nodeFunctionId} and TraceTemplateId=#{traceTemplateId} limit 0,1")
 	TraceFunTemplateconfig selectByTemplateIdAndNodeFunctionId(@Param("traceTemplateId")String templateConfigId, @Param("nodeFunctionId")String nodeFunctionId);
 
 

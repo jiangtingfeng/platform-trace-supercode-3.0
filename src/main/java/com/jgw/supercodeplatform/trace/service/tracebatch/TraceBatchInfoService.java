@@ -246,14 +246,14 @@ public class TraceBatchInfoService extends CommonUtil {
         batchModel.put("marketDate",traceBatchInfo.getListedTime());
         batchModel.put("productId",traceBatchInfo.getProductId());
         batchModel.put("productName",traceBatchInfo.getProductName());
-        batchModel.put("id",traceBatchInfo.getTraceBatchPlatformId());
+        batchModel.put("traceBatchInfoId",traceBatchInfo.getTraceBatchPlatformId());
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("addProductBatchModel", batchModel);
         Map<String, String> headerMap = new HashMap<String, String>();
         try {
             headerMap.put("super-token", getSuperToken());
-            ResponseEntity<String> rest = restTemplateUtil.putJsonDataAndReturnJosn(restUserUrl + "/product-batch",JSONObject.toJSONString( batchModel), headerMap);
+            ResponseEntity<String> rest = restTemplateUtil.putJsonDataAndReturnJosn(restUserUrl + "/product-batch/v2",JSONObject.toJSONString( batchModel), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
                 String body = rest.getBody();

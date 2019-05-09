@@ -240,8 +240,11 @@ public class TraceFunFieldConfigDelegate {
 			int sequence=commonUtil.getDynamicDatabaseSequence();
 			//只在新建溯源模板能获取组织id时才能执行,如果该功能为自动节点可能已创建了企业路由关系，则不需要再建立
 
-			List<TraceOrgFunRoute> orgList=traceOrgFunRouteDao.selectByFunctionIdWithTempIdIsNotNull(functionId);
-			if (null==orgList || orgList.isEmpty()) {
+
+			//List<TraceOrgFunRoute> orgList=traceOrgFunRouteDao.selectByFunctionIdWithTempIdIsNotNull(functionId);
+			TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
+
+			if (null==traceOrgFunRoute) {
 				//如果是创建定制功能则默认保存一条记录，保存功能id和数据库的对应关系
 				TraceOrgFunRoute tofr=new TraceOrgFunRoute();
 				tofr.setFunctionId(tffcList.get(0).getFunctionId());

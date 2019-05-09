@@ -10,6 +10,7 @@ import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtilComponent;
 import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
+import com.jgw.supercodeplatform.trace.dao.mapper1.TraceOrgFunRouteMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo.TraceBatchInfoMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFuntemplateStatisticalMapper;
@@ -21,13 +22,16 @@ import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.RegulationTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.TraceUseSceneEnum;
+import com.jgw.supercodeplatform.trace.pojo.TraceOrgFunRoute;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTesting;
 import com.jgw.supercodeplatform.trace.pojo.template.TraceFunTemplateconfig;
 import com.jgw.supercodeplatform.trace.pojo.template.TraceFuntemplateStatistical;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
 import com.jgw.supercodeplatform.trace.service.tracefun.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,6 +134,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private TraceBatchInfoMapper traceBatchInfoMapper;
+
+	@Autowired
+	private TraceOrgFunRouteMapper traceOrgFunRouteDao;
+
+	@Autowired
+	private TraceApplicationContextAware traceApplicationContextAware;
 
 
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
@@ -637,6 +647,17 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	}
 
 
+	private void checkAllowInsert(String functionId,String traceBatchInfoId) throws Exception{
+		String organizationId = getOrganizationId();
+		TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
+		DynamicBaseMapper baseMapper=traceApplicationContextAware.getDynamicMapperByFunctionId(null, functionId);
+		String querySQL=String.format( "select * from %s  where  OrganizationId = '%s' ",traceOrgFunRoute.getTableName(),organizationId);
+		List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
+		if(CollectionUtils.isNotEmpty(data)){
+			throw new SuperCodeTraceException("该定制功能不可多次输入");
+		}
+	}
+
 
 	/**
 	 * 定制功能保存数据
@@ -667,6 +688,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		}
 
 		TraceFunRegulation traceFunRegulation= traceFunRegulationMapper.selectByFunId(param.getFunctionId());
+		if(!traceFunRegulation.isMultipleInput()){
+			checkAllowInsert(param.getFunctionId(),traceBatchInfoId);
+		}
 
 		List<BaseBatchInfo> baseBatchInfos=null;
 		if(traceFunRegulation!=null && traceFunRegulation.getRegulationType() == RegulationTypeEnum.ControlNode.getKey()) //控制节点

@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.service.tracefun;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.jgw.supercodeplatform.exception.SuperCodeException;
 import com.jgw.supercodeplatform.pojo.cache.AccountCache;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
@@ -48,6 +49,9 @@ public class CodeRelationService extends CommonUtil {
     @Value("${rest.codemanager.url}")
     private String restCodeManagerUrl;
 
+    @Value("${rest.user.url}")
+    private String restUserUrl;
+
     @Value("${trace.h5page.url}")
     private String h5PageUrl;
 
@@ -62,6 +66,29 @@ public class CodeRelationService extends CommonUtil {
             fieldValue= fieldBusinessParams.get(0).getFieldValue();
         }
         return fieldValue;
+    }
+
+    public String getUrl(Map<String, String> headerMap) throws Exception{
+        String url=h5PageUrl;
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("organizationId", getOrganizationId());
+
+        try{
+            ResponseEntity<String> rest =  restTemplateUtil.getRequestAndReturnJosn(restUserUrl + "/orgdomain/selectByOrgId", params, headerMap);
+            if (rest.getStatusCode().value() == 200) {
+                String body = rest.getBody();
+                JsonNode node = new ObjectMapper().readTree(body);
+                if (200 == node.get("state").asInt()) {
+                    if(  node.get("results").getClass()!= NullNode.class){
+
+                        url= node.get("results").get("url").asText();
+                    }
+                }
+            }
+        }catch (Exception e){
+            logger.error(e.getMessage(),e);
+        }
+        return url;
     }
 
     /**
@@ -151,9 +178,11 @@ public class CodeRelationService extends CommonUtil {
         LocalDateTime time = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
         try {
+            headerMap.put("super-token", getSuperToken());
 
             //TraceBatchInfo traceBatchInfo= traceBatchInfoMapper.selectByTraceBatchInfoId(batchId);
-            String url = String.format("%s?traceBatchInfoId=%s",h5PageUrl,batchInfoId);
+            String domain=getUrl(headerMap);
+            String url = String.format("%s?traceBatchInfoId=%s",domain,batchInfoId);
             params.put("url",url);
             params.put("businessType",2);
             params.put("batchId",batchId);
@@ -161,7 +190,6 @@ public class CodeRelationService extends CommonUtil {
 
             AccountCache userAccount = getUserLoginCache();
 
-            headerMap.put("super-token", getSuperToken());
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/sbatchUrl/addSbatchUrl", JSONObject.toJSONString( paramList), headerMap);
 
             String body = rest.getBody();
