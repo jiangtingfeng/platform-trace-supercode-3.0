@@ -90,7 +90,7 @@ public interface NodeBlockChainInfoMapper extends CommonSql{
 	@Select(" <script>"
 			+ " select "+allFields+",count(TraceBatchInfoId) blockNum  from  trace_blockchain_transaction "
 			+ whereSelectTraceFunTemplate
-			+ "  GROUP BY  TraceBatchInfoId order by CmtTime desc"
+			+ " and TraceBatchInfoId is not null GROUP BY  TraceBatchInfoId order by CmtTime desc"
 			+ " <if test='daoSearch.startNumber != null and daoSearch.pageSize != null and daoSearch.pageSize != 0'> LIMIT #{daoSearch.startNumber},#{daoSearch.pageSize}</if>"
 			+ " </script>")
 	List<NodeBlockChainInfo> list(@Param("daoSearch")DaoSearch searchParams, @Param("organizationId")String organizationId);
@@ -99,7 +99,7 @@ public interface NodeBlockChainInfoMapper extends CommonSql{
 	@Select(" <script>"
 			+ " select count(*) from (select count(*)  from  trace_blockchain_transaction "
 			+ whereSelectTraceFunTemplate
-			+ "  GROUP BY  TraceBatchInfoId ) a"
+			+ " and TraceBatchInfoId is not null GROUP BY  TraceBatchInfoId ) a"
 			+ " </script>")
 	int count(@Param("daoSearch")DaoSearch searchParams, @Param("organizationId")String organizationId);
     
