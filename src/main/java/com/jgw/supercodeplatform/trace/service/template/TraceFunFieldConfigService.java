@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceBatchNamedMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunComponentMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceFunRegulationMapper;
@@ -15,6 +16,7 @@ import com.jgw.supercodeplatform.trace.dto.PlatformFun.CustomizeFun;
 import com.jgw.supercodeplatform.trace.dto.PlatformFun.FunComponent;
 import com.jgw.supercodeplatform.trace.enums.ComponentTypeEnum;
 import com.jgw.supercodeplatform.trace.enums.TraceUseSceneEnum;
+import com.jgw.supercodeplatform.trace.pojo.template.TraceFunTemplateconfig;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchNamed;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunComponent;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceFunRegulation;
@@ -67,6 +69,9 @@ public class TraceFunFieldConfigService {
 
 	@Autowired
 	private TraceBatchNamedMapper traceBatchNamedMapper;
+
+	@Autowired
+	private TraceFunTemplateconfigMapper traceFunTemplateconfigMapper;
 
 	private void addGroupField(CustomizeFun customizeFun){
 		List<FunComponent> funComponentModels=customizeFun.getFunComponentModels();
@@ -329,6 +334,15 @@ public class TraceFunFieldConfigService {
 		traceFunRegulationMapper.deleteTraceFunRegulation(functionId);
 		traceBatchNamedMapper.deleteTraceBatchNamed(functionId);
 		traceFunFieldConfigDelegate.saveFunRegulation(customizeFun);
+
+		String funName= customizeFun.getFunName();
+		List<TraceFunTemplateconfig> traceFunTemplateconfigs= traceFunTemplateconfigMapper.selectByFunId(functionId);
+		for(TraceFunTemplateconfig traceFunFieldConfig:traceFunTemplateconfigs){
+			if(!traceFunFieldConfig.getNodeFunctionName().equals(funName)){
+				traceFunFieldConfig.setNodeFunctionName(customizeFun.getFunName());
+				traceFunTemplateconfigMapper.update(traceFunFieldConfig);
+			}
+		}
 
 		restResult.setState(200);
 		restResult.setMsg("操作成功");

@@ -192,6 +192,9 @@ public interface TraceFunTemplateconfigMapper extends CommonSql{
 	@Select("select "+allFields+" from trace_fun_templateconfig where  NodeFunctionId =#{nodeFunctionId} and TraceTemplateId=#{traceTemplateId} limit 0,1")
 	TraceFunTemplateconfig selectByTemplateIdAndNodeFunctionId(@Param("traceTemplateId")String templateConfigId, @Param("nodeFunctionId")String nodeFunctionId);
 
+	@Select("SELECT Id,NodeFunctionName FROM trace_fun_templateconfig WHERE NodeFunctionId= #{nodeFunctionId} ")
+	List<TraceFunTemplateconfig> selectByFunId(@Param("nodeFunctionId")String nodeFunctionId);
+
 
 
 }
