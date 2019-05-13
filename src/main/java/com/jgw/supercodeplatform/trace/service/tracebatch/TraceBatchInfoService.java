@@ -512,7 +512,7 @@ public class TraceBatchInfoService extends CommonUtil {
         RestResult<List<Map<String, Object>>> nodeDataResult=null;
         nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), false, orgnizationId, null,null);
         List<Map<String, Object>> batchDatas = nodeDataResult.getResults();
-        getParentNodeInfo(traceBatchInfoId,batchDatas);
+        getParentNodeInfo(traceBatchInfoId,batchDatas,false);
         return nodeDataResult;
     }
 
@@ -552,7 +552,7 @@ public class TraceBatchInfoService extends CommonUtil {
         }
     }
 
-    private List<Map<String,Object>> getBatchNodeInfo(TraceBatchRelation traceBatchRelation) throws Exception{
+    private List<Map<String,Object>> getBatchNodeInfo(TraceBatchRelation traceBatchRelation, boolean fromH5) throws Exception{
         String traceBatchInfoId=traceBatchRelation.getParentBatchId();
         String traceTemplateId=null;
         List<Map<String,Object>> parentNodeData=null;
@@ -567,7 +567,7 @@ public class TraceBatchInfoService extends CommonUtil {
                 traceTemplateId=traceBatchInfo.getTraceTemplateId();
                 batchInfo=traceBatchInfo;
             }
-            RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, true, null,null, null);
+            RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, fromH5, null,null, null);
             parentNodeData=nodeDataResult.getResults();
 
 
@@ -619,7 +619,7 @@ public class TraceBatchInfoService extends CommonUtil {
         batchDatas =nodeDataResult.getResults();
 
         //递归查询所有父级批次，查询所有父级批次对应的溯源信息数据并返回
-        getParentNodeInfo(traceBatchInfoId,batchDatas);
+        getParentNodeInfo(traceBatchInfoId,batchDatas,true);
 
         if (nodeDataResult.getState() != 200) {
             throw new SuperCodeTraceException(nodeDataResult.getMsg(), 500);
@@ -630,7 +630,7 @@ public class TraceBatchInfoService extends CommonUtil {
         return backResult;
     }
 
-    private void getParentNodeInfo(String traceBatchInfoId,List<Map<String, Object>> batchDatas) throws Exception
+    private void getParentNodeInfo(String traceBatchInfoId,List<Map<String, Object>> batchDatas, boolean fromH5) throws Exception
     {
         List<TraceBatchRelation> traceBatchRelations= traceBatchRelationService.selectByBatchId(traceBatchInfoId);
         if (traceBatchRelations!=null && traceBatchRelations.size()>0){
@@ -639,7 +639,7 @@ public class TraceBatchInfoService extends CommonUtil {
             List<TraceBatchRelation> parentBatchs= traceBatchRelations.stream().filter(e->e.getCurrentBatchId().equals(traceBatchInfoId)).collect(Collectors.toList());
             while (parentBatchs!=null && parentBatchs.size()>0){
                 if(parentBatchs.size()==1){
-                    currentDataMap = getBatchNodeInfo(parentBatchs.get(0));
+                    currentDataMap = getBatchNodeInfo(parentBatchs.get(0),fromH5);
                     if(currentDataMap!=null){
                         batchDatas.addAll(currentDataMap);
                     }
