@@ -196,5 +196,7 @@ public interface TraceFunTemplateconfigMapper extends CommonSql{
 	List<TraceFunTemplateconfig> selectByFunId(@Param("nodeFunctionId")String nodeFunctionId);
 
 
+	@Select("SELECT count(*)  from trace_fun_templateconfig where TraceTemplateId=#{traceTemplateId} and BusinessType=3")
+	Integer selectDefaultNodeCount(@Param("traceTemplateId")String traceTemplateId);
 
 }

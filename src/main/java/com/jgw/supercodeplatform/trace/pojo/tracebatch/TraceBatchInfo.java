@@ -62,7 +62,7 @@ public class TraceBatchInfo implements Serializable{
 		this.traceBatchInfoId=traceBatchInfoId;
 	}
 
-	public TraceBatchInfo(String traceBatchName,String productId,String productName,String traceBatchId,String traceTemplateId,String traceTemplateName,int batchType,Long serialNumber){
+	public TraceBatchInfo(String traceBatchName,String productId,String productName,String traceBatchId,String traceTemplateId,String traceTemplateName,int batchType,Long serialNumber,Integer nodeDataCount){
 		this.traceBatchName=traceBatchName;
 		this.productId=productId;
 		this.productName=productName;
@@ -71,6 +71,7 @@ public class TraceBatchInfo implements Serializable{
 		this.traceTemplateName=traceTemplateName;
 		this.batchType=batchType;
 		this.serialNumber=serialNumber;
+		this.nodeDataCount=nodeDataCount;
 	}
 
 	public String getTraceBatchInfoId() {
