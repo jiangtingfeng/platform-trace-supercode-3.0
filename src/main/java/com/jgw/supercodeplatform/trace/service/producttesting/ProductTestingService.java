@@ -21,6 +21,7 @@ import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTestingItemEx;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.TestingType;
 import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchRelationEsService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -157,6 +158,21 @@ public class ProductTestingService extends AbstractPageService {
 
         productTestingMapper.updateByPrimaryKey(productTesting);
         String productTestingId=productTesting.getProductTestingId();
+
+        List<ProductTestingItem> productTestingItems= productTestingItemMapper.selectByProductTestingId(String.format("'%s'",productTestingId));
+
+        List<ProductTestingItem> deleteItems=null;
+        List<Integer> updateIds= productTestingParam.getProductTestingItems().stream().filter(e->e.getId()!=null).map(e->e.getId()).collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(updateIds)){
+            deleteItems=productTestingItems;
+        } else {
+            deleteItems= productTestingItems.stream().filter(e->!updateIds.contains(e.getId())).collect(Collectors.toList());
+        }
+        if(CollectionUtils.isNotEmpty(deleteItems)){
+            for(ProductTestingItem productTestingItem:deleteItems){
+                productTestingItemMapper.deleteByPrimaryKey(productTestingItem.getId());
+            }
+        }
 
         for(ProductTestingItem productTestingItem: productTestingParam.getProductTestingItems()){
 
