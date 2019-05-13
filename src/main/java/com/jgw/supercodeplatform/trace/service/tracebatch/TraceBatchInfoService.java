@@ -641,6 +641,9 @@ public class TraceBatchInfoService extends CommonUtil {
                 if(parentBatchs.size()==1){
                     currentDataMap = getBatchNodeInfo(parentBatchs.get(0),fromH5);
                     if(currentDataMap!=null){
+                        currentDataMap= currentDataMap.stream().filter(e->!e.get("businessType").equals("3")).collect(Collectors.toList());
+                    }
+                    if(currentDataMap!=null){
                         batchDatas.addAll(currentDataMap);
                     }
 
