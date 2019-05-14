@@ -3,9 +3,7 @@ package com.jgw.supercodeplatform.trace.controller.common;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.UUID;
@@ -14,7 +12,9 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
 
+import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
+import com.jgw.supercodeplatform.trace.service.common.CommonService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -44,6 +44,9 @@ public class CommonController {
     @Autowired
     private CommonUtil commonUtil;
 
+    @Autowired
+    private CommonService commonService;
+
    /**
     * 创建二维码
     * @param content
@@ -58,33 +61,33 @@ public class CommonController {
         @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
         @ApiImplicitParam(name = "content", paramType = "query", defaultValue = "http://www.baidu.com", value = "", required = true),
    })
-   public  boolean createQrCode(String content,HttpServletResponse response) throws WriterException, IOException{  
-           //设置二维码纠错级别ＭＡＰ
-           Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<EncodeHintType, ErrorCorrectionLevel>();  
-           hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);  // 矫错级别  
-           QRCodeWriter qrCodeWriter = new QRCodeWriter();  
-           //创建比特矩阵(位矩阵)的QR码编码的字符串  
-           BitMatrix byteMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, 900, 900, hintMap);  
-           // 使BufferedImage勾画QRCode  (matrixWidth 是行二维码像素点)
-           int matrixWidth = byteMatrix.getWidth();  
-           BufferedImage image = new BufferedImage(matrixWidth-200, matrixWidth-200, BufferedImage.TYPE_INT_RGB);  
-           image.createGraphics();  
-           Graphics2D graphics = (Graphics2D) image.getGraphics();  
-           graphics.setColor(Color.WHITE);  
-           graphics.fillRect(0, 0, matrixWidth, matrixWidth);  
-           // 使用比特矩阵画并保存图像
-           graphics.setColor(Color.BLACK);  
-           for (int i = 0; i < matrixWidth; i++){
-               for (int j = 0; j < matrixWidth; j++){
-                   if (byteMatrix.get(i, j)){
-                       graphics.fillRect(i-100, j-100, 1, 1);  
-                   }
-               }
-           }
-           return ImageIO.write(image, "JPEG", response.getOutputStream());  
+   public  boolean createQrCode(String content,HttpServletResponse response) throws WriterException, IOException{
+        return commonService.createQrCode(content,response.getOutputStream());
    }
 
-   @RequestMapping(value = "/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/qrCodeUrl", method = RequestMethod.GET)
+    @ApiOperation(value = "生成二维码接口", notes = "")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+            @ApiImplicitParam(name = "content", paramType = "query", defaultValue = "http://www.baidu.com", value = "", required = true),
+    })
+    public  RestResult createQrCodeUrl(String content,HttpServletResponse response) throws WriterException, IOException{
+
+        String url=null;
+        try{
+            String path=commonService.getRoot()+ commonUtil.getUUID();
+            File file = new File(path);
+            OutputStream outputStream = new FileOutputStream(file);
+            commonService.createQrCode(content,outputStream);
+            url= commonService.uploadImage(path);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return new RestResult(200, "success", url);
+    }
+
+    @RequestMapping(value = "/download", method = RequestMethod.GET)
    @ApiOperation(value = "下载文件", notes = "")
    @ApiImplicitParams({
            @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true)

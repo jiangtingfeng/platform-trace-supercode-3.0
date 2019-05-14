@@ -211,4 +211,25 @@ public class CodeRelationService extends CommonUtil {
 
         return null;
     }
+
+    public String getBatchInfoId(String uuid) throws Exception{
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("uuid",uuid);
+
+        String batchId=null;
+        ResponseEntity<String> rest =  restTemplateUtil.getRequestAndReturnJosn(restCodeManagerUrl + "/sweep/data", params, null);
+        if (rest.getStatusCode().value() == 200) {
+            String body = rest.getBody();
+            JsonNode node = new ObjectMapper().readTree(body);
+            if (200 == node.get("state").asInt()) {
+                body= node.get("results").asText();
+                node = new ObjectMapper().readTree(body);
+                if(node.get("productBatchId")!=null){
+                    batchId=node.get("productBatchId").asText();
+                }
+
+            }
+        }
+        return batchId;
+    }
 }
