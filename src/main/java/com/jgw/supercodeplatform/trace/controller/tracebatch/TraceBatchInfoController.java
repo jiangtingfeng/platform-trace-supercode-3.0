@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.jgw.supercodeplatform.trace.service.tracefun.CodeRelationService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,6 +46,9 @@ public class TraceBatchInfoController extends CommonUtil {
 
     @Autowired
     private TraceBatchInfoService traceBatchInfoService;
+
+    @Autowired
+    private CodeRelationService codeRelationService;
 
     /**
      * 新增溯源批次
@@ -310,7 +314,7 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiImplicitParams({@ApiImplicitParam(paramType="query",value = "溯源批次唯一id，注意不是批次号",name="traceBatchInfoId",required=true)//,
         /*@ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),*/
     })
-	public RestResult<HashMap<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam(required = false) Integer traceBatchType, String startTime, String endTime) throws Exception{
+	public RestResult<HashMap<String, Object>> h5PageData(@RequestParam String traceBatchInfoId, @RequestParam(required = false) Integer traceBatchType, String startTime, String endTime, @RequestParam(required = false) boolean byCode) throws Exception{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date start=null,end=null;
         try{
@@ -330,7 +334,16 @@ public class TraceBatchInfoController extends CommonUtil {
             throw new  Exception("日期格式错误");
         }
 
+        if(byCode){
+            String batchId= codeRelationService.getBatchInfoId(traceBatchInfoId);
+            if(StringUtils.isEmpty(batchId)){
+                throw new SuperCodeException("未通过码管理找到对应的批次信息");
+            }
+            traceBatchInfoId=batchId;
+        }
+
 	    return traceBatchInfoService.h5PageData(traceBatchInfoId,traceBatchType,start,end);
 	}
-	
+
+
 }
