@@ -69,6 +69,8 @@ public class TraceBatchInfoController extends CommonUtil {
                 "traceTemplateId", "traceTemplateName", "h5TrancePageId", "h5TempleteName");
         TraceBatchInfo traceBatchInfo = JSONObject.parseObject(JSONObject.toJSONString(map), TraceBatchInfo.class);
         traceBatchInfo.setTraceBatchId(insertTraceBatchInfo.getTraceBatchId());//批次id可以为空,转换会变为null,需要手动转换
+        Integer defaultNodeCount= traceBatchInfoService.selectDefaultNodeCount(traceBatchInfo.getTraceTemplateId());
+        traceBatchInfo.setNodeDataCount(defaultNodeCount);
         return new RestResult(200, "success", traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo));
     }
 
