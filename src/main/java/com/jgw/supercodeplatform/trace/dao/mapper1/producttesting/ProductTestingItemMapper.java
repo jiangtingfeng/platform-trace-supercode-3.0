@@ -110,7 +110,7 @@ public interface ProductTestingItemMapper {
             "from trace_ProductTesting t\n" +
             "inner join trace_ProductTestingItem i on t.ProductTestingId = i.ProductTestingId\n" +
             "where tracebatchinfoid=#{traceBatchInfoId} and\n" +
-            " (LENGTH(imgs)>0  or LENGTH(pdfs)>0)\n" +
+            " (LENGTH(imgs)>3  or LENGTH(pdfs)>3)\n" +
             "order by testingtype desc\n" )
     List<ProductTestingItemEx> selectProductTestingItem(String tracebatchinfoid);
 }

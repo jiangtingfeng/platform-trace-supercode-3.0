@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.model.page.Page;
+import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.TraceObjectBatchInfoMapper;
 import com.jgw.supercodeplatform.trace.dto.tracebatch.ProductBatchRelationSysView;
 import com.jgw.supercodeplatform.trace.enums.BatchTableType;
@@ -74,6 +75,10 @@ public class TraceBatchInfoService extends CommonUtil {
     private String restUserUrl;
 
 
+    @Autowired
+    private TraceFunTemplateconfigMapper traceFunTemplateconfigMapper;
+
+
     private void setDefaultField(TraceBatchInfo traceBatchInfo) throws Exception {
         AccountCache userAccount = getUserLoginCache();
         String organizationId = getOrganizationId();
@@ -85,6 +90,13 @@ public class TraceBatchInfoService extends CommonUtil {
             traceBatchInfo.setNodeDataCount(0);
         }
         traceBatchInfo.setCreateMan(userAccount.getUserName());
+    }
+
+    public Integer selectDefaultNodeCount(String traceTemplateId)
+    {
+        Integer defaultNodeCount=0;
+        defaultNodeCount= traceFunTemplateconfigMapper.selectDefaultNodeCount(traceTemplateId);
+        return defaultNodeCount;
     }
 
     /**
