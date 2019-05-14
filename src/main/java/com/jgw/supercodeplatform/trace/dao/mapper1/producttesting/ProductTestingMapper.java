@@ -97,7 +97,7 @@ public interface ProductTestingMapper extends CommonSql {
                     +startWhere
                     +" a.TestingType = #{testingType} "
                     + " <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND a.OrganizeId = #{organizeId} </if> "
-                    + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') )</if> "
+                    + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') or a.ProductName LIKE CONCAT('%',#{search},'%')  or a.TraceBatchInfoName LIKE CONCAT('%',#{search},'%')  or a.OrganizationName LIKE CONCAT('%',#{search},'%') or a.ThirdpartyOrganizationName LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +page
                     +orderBy
@@ -114,7 +114,7 @@ public interface ProductTestingMapper extends CommonSql {
                     +startWhere
                     +" a.TestingType = #{testingType} "
                     + " <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND a.OrganizeId = #{organizeId} </if> "
-                    + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') )</if> "
+                    + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') or a.ProductName LIKE CONCAT('%',#{search},'%')  or a.TraceBatchInfoName LIKE CONCAT('%',#{search},'%')  or a.OrganizationName LIKE CONCAT('%',#{search},'%') or a.ThirdpartyOrganizationName LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +orderBy
                     +page

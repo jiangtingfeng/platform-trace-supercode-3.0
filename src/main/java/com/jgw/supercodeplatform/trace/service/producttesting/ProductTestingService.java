@@ -195,25 +195,28 @@ public class ProductTestingService extends AbstractPageService {
         }
     }
 
+    private boolean hasVal(String val){
+        return val!=null && val.length()>3;
+    }
+
     public List<JSONObject> getProductTesting(String tracebatchinfoid){
         List<ProductTestingItemEx> productTestingItemExes= productTestingItemMapper.selectProductTestingItem(tracebatchinfoid);
-        List<ProductTestingItemEx> testingItemExes=null,imgItems=null,pdfItems=null;
         List<JSONObject> result=new ArrayList<JSONObject>();
         if(productTestingItemExes!=null && productTestingItemExes.size()>0){
-            imgItems= productTestingItemExes.stream().filter(e->!StringUtils.isEmpty(e.getImgs())).collect(Collectors.toList());
-
             String json=null;
-            if(imgItems!=null && imgItems.size()>0){
-                for(ProductTestingItemEx productTestingItemEx:imgItems){
+            for(ProductTestingItemEx productTestingItemEx:productTestingItemExes){
+                if(hasVal(productTestingItemEx.getImgs())){
                     json= productTestingItemEx.getImgs();
-                    List<JSONObject> itemImgs= (List<JSONObject>)JSONObject.parseObject(json, ArrayList.class);
-                    result.addAll(itemImgs);
+                }else {
+                    if(hasVal(productTestingItemEx.getPdfs())){
+                        json= productTestingItemEx.getPdfImgs();
+                    }
                 }
-            } else {
-                for(ProductTestingItemEx productTestingItemEx:productTestingItemExes){
-                    json= productTestingItemEx.getPdfImgs();
+                if(StringUtils.isNotEmpty(json)){
                     List<JSONObject> itemImgs= (List<JSONObject>)JSONObject.parseObject(json, ArrayList.class);
-                    result.addAll(itemImgs);
+                    if(CollectionUtils.isNotEmpty(itemImgs)){
+                        result.addAll(itemImgs);
+                    }
                 }
             }
         }
