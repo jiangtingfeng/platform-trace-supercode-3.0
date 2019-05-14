@@ -183,7 +183,7 @@ public class CodeRelationService extends CommonUtil {
             //TraceBatchInfo traceBatchInfo= traceBatchInfoMapper.selectByTraceBatchInfoId(batchId);
             String domain=getUrl(headerMap);
             String url = String.format("%s?traceBatchInfoId=%s",domain,batchInfoId);
-            params.put("url",url);
+            params.put("url",domain);
             params.put("businessType",2);
             params.put("batchId",batchId);
             paramList.add(params);

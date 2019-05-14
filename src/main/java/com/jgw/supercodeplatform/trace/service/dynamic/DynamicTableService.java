@@ -141,6 +141,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	@Autowired
 	private TraceApplicationContextAware traceApplicationContextAware;
 
+	@Autowired
+	private TraceFunTemplateconfigMapper traceFunTemplateconfigMapper;
+
 
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
 	{
@@ -439,11 +442,13 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	{
 		String traceTemplateId=null;
 		String traceTemplateName=null;
+		Integer defaultNodeCount=0;
 		String organizationId= commonUtil.getOrganizationId();
 		TraceFuntemplateStatistical traceFunTemplateconfig= traceFuntemplateStatisticalDao.selectOrgDefaultTemplate(organizationId);
 		if(traceFunTemplateconfig!=null ){
 			traceTemplateId=traceFunTemplateconfig.getTraceTemplateId();
 			traceTemplateName=traceFunTemplateconfig.getTraceTemplateName();
+			defaultNodeCount= traceFunTemplateconfigMapper.selectDefaultNodeCount(traceTemplateId);
 		} else{
 			throw new SuperCodeTraceException("请先创建溯源模版");
 		}
@@ -493,7 +498,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				traceBatchInfoId = traceObjectBatchInfo.getTraceBatchInfoId();
 			}else if(createBatchType == ObjectTypeEnum.TRACE_BATCH.getCode()){
 
-				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
+				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),defaultNodeCount);
 				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 				traceBatchInfoId = traceBatchInfo.getTraceBatchInfoId();
 			}
@@ -520,7 +525,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-			TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
+			TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null);
 			traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
 			baseBatchInfo.setTraceBatchName(traceBatchName);
@@ -536,7 +541,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 				String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
+				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null);
 				int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
 				traceBatchInfo.setNodeDataCount(nodeDataCount);
 				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
@@ -563,7 +568,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 					BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 					String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber());
+					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null);
 					int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
 					traceBatchInfo.setNodeDataCount(nodeDataCount+1);
 					traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
