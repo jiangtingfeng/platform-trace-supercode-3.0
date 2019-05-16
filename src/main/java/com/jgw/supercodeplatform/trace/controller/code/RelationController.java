@@ -2,10 +2,12 @@ package com.jgw.supercodeplatform.trace.controller.code;
 
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.dto.code.CodeObjectRelationDto;
+import com.jgw.supercodeplatform.trace.dto.code.EmptyRelationDto;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.TestingType;
 import com.jgw.supercodeplatform.trace.service.tracefun.CodeRelationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,4 +32,15 @@ public class RelationController {
 
         return new RestResult(200, "success", codeRelationService.insertCodeRelationInfo(codeObjectRelationDto));
     }
+
+    @ApiOperation(value = "清空码关联")
+    @PostMapping(value = "/trace/code/emptyRelation")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "super-token",paramType = "header",defaultValue = "64b379cd47c843458378f479a115c322",value = "token信息",required = true)
+    })
+    public RestResult emptyRelation(@RequestBody EmptyRelationDto emptyRelationDto)throws Exception{
+
+        return new RestResult(200, "success", codeRelationService.emptyRelation(emptyRelationDto));
+    }
+
 }
