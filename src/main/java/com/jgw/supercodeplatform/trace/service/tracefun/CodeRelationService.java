@@ -178,7 +178,7 @@ public class CodeRelationService extends CommonUtil {
         try {
 
             headerMap.put("super-token", getSuperToken());
-            ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/empty/relation", JSONObject.toJSONString( emptyRelationDto), headerMap);
+            ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/relation/empty/relation", JSONObject.toJSONString( emptyRelationDto), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
                 String body = rest.getBody();
