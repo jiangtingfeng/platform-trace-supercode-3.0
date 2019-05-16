@@ -34,7 +34,7 @@ public class RelationController {
     }
 
     @ApiOperation(value = "清空码关联")
-    @PostMapping(value = "/trace/code/emptyRelation")
+    @PostMapping(value = "/empty")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "super-token",paramType = "header",defaultValue = "64b379cd47c843458378f479a115c322",value = "token信息",required = true)
     })
