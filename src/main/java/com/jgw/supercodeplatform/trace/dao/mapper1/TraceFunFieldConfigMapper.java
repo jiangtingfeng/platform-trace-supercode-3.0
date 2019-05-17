@@ -31,7 +31,7 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
 	@Select("select EnTableName enTableName " +
 			"from trace_fun_config t " +
 			"left join trace_fun f  on t.FUNCTIONid=f.FUNCTIONid " +
-			"where f.FunctionId=#{functionId}   AND f.TraceTemplateId <>'DELETE'   limit 1")
+			"where f.FunctionId=#{functionId}    AND (f.TraceTemplateId is null or f.TraceTemplateId <>'DELETE')  limit 1")
 	String getEnTableNameByFunctionId(@Param("functionId") String functionId);
 
 	@Select("<script>"
