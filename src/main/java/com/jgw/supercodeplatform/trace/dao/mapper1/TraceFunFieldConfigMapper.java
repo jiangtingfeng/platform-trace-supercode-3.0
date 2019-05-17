@@ -28,7 +28,7 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
 	@InsertProvider(type = TraceFunFieldConfigProvider.class, method = "batchInsert")
 	void batchInsert(@Param("list")List<TraceFunFieldConfig> arg0);
 	
-	@Select("select EnTableName enTableName from trace_fun_config where FunctionId=#{functionId} limit 1")
+	@Select("select EnTableName enTableName from trace_fun_config where FunctionId=#{functionId}  AND TraceTemplateId IS NULL  limit 1")
 	String getEnTableNameByFunctionId(@Param("functionId") String functionId);
 
 	@Select("<script>"
