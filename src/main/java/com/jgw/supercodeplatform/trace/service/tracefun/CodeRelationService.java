@@ -10,6 +10,7 @@ import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
 import com.jgw.supercodeplatform.trace.common.util.RestTemplateUtil;
 import com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo.TraceBatchInfoMapper;
 import com.jgw.supercodeplatform.trace.dto.code.CodeObjectRelationDto;
+import com.jgw.supercodeplatform.trace.dto.code.EmptyRelationDto;
 import com.jgw.supercodeplatform.trace.dto.code.ObjectPropertyDto;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.FieldBusinessParam;
 import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
@@ -169,7 +170,31 @@ public class CodeRelationService extends CommonUtil {
         return null;
     }
 
-    public JsonNode addSbatchUrl(Integer batchId,String batchInfoId) throws Exception{
+    public JsonNode emptyRelation(EmptyRelationDto emptyRelationDto){
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, String> headerMap = new HashMap<String, String>();
+
+        try {
+
+            headerMap.put("super-token", getSuperToken());
+            ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/relation/empty/relation", JSONObject.toJSONString( emptyRelationDto), headerMap);
+
+            if (rest.getStatusCode().value() == 200) {
+                String body = rest.getBody();
+                JsonNode node = new ObjectMapper().readTree(body);
+                if (200 == node.get("state").asInt()) {
+                    return node.get("results");
+                }
+            }
+        } catch (SuperCodeTraceException | IOException | SuperCodeException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+  public JsonNode addSbatchUrl(Integer batchId,String batchInfoId) throws Exception{
 
         HashMap<String, Object> params = new HashMap<String, Object>();
         Map<String, String> headerMap = new HashMap<String, String>();
