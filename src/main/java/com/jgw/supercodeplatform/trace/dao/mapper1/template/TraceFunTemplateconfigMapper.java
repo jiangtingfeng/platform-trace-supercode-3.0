@@ -180,7 +180,11 @@ public interface TraceFunTemplateconfigMapper extends CommonSql{
      * @param traceTemplateId
      * @return
      */
-	@Select("select "+allFieldsWithPrefix+",tc.EnTableName enTableName from trace_fun_templateconfig t left join trace_fun_config tc on t.NodeFunctionId=tc.FunctionId where t.TraceTemplateId=#{traceTemplateId} GROUP BY t.NodeFunctionId ORDER BY t.NodeWeight asc")
+	@Select("select "+allFieldsWithPrefix+",tc.EnTableName enTableName " +
+			"from trace_fun_templateconfig t " +
+			"left join trace_fun f on t.NodeFunctionId=f.FUNCTIONid and f.TraceTemplateId is null  " +
+			"left join trace_fun_config tc  on f.FUNCTIONid=tc.FunctionId and f.TableName=tc.EnTableName " +
+			"where t.TraceTemplateId=#{traceTemplateId} GROUP BY t.NodeFunctionId ORDER BY t.NodeWeight asc")
 	List<TraceFunTemplateconfigVO> getTemplateAndFieldInfoByTemplateId(@Param("traceTemplateId")String traceTemplateId);
 	
 	@Delete("delete from trace_fun_templateconfig where  Id =#{id}")
