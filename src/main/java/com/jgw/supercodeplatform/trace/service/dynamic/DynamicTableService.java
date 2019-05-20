@@ -816,14 +816,6 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				throw new SuperCodeTraceException("无此功能字段", 500);
 			}
 
-			Boolean flag=commonUtil.getTraceSeniorFunFlag();
-			if (null!=flag && flag) {
-				blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
-			}
-			Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
-			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
-				antChainInfoService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
-			}
 			//插入成功更新批次节点数据条数
 			Integer nodeDataCount = traceBatchInfo.getNodeDataCount();
 			if (null == nodeDataCount) {
@@ -832,6 +824,16 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				traceBatchInfo.setNodeDataCount(nodeDataCount + 1);
 			}
 			traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+
+			Boolean flag=commonUtil.getTraceSeniorFunFlag();
+			if (null!=flag && flag) {
+				blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
+			}
+			Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
+			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
+				antChainInfoService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
