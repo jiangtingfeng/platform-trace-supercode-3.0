@@ -27,7 +27,7 @@ public class FarmInfoService extends AbstractPageService {
         returnParamsMap = getPageAndRetuanMap(map, total);
 
         List<FarmInfo> testingTypes= farmInfoMapper.selectFarmInfo(map);
-        List<ObjectUniqueValueResult> objectUniqueValueResults= testingTypes.stream().map(e->new ObjectUniqueValueResult(e.getFarmName(),String.valueOf(e.getId()))).collect(Collectors.toList());
+        List<ObjectUniqueValueResult> objectUniqueValueResults= testingTypes.stream().map(e->new ObjectUniqueValueResult(String.valueOf(e.getId()),e.getFarmName())).collect(Collectors.toList());
 
         dataMap = returnParamsMap.getReturnMap();
         getRetunMap(dataMap, objectUniqueValueResults);
