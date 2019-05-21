@@ -213,14 +213,19 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return massifId;
 	}
 
-	private FieldBusinessParam getObjectParam(LineBusinessData lineBusinessData,String fieldCode)
+	private FieldBusinessParam getObjectParam(List<FieldBusinessParam> fields,String fieldCode)
 	{
-		List<FieldBusinessParam> params= lineBusinessData.getFields().stream().filter(e->e.getFieldCode().equals(fieldCode)).collect(Collectors.toList());
+		List<FieldBusinessParam> params= fields.stream().filter(e->e.getFieldCode().equals(fieldCode)).collect(Collectors.toList());
 		FieldBusinessParam param=null;
 		if(params!=null&&params.size()>0){
 			param=params.get(0);
 		}
 		return param;
+	}
+
+	private FieldBusinessParam getObjectParam(LineBusinessData lineBusinessData,String fieldCode)
+	{
+		return getObjectParam(lineBusinessData.getFields(),fieldCode);
 	}
 
 	private FieldBusinessParam getObjectParam(LineBusinessData lineBusinessData,Integer objectCode) throws SuperCodeTraceException
@@ -406,11 +411,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		dynamicServiceDelegate.funAddOrUpdateSqlBuilder(param.getLineData(), 1,sqlFieldNameBuilder,sqlFieldValueBuilder,false);
 
-		if(identityMap.get("traceBatchInfoId")!=null){
+/*		if(identityMap.get("traceBatchInfoId")!=null){
 			String traceBatchInfoId=String.valueOf(identityMap.get("traceBatchInfoId"));
 			sqlFieldNameBuilder.append(ObjectTypeEnum.TRACE_BATCH.getFieldCode()).append(",");
 			sqlFieldValueBuilder.append("'").append(traceBatchInfoId).append("'").append(",");
-		}
+		}*/
 
 		String parentId=identityMap.get("ParentId").toString();
 		sqlFieldNameBuilder.append("ParentId").append(",");
@@ -576,6 +581,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 					baseBatchInfo.setTraceBatchName(traceBatchName);
 					baseBatchInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
 					baseBatchInfos.add(baseBatchInfo);
+
+					FieldBusinessParam batchField= getObjectParam(fieldBusinessParams,"TraceBatchInfoId");
+					batchField.setFieldValue(traceBatchInfo.getTraceBatchInfoId());
 
 					TraceBatchRelation traceBatchRelation=new TraceBatchRelation(getUUID(),traceBatchInfo.getTraceBatchInfoId(),parentTraceBatchInfoId,parentBatchTableType) ;
 					traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
@@ -816,14 +824,6 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				throw new SuperCodeTraceException("无此功能字段", 500);
 			}
 
-			Boolean flag=commonUtil.getTraceSeniorFunFlag();
-			if (null!=flag && flag) {
-				blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
-			}
-			Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
-			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
-				antChainInfoService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
-			}
 			//插入成功更新批次节点数据条数
 			Integer nodeDataCount = traceBatchInfo.getNodeDataCount();
 			if (null == nodeDataCount) {
@@ -832,6 +832,16 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				traceBatchInfo.setNodeDataCount(nodeDataCount + 1);
 			}
 			traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+
+			Boolean flag=commonUtil.getTraceSeniorFunFlag();
+			if (null!=flag && flag) {
+				blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
+			}
+			Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
+			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
+				antChainInfoService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
