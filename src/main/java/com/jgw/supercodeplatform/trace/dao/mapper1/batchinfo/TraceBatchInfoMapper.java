@@ -155,4 +155,7 @@ public interface TraceBatchInfoMapper extends CommonSql{
 
 	@Select("SELECT * FROM trace_batchinfo where TraceBatchInfoId in (${traceBatchInfoIds})")
 	List<TraceBatchInfo> selectByTraceBatchInfoIds(@Param("traceBatchInfoIds")String traceBatchInfoIds);
+
+	@Select("SELECT * FROM trace_batchinfo WHERE TraceBatchName=#{traceBatchName} limit 0,1")
+	TraceBatchInfo selectByBatchName(@Param("traceBatchName") String traceBatchName);
 }
