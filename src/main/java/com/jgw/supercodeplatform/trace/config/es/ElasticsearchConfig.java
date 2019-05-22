@@ -30,6 +30,9 @@ public class ElasticsearchConfig {
 	private String ip4;
 	@Value("${elastic.port}")
 	private Integer port;
+
+	@Value("${elastic.enable}")
+	private boolean enableElastic;
 	
 	/**
 	 * 重写TransportClient Bean
@@ -42,11 +45,13 @@ public class ElasticsearchConfig {
 	public TransportClient elClient() throws UnknownHostException {
 		Settings settings = Settings.builder()
 		        .put("cluster.name", clusterName).put("client.transport.sniff", true).build();
-		TransportClient client = new PreBuiltTransportClient(settings)
-				.addTransportAddress(new TransportAddress(InetAddress.getByName(ip1), port))
-				.addTransportAddress(new TransportAddress(InetAddress.getByName(ip2), port))
-				.addTransportAddress(new TransportAddress(InetAddress.getByName(ip3), port))
-				.addTransportAddress(new TransportAddress(InetAddress.getByName(ip4), port));
+		TransportClient client = new PreBuiltTransportClient(settings);
+		if(enableElastic){
+			client.addTransportAddress(new TransportAddress(InetAddress.getByName(ip1), port))
+					.addTransportAddress(new TransportAddress(InetAddress.getByName(ip2), port))
+					.addTransportAddress(new TransportAddress(InetAddress.getByName(ip3), port))
+					.addTransportAddress(new TransportAddress(InetAddress.getByName(ip4), port));
+		}
 		return client;
 	}
 	
