@@ -53,28 +53,27 @@ public class CodeService extends CommonUtil {
 
             List<String> batchIds= relationViews.stream().map(e->"'"+String.valueOf(e.get("productBatchId"))+"'").collect(Collectors.toList());
 
-            TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByFieldCode(organizationId);
-            String enTableName= packingSpecField.getEnTableName();
+            TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByFieldCode(organizationId,"PackingStaff");
+            if(packingSpecField!=null){
+                String enTableName= packingSpecField.getEnTableName();
+                DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,packingSpecField.getFunctionId());
+                String selectSql = String.format("select * from %s where TraceBatchInfoId in (%s) ",enTableName,StringUtils.join(batchIds,","));
+                List<LinkedHashMap<String, Object>> batchList= dao.select(selectSql);
+                if(CollectionUtils.isNotEmpty(batchList)){
+                    for(LinkedHashMap<String, Object> batchMap:batchList){
+                        String traceBatchInfoId= batchMap.get("TraceBatchInfoId").toString();
+                        String packingSpec=String.valueOf( batchMap.get("PackingSpec"));
+                        String packingQuantity=String.valueOf( batchMap.get("PackingQuantity"));
 
-            DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,packingSpecField.getFunctionId());
-
-            String selectSql = String.format("select * from %s where TraceBatchInfoId in (%s) ",enTableName,StringUtils.join(batchIds,","));
-            List<LinkedHashMap<String, Object>> batchList= dao.select(selectSql);
-            if(CollectionUtils.isNotEmpty(batchList)){
-                for(LinkedHashMap<String, Object> batchMap:batchList){
-                    String traceBatchInfoId= batchMap.get("TraceBatchInfoId").toString();
-                    String packingSpec=String.valueOf( batchMap.get("PackingSpec"));
-                    String packingQuantity=String.valueOf( batchMap.get("PackingQuantity"));
-
-                    JSONObject relation= relationViews.stream().filter(e->String.valueOf(e.get("productBatchId")).equals(traceBatchInfoId)).collect(Collectors.toList()).get(0);
-                    relation.put("packingSpec",packingSpec);
-                    relation.put("packingQuantity",packingQuantity);
+                        JSONObject relation= relationViews.stream().filter(e->String.valueOf(e.get("productBatchId")).equals(traceBatchInfoId)).collect(Collectors.toList()).get(0);
+                        relation.put("packingSpec",packingSpec);
+                        relation.put("packingQuantity",packingQuantity);
+                    }
                 }
             }
 
             dataMap.put("list",relationViews);
             dataMap.put("pagination",page);
-
         }
         return dataMap;
     }
