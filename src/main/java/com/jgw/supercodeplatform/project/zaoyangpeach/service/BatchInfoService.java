@@ -32,6 +32,12 @@ public class BatchInfoService extends CommonUtil {
     @Autowired
     private TraceApplicationContextAware applicationAware;
 
+    /**
+     * 获取批次包装规格数量品级等生产过程信息
+     * @param batchName
+     * @return
+     * @throws Exception
+     */
     public Map<String,Object> getBatchInfo(String batchName) throws Exception{
 
         String organizationId = getOrganizationId();
