@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Select;
 public interface  BatchInfoMapper {
 
 
-    @Select("SELECT * FROM trace_fun_config c WHERE FieldCode='PackingSpec' and  c.FunctionId in (\n" +
+    @Select("SELECT * FROM trace_fun_config c WHERE FieldCode=#{fieldCode} and  c.FunctionId in (\n" +
             "\tSELECT ComponentId FROM trace_fun_component\n" +
             "\tWHERE funid in (\n" +
             "\t\tSELECT NodeFunctionId FROM trace_fun_templateconfig WHERE TraceTemplateId in (\n" +
@@ -18,8 +18,14 @@ public interface  BatchInfoMapper {
             "\t\t)\n" +
             "\t)\n" +
             ") limit 0,1")
-    TraceFunFieldConfig selectByFieldCode(@Param("organizationId") String organizationId);
+    TraceFunFieldConfig selectByNestCompentFieldCode(@Param("organizationId") String organizationId,@Param("fieldCode")String fieldCode);
 
 
-
+    @Select("SELECT * FROM trace_fun_config c WHERE FieldCode=#{fieldCode} and  c.FunctionId in (            \n" +
+            "SELECT NodeFunctionId FROM trace_fun_templateconfig WHERE TraceTemplateId in ( \n" +
+            "SELECT TraceTemplateId FROM trace_funtemplatestatistical \n" +
+            "where OrganizationId=#{organizationId}\n" +
+            ") \n" +
+            ") limit 0,1")
+    TraceFunFieldConfig selectByFieldCode(@Param("organizationId") String organizationId,@Param("fieldCode")String fieldCode);
 }

@@ -10,6 +10,7 @@ import com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach.BatchInfoMapper;
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
 import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class BatchInfoService extends CommonUtil {
@@ -34,7 +36,7 @@ public class BatchInfoService extends CommonUtil {
 
         String organizationId = getOrganizationId();
 
-        organizationId="5d4010983d914fa7901b389d6ddcd39a";
+        //organizationId="5d4010983d914fa7901b389d6ddcd39a";
 
         TraceBatchInfo traceBatchInfo= traceBatchInfoMapper.selectByBatchName(batchName);
         if(traceBatchInfo==null){
@@ -48,7 +50,7 @@ public class BatchInfoService extends CommonUtil {
         result.put("productName",traceBatchInfo.getProductName());
         result.put("traceBatchName",traceBatchInfo.getTraceBatchName());
 
-        TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByFieldCode(organizationId);
+        TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByNestCompentFieldCode(organizationId,"PackingSpec");
         String enTableName= packingSpecField.getEnTableName();
 
         DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,packingSpecField.getFunctionId());
@@ -59,8 +61,17 @@ public class BatchInfoService extends CommonUtil {
             result.put("packingSpec", batchList.get(0).get("PackingSpec"));
             result.put("packingQuantity", batchList.get(0).get("PackingQuantity"));
 
-        }
+            TraceFunFieldConfig packingStaff = batchInfoMapper.selectByFieldCode(organizationId,"PackingStaff");
+            enTableName=packingStaff.getEnTableName();
+            dao=applicationAware.getDynamicMapperByFunctionId(null,packingStaff.getFunctionId());
 
+            Integer parentId=Integer.valueOf(batchList.get(0).get("ParentId").toString());
+            selectSql=String.format("SELECT * FROM %s WHERE ID =%s",enTableName, parentId);
+            List<LinkedHashMap<String, Object>> packingClassList= dao.select(selectSql);
+            if(CollectionUtils.isNotEmpty(packingClassList)){
+                result.put("packingClass",packingClassList.get(0).get("PackingClass"));
+            }
+        }
         return result;
     }
 }
