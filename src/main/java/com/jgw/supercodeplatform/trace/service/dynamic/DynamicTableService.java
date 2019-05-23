@@ -1033,7 +1033,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return list;
 	}
 
-	private void getFunComponentData(String funId,List<LinkedHashMap<String, Object>> list)
+	public void getFunComponentData(String funId,List<LinkedHashMap<String, Object>> list)
 			throws SuperCodeTraceException, SuperCodeException {
 
 		String orgnizationId=commonUtil.getOrganizationId();
@@ -1100,7 +1100,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
      * @throws SuperCodeTraceException
      * @throws SuperCodeException
      */
-	private String querySqlBuilder(String traceBatchInfoId,String traceTemplateId,String functionId, String tableName,String nodeType, 
+	public String querySqlBuilder(String traceBatchInfoId,String traceTemplateId,String functionId, String tableName,String nodeType,
 			boolean isCount,boolean fromH5Page,String orgnizationId, DaoSearch searchParam)
 			throws SuperCodeTraceException, SuperCodeException {
 
