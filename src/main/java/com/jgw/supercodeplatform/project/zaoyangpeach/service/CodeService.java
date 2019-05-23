@@ -67,16 +67,35 @@ public class CodeService extends CommonUtil {
                 DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,packingSpecField.getFunctionId());
                 String selectSql = String.format("select * from %s where TraceBatchInfoId in (%s) ",enTableName,StringUtils.join(batchIds,","));
                 List<LinkedHashMap<String, Object>> batchList= dao.select(selectSql);
+
+                TraceFunFieldConfig packingStaff = batchInfoMapper.selectByFieldCode(organizationId,"PackingStaff");
+                enTableName=packingStaff.getEnTableName();
+                dao=applicationAware.getDynamicMapperByFunctionId(null,packingStaff.getFunctionId());
+
+                List<Integer> parentIds= batchList.stream().map(e->Integer.valueOf(e.get("ParentId").toString())).collect(Collectors.toList());
+                selectSql=String.format("SELECT * FROM %s WHERE ID in (%s)",enTableName, StringUtils.join(parentIds,","));
+                List<LinkedHashMap<String, Object>> packingClassList= dao.select(selectSql);
+
                 if(CollectionUtils.isNotEmpty(batchList)){
                     for(LinkedHashMap<String, Object> batchMap:batchList){
                         String traceBatchInfoId= batchMap.get("TraceBatchInfoId").toString();
                         String packingSpec=String.valueOf( batchMap.get("PackingSpec"));
                         String packingQuantity=String.valueOf( batchMap.get("PackingQuantity"));
+                        String parentId=String.valueOf( batchMap.get("ParentId"));
+
+                        List<LinkedHashMap<String, Object>> matchBatchInfos=null;
+                        if(CollectionUtils.isNotEmpty(packingClassList)){
+                            matchBatchInfos= packingClassList.stream().filter(e->e.get("Id").toString().equals(parentId)).collect(Collectors.toList());
+                        }
 
                         List<JSONObject> relations= relationViews.stream().filter(e->String.valueOf(e.get("productBatchId")).equals(traceBatchInfoId)).collect(Collectors.toList());
                         for(JSONObject relation:relations){
                             relation.put("packingSpec",packingSpec);
                             relation.put("packingQuantity",packingQuantity);
+
+                            if(CollectionUtils.isNotEmpty(matchBatchInfos)){
+                                relation.put("packingClass",matchBatchInfos.get(0).get("PackingClass"));
+                            }
                         }
                     }
                 }
