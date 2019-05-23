@@ -10,6 +10,7 @@ import com.jgw.supercodeplatform.trace.common.util.RestTemplateUtil;
 import com.jgw.supercodeplatform.trace.dao.DynamicBaseMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach.BatchInfoMapper;
 import com.jgw.supercodeplatform.trace.pojo.TraceFunFieldConfig;
+import com.jgw.supercodeplatform.trace.service.common.CommonService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,9 @@ public class CodeService extends CommonUtil {
 
     @Autowired
     private TraceApplicationContextAware applicationAware;
+
+    @Autowired
+    private CommonService commonService;
 
     @Value("${rest.codemanager.url}")
     private String restCodeManagerUrl;
@@ -47,13 +52,16 @@ public class CodeService extends CommonUtil {
         ResponseEntity<String> rest =  restTemplateUtil.getRequestAndReturnJosn(restCodeManagerUrl + "/code/relation/list/relation/record", params, headerMap);
         if (rest.getStatusCode().value() == 200) {
             String body = rest.getBody();
+
+            //body= commonService.txt2String(new File("G:\\body.txt"));
+
             JsonNode resultsNode=new ObjectMapper().readTree(body).get("results");
             List<JSONObject> relationViews= (List<JSONObject>)JSONObject.parseObject(resultsNode.get("list").toString(), ArrayList.class);
             Page page= (Page)JSONObject.parseObject(resultsNode.get("pagination").toString(), Page.class);
 
             List<String> batchIds= relationViews.stream().map(e->"'"+String.valueOf(e.get("productBatchId"))+"'").collect(Collectors.toList());
 
-            TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByFieldCode(organizationId,"PackingStaff");
+            TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByNestCompentFieldCode(organizationId,"PackingSpec");
             if(packingSpecField!=null){
                 String enTableName= packingSpecField.getEnTableName();
                 DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,packingSpecField.getFunctionId());
@@ -65,9 +73,11 @@ public class CodeService extends CommonUtil {
                         String packingSpec=String.valueOf( batchMap.get("PackingSpec"));
                         String packingQuantity=String.valueOf( batchMap.get("PackingQuantity"));
 
-                        JSONObject relation= relationViews.stream().filter(e->String.valueOf(e.get("productBatchId")).equals(traceBatchInfoId)).collect(Collectors.toList()).get(0);
-                        relation.put("packingSpec",packingSpec);
-                        relation.put("packingQuantity",packingQuantity);
+                        List<JSONObject> relations= relationViews.stream().filter(e->String.valueOf(e.get("productBatchId")).equals(traceBatchInfoId)).collect(Collectors.toList());
+                        for(JSONObject relation:relations){
+                            relation.put("packingSpec",packingSpec);
+                            relation.put("packingQuantity",packingQuantity);
+                        }
                     }
                 }
             }

@@ -20,8 +20,8 @@ public class BatchInfoController {
     private BatchInfoService batchInfoService;
 
     @GetMapping("/selectByName")
-    public RestResult selectByName(String batchName) throws Exception {
-        return new RestResult(200, "success", batchInfoService.getBatchInfo(batchName));
+    public RestResult selectByName(String batchName,Integer functionType) throws Exception {
+        return new RestResult(200, "success", batchInfoService.getBatchInfo(batchName,functionType));
     }
 
 }

@@ -35,6 +35,7 @@ import org.apache.lucene.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,6 +144,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private TraceFunTemplateconfigMapper traceFunTemplateconfigMapper;
+
+	@Autowired
+	private ThreadPoolTaskExecutor taskExecutor;
 
 
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
@@ -833,6 +837,21 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			}
 			traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
 
+			taskExecutor.execute(()->{
+				coChain(param,traceBatchInfoId,fieldsMap,traceBatchInfo);
+			});
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
+		}
+		
+		backResult.setState(200);
+		backResult.setMsg("操作成功");
+		return backResult;
+	}
+
+	private void coChain(DynamicAddNodeParam param,String traceBatchInfoId,Map<String, TraceFunFieldConfig> fieldsMap,TraceBatchInfo traceBatchInfo) {
+		try{
 			Boolean flag=commonUtil.getTraceSeniorFunFlag();
 			if (null!=flag && flag) {
 				blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
@@ -841,15 +860,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
 				antChainInfoService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
 			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		}catch (Exception e){
+			logger.error(e.getMessage(),e);
 		}
-		
-		backResult.setState(200);
-		backResult.setMsg("操作成功");
-		return backResult;
 	}
+
     /**
      * 注意进入这个方法事 StringBuilder sqlFieldValueBuilder后面都有一个人','
      * @param tableName
