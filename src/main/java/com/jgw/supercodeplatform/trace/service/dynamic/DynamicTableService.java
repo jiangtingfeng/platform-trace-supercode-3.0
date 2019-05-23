@@ -29,6 +29,7 @@ import com.jgw.supercodeplatform.trace.pojo.template.TraceFuntemplateStatistical
 import com.jgw.supercodeplatform.trace.pojo.tracefun.*;
 import com.jgw.supercodeplatform.trace.service.antchain.AntChainInfoService;
 import com.jgw.supercodeplatform.trace.service.tracefun.*;
+import com.jgw.supercodeplatform.trace.service.zaoyangpeach.StoragePlaceService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.util.CollectionUtil;
@@ -147,6 +148,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 	@Autowired
 	private ThreadPoolTaskExecutor taskExecutor;
+
+	@Autowired
+	private StoragePlaceService storagePlaceService;
 
 
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
@@ -624,11 +628,18 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 			deviceService.insertUsageInfo(deviceId,operationalContent);
 		}
-		String associateType=getCodeAssociateType(param.getLineData());
+
+		FieldBusinessParam storagePlaceField =getObjectParam(param.getLineData(),"StoragePlace");
+		if(storagePlaceField!=null){
+			FieldBusinessParam batchField= getObjectParam(param.getLineData(),"TraceBatchInfoId");
+			String storagePlaceId= storagePlaceField.getObjectUniqueValue();
+			storagePlaceService.insertBatchStoragePlaceRelation(storagePlaceId,batchField.getFieldValue());
+		}
+	/*	String associateType=getCodeAssociateType(param.getLineData());
 		if(!StringUtils.isEmpty(associateType)){
 			//添加码关联信息
 			codeRelationService.insertCodeRelationInfo(param.getLineData().getFields());
-		}
+		}*/
 
 		List<FunComponentDataModel> componentDataModels= param.getLineData().getFunComponentDataModels();
 		if (componentDataModels!=null && componentDataModels.size()>0){
@@ -646,6 +657,13 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 							//保存功能组件中的字段数据
 							addFunComponentData(componentFunParam,identityMap);
+
+							storagePlaceField =getObjectParam(lineBusinessData,"StoragePlace");
+							if(storagePlaceField!=null){
+								FieldBusinessParam batchField= getObjectParam(lineBusinessData,"TraceBatchInfoId");
+								String storagePlaceId= storagePlaceField.getObjectUniqueValue();
+								storagePlaceService.insertBatchStoragePlaceRelation(storagePlaceId,batchField.getFieldValue());
+							}
 
 							if(funComponentDataModel.getComponentType()== ComponentTypeEnum.MaterielCompent.getKey()){
 								//添加物料出库记录

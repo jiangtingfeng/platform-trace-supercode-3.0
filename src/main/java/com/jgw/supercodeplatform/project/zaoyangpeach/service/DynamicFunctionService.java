@@ -82,7 +82,7 @@ public class DynamicFunctionService extends AbstractPageService<DynamicTableRequ
                 String traceBatchInfoId= businessMap.get("TraceBatchInfoId").toString();
                 List<TraceBatchInfo> matchBatchInfos= traceBatchInfos.stream().filter(e->e.getTraceBatchInfoId().equals(traceBatchInfoId)).collect(Collectors.toList());
                 if(CollectionUtils.isNotEmpty(matchBatchInfos)){
-                    businessMap.put("traceBatchName",  matchBatchInfos.get(0).getTraceBatchName());
+                    businessMap.put("TraceBatchName",  matchBatchInfos.get(0).getTraceBatchName());
                 }
             }
         }
