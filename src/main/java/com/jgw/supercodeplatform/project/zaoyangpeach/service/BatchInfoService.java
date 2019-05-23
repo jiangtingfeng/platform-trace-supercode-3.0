@@ -38,9 +38,7 @@ public class BatchInfoService extends CommonUtil {
      * @return
      * @throws Exception
      */
-    public Map<String,Object> getBatchInfo(String batchName) throws Exception{
-
-        String organizationId = getOrganizationId();
+    public Map<String,Object> getBatchInfo(String batchName,Integer functionType) throws Exception{
 
         //organizationId="5d4010983d914fa7901b389d6ddcd39a";
 
@@ -55,6 +53,28 @@ public class BatchInfoService extends CommonUtil {
         result.put("productId",traceBatchInfo.getProductId());
         result.put("productName",traceBatchInfo.getProductName());
         result.put("traceBatchName",traceBatchInfo.getTraceBatchName());
+
+        switch (functionType){
+            case 1:
+                selectPurchaseInfo(traceBatchInfoId,result);
+                break;
+            case 2:
+                selectSortingInfo(traceBatchInfoId,result);
+                break;
+            case 3:
+                selectPackingInfo(traceBatchInfoId,result);
+                break;
+            default:
+                selectPackingInfo(traceBatchInfoId,result);
+                break;
+        }
+
+
+        return result;
+    }
+
+    void selectPackingInfo(String traceBatchInfoId, Map<String,Object> result) throws Exception{
+        String organizationId = getOrganizationId();
 
         TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByNestCompentFieldCode(organizationId,"PackingSpec");
         String enTableName= packingSpecField.getEnTableName();
@@ -78,6 +98,38 @@ public class BatchInfoService extends CommonUtil {
                 result.put("packingClass",packingClassList.get(0).get("PackingClass"));
             }
         }
-        return result;
     }
+
+    void selectPurchaseInfo(String traceBatchInfoId, Map<String,Object> result) throws Exception{
+        String organizationId = getOrganizationId();
+
+        TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByFieldCode(organizationId,"PurchaseStaff");
+        String enTableName= packingSpecField.getEnTableName();
+
+        DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,packingSpecField.getFunctionId());
+
+        String selectSql = String.format("select * from %s where TraceBatchInfoId = '%s' ",enTableName,traceBatchInfoId);
+        List<LinkedHashMap<String, Object>> batchList= dao.select(selectSql);
+        if(CollectionUtils.isNotEmpty(batchList)){
+            result.put("purchaseQuantity", batchList.get(0).get("Quantity"));
+        }
+    }
+
+    void selectSortingInfo(String traceBatchInfoId, Map<String,Object> result) throws Exception{
+        String organizationId = getOrganizationId();
+
+        TraceFunFieldConfig packingSpecField = batchInfoMapper.selectByNestCompentFieldCode(organizationId,"SortingClass");
+        String enTableName= packingSpecField.getEnTableName();
+
+        DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,packingSpecField.getFunctionId());
+
+        String selectSql = String.format("select * from %s where TraceBatchInfoId = '%s' ",enTableName,traceBatchInfoId);
+        List<LinkedHashMap<String, Object>> batchList= dao.select(selectSql);
+        if(CollectionUtils.isNotEmpty(batchList)){
+            result.put("sortingClass", batchList.get(0).get("SortingClass"));
+            result.put("sortingQuantity", batchList.get(0).get("SortingQuantity"));
+
+        }
+    }
+
 }
