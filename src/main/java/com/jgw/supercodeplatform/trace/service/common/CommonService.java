@@ -21,9 +21,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -101,6 +99,21 @@ public class CommonService  extends CommonUtil {
         String root=directory.getAbsolutePath()+"/files/";
         System.out.println(root);
         return root;
+    }
+
+    public String txt2String(File file){
+        StringBuilder result = new StringBuilder();
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(file));//构造一个BufferedReader类来读取文件
+            String s = null;
+            while((s = br.readLine())!=null){//使用readLine方法，一次读一行
+                result.append(System.lineSeparator()+s);
+            }
+            br.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return result.toString();
     }
 
 }
