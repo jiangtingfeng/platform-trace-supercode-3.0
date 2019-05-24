@@ -55,7 +55,4 @@ public interface SortingPlaceMapper  extends CommonSql {
         "where Id = #{id,jdbcType=INTEGER}"
     })
     int updateByPrimaryKey(SortingPlace record);
-
-    @Select("select @@IDENTITY")
-    String selectIdentity();
 }

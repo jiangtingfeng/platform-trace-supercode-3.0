@@ -70,6 +70,7 @@ public class StoragePlaceService extends AbstractPageService {
             record.setPlaceNumber(placeNumber);
         }
 
+        record.setDisableFlag(0);
         record.setPlaceId(getUUID());
         storagePlaceMapper.insert(record);
         return record.getPlaceId();

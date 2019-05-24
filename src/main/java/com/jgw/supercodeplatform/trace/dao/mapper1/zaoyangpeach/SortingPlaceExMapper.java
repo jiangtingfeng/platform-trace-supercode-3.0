@@ -1,9 +1,10 @@
 package com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach;
 
 import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.SortingPlace;
-import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.StoragePlace;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import java.util.List;
+
+import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.type.JdbcType;
 
 import java.util.List;
 import java.util.Map;
@@ -36,5 +37,6 @@ public interface SortingPlaceExMapper extends SortingPlaceMapper {
     })
     List<SortingPlace> selectSortingPlace(Map<String, Object> var1);
 
-
+    @Select("select @@IDENTITY")
+    String selectIdentity();
 }

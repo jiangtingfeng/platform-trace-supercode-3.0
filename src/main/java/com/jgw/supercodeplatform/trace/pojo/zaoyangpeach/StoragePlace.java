@@ -23,6 +23,8 @@ public class StoragePlace {
 
     private String placeNumber;
 
+    private String placeStaffId;
+
     public Integer getId() {
         return id;
     }
@@ -101,5 +103,13 @@ public class StoragePlace {
 
     public void setPlaceNumber(String placeNumber) {
         this.placeNumber = placeNumber == null ? null : placeNumber.trim();
+    }
+
+    public String getPlaceStaffId() {
+        return placeStaffId;
+    }
+
+    public void setPlaceStaffId(String placeStaffId) {
+        this.placeStaffId = placeStaffId == null ? null : placeStaffId.trim();
     }
 }

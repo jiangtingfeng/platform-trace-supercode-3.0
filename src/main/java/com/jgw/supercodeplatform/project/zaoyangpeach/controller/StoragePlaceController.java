@@ -1,9 +1,11 @@
 package com.jgw.supercodeplatform.project.zaoyangpeach.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jgw.supercodeplatform.trace.common.model.ObjectUniqueValueResult;
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.dto.zaoyangpeach.StoragePlaceParam;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.TestingType;
+import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.SortingPlace;
 import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.StoragePlace;
 import com.jgw.supercodeplatform.trace.service.zaoyangpeach.StoragePlaceService;
 import io.swagger.annotations.Api;
@@ -14,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/trace/zaoyangpeach/storageplace")
@@ -41,7 +45,7 @@ public class StoragePlaceController {
             @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
             @ApiImplicitParam(name = "search", paramType = "query", defaultValue = "0", value = "搜索值")
     })
-    public RestResult listTestingType(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
+    public RestResult listStoragePlace(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
         return new RestResult(200, "success", storagePlaceService.listStoragePlace(map));
     }
 
@@ -85,5 +89,21 @@ public class StoragePlaceController {
     public RestResult updateDisableFlag(Integer id, Integer disableFlag) throws Exception {
         storagePlaceService.updateDisableFlag(id,disableFlag);
         return new RestResult(200, "success", null);
+    }
+
+    @GetMapping("/list/field")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+            @ApiImplicitParam(name = "pageSize", paramType = "query", defaultValue = "30", value = "每页记录数,不传默认10条,非必需"),
+            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
+            @ApiImplicitParam(name = "search", paramType = "query", defaultValue = "0", value = "搜索值")
+    })
+    public RestResult listStoragePlaceField(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
+        Map<String, Object> resultMap= storagePlaceService.listStoragePlace(map);
+        List<StoragePlace> list= (List<StoragePlace>)resultMap.get("list");
+        List<ObjectUniqueValueResult> uniqueValueResults= list.stream().map(e->new ObjectUniqueValueResult(String.valueOf(e.getPlaceNumber()),e.getPlaceName())).collect(Collectors.toList());
+        resultMap.put("list",uniqueValueResults);
+
+        return new RestResult(200, "success", resultMap);
     }
 }

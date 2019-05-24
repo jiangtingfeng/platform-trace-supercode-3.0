@@ -34,6 +34,17 @@ public class StoragePlaceParam {
     @ApiModelProperty(value = "存放点编号")
     private String placeNumber;
 
+    @ApiModelProperty(value = "负责人id")
+    private String placeStaffId;
+
+    public String getPlaceStaffId() {
+        return placeStaffId;
+    }
+
+    public void setPlaceStaffId(String placeStaffId) {
+        this.placeStaffId = placeStaffId;
+    }
+
     public Integer getId() {
         return id;
     }

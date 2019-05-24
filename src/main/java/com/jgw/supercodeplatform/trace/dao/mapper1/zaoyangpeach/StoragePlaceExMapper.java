@@ -3,7 +3,9 @@ package com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.ProductTesting;
 import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.StoragePlace;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 import java.util.Map;
@@ -36,5 +38,12 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
     })
     List<StoragePlace> selectSortingPlace(Map<String, Object> var1);
 
+    @Update({
+            "update zaoyang_storageplace",
+            "set ",
+            "DisableFlag = #{disableFlag,jdbcType=INTEGER}",
+            "where Id = #{id}"
+    })
+    int updateDisableFlag(@Param("id") Integer id, @Param("disableFlag")Integer disableFlag);
 
 }
