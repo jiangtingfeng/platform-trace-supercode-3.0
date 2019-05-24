@@ -99,6 +99,7 @@ public class StoragePlaceController {
             @ApiImplicitParam(name = "search", paramType = "query", defaultValue = "0", value = "搜索值")
     })
     public RestResult listStoragePlaceField(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
+        map.put("disableFlag",0);
         Map<String, Object> resultMap= storagePlaceService.listStoragePlace(map);
         List<StoragePlace> list= (List<StoragePlace>)resultMap.get("list");
         List<ObjectUniqueValueResult> uniqueValueResults= list.stream().map(e->new ObjectUniqueValueResult(String.valueOf(e.getPlaceNumber()),e.getPlaceName())).collect(Collectors.toList());

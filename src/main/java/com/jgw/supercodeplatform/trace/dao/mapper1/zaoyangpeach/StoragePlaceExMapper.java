@@ -18,6 +18,7 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
             startScript+
                     "SELECT COUNT(1) FROM zaoyang_storageplace a"
                     +startWhere
+                    + " <if test='disableFlag !=null  '>  DisableFlag = #{disableFlag} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.PlaceName LIKE CONCAT('%',#{search},'%') or a.SortingPlaceName LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +page
@@ -30,6 +31,7 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
             startScript+
                     "select * from zaoyang_storageplace a"
                     +startWhere
+                    + " <if test='disableFlag !=null  '>  DisableFlag = #{disableFlag} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.PlaceName LIKE CONCAT('%',#{search},'%') or a.SortingPlaceName LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +orderBy
