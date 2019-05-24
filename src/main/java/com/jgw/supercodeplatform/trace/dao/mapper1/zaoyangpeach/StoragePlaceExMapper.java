@@ -19,7 +19,7 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
                     "SELECT COUNT(1) FROM zaoyang_storageplace a"
                     +startWhere
                     + " <if test='disableFlag !=null  '>  DisableFlag = #{disableFlag} </if> "
-                    + " <if test='search !=null and search != &apos;&apos; '> AND ( a.PlaceName LIKE CONCAT('%',#{search},'%') or a.SortingPlaceName LIKE CONCAT('%',#{search},'%') )</if> "
+                    + " <if test='search !=null and search != &apos;&apos; '> AND ( a.PlaceName LIKE CONCAT('%',#{search},'%') or a.SortingPlaceName LIKE CONCAT('%',#{search},'%') or a.PlaceNumber LIKE CONCAT('%',#{search},'%')or a.PlaceStaff LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +page
                     +orderBy
@@ -32,7 +32,7 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
                     "select * from zaoyang_storageplace a"
                     +startWhere
                     + " <if test='disableFlag !=null  '>  DisableFlag = #{disableFlag} </if> "
-                    + " <if test='search !=null and search != &apos;&apos; '> AND ( a.PlaceName LIKE CONCAT('%',#{search},'%') or a.SortingPlaceName LIKE CONCAT('%',#{search},'%') )</if> "
+                    + " <if test='search !=null and search != &apos;&apos; '> AND ( a.PlaceName LIKE CONCAT('%',#{search},'%') or a.SortingPlaceName LIKE CONCAT('%',#{search},'%') or a.PlaceNumber LIKE CONCAT('%',#{search},'%')or a.PlaceStaff LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +orderBy
                     +page

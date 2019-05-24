@@ -63,7 +63,7 @@ public class StoragePlaceService extends AbstractPageService {
             record.setSortingPlaceId(sortingPlaceId);
         }
         if (StringUtils.isEmpty(record.getPlaceNumber())){
-            String incrKey=String.format("%s%s", RedisKey.StoragePlaceSerialNumber);
+            String incrKey=String.format("%s", RedisKey.StoragePlaceSerialNumber);
             long incr = redisUtil.generate(incrKey);
             String serial= StringUtils.leftPad(String.valueOf(incr),5,"0");
             String placeNumber=String.format("PL%s",serial);
