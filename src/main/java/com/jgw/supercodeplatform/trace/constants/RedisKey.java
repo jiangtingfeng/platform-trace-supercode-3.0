@@ -27,4 +27,6 @@ public class RedisKey {
 
     //批次名称自增流水号
     public static final String BatchSerialNumber = "trace:batch:serialnumber:";
+
+    public static final String StoragePlaceSerialNumber = "trace:storageplace:serialnumber:";
 }

@@ -19,12 +19,12 @@ public interface StoragePlaceMapper {
         "insert into zaoyang_storageplace (Id, PlaceId, ",
         "PlaceName, CurrentBatchId, ",
         "SortingPlaceName, SortingPlaceId, ",
-        "CreateTime, PlaceStaff, ",
+        " PlaceStaff, ",
         "DisableFlag, PlaceNumber)",
         "values (#{id,jdbcType=INTEGER}, #{placeId,jdbcType=VARCHAR}, ",
         "#{placeName,jdbcType=VARCHAR}, #{currentBatchId,jdbcType=VARCHAR}, ",
         "#{sortingPlaceName,jdbcType=VARCHAR}, #{sortingPlaceId,jdbcType=VARCHAR}, ",
-        "#{createTime,jdbcType=TIMESTAMP}, #{placeStaff,jdbcType=VARCHAR}, ",
+        " #{placeStaff,jdbcType=VARCHAR}, ",
         "#{disableFlag,jdbcType=INTEGER}, #{placeNumber,jdbcType=VARCHAR})"
     })
     int insert(StoragePlace record);

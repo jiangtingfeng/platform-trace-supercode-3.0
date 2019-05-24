@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.service.zaoyangpeach;
 import com.jgw.supercodeplatform.trace.common.model.ReturnParamsMap;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
+import com.jgw.supercodeplatform.trace.constants.RedisKey;
 import com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach.BatchStoragePlaceRelationMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach.SortingPlaceExMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach.StoragePlaceExMapper;
@@ -51,14 +52,22 @@ public class StoragePlaceService extends AbstractPageService {
     }
 
 
-    public String insert(StoragePlace record){
+    public String insert(StoragePlace record) throws Exception{
 
-        if(StringUtils.isNotEmpty(record.getSortingPlaceName())){
+        if(StringUtils.isEmpty(record.getSortingPlaceId())){
             SortingPlace sortingPlace=new SortingPlace();
             sortingPlace.setSortingPlaceName(record.getSortingPlaceName());
             sortingPlaceExMapper.insert(sortingPlace);
+            String sortingPlaceId= sortingPlaceExMapper.selectIdentity();
 
-            record.setSortingPlaceId(sortingPlace.getId().toString());
+            record.setSortingPlaceId(sortingPlaceId);
+        }
+        if (StringUtils.isEmpty(record.getPlaceNumber())){
+            String incrKey=String.format("%s%s", RedisKey.StoragePlaceSerialNumber);
+            long incr = redisUtil.generate(incrKey);
+            String serial= StringUtils.leftPad(String.valueOf(incr),5,"0");
+            String placeNumber=String.format("PL%s",serial);
+            record.setPlaceNumber(placeNumber);
         }
 
         record.setPlaceId(getUUID());
