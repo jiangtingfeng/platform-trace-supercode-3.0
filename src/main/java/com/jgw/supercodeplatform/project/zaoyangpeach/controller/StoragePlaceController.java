@@ -1,6 +1,8 @@
 package com.jgw.supercodeplatform.project.zaoyangpeach.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
+import com.jgw.supercodeplatform.trace.dto.zaoyangpeach.StoragePlaceParam;
 import com.jgw.supercodeplatform.trace.pojo.producttesting.TestingType;
 import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.StoragePlace;
 import com.jgw.supercodeplatform.trace.service.zaoyangpeach.StoragePlaceService;
@@ -25,9 +27,10 @@ public class StoragePlaceController {
     @PostMapping
     @ApiOperation(value = "新增存放地点", notes = "新增成功失败标志位")
     @ApiImplicitParam(name = "super-token", value = "token", defaultValue = "cd8716732ef8476b9894dbe1ba2dd7b1", required = true, paramType = "header")
-    public RestResult insertStoragePlace(@RequestBody StoragePlace record) throws Exception {
-
-        return new RestResult(200, "success", storagePlaceService.insert(record));
+    public RestResult insertStoragePlace(@RequestBody StoragePlaceParam record) throws Exception {
+        Map<String, Object> map = JSONObject.parseObject(JSONObject.toJSONString(record), Map.class);
+        StoragePlace storagePlace = JSONObject.parseObject(JSONObject.toJSONString(map), StoragePlace.class);
+        return new RestResult(200, "success", storagePlaceService.insert(storagePlace));
     }
 
     @GetMapping("/page")
@@ -36,7 +39,7 @@ public class StoragePlaceController {
             @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
             @ApiImplicitParam(name = "pageSize", paramType = "query", defaultValue = "30", value = "每页记录数,不传默认10条,非必需"),
             @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
-            @ApiImplicitParam(name = "disableFlag", paramType = "query", defaultValue = "0", value = "禁用标记")
+            @ApiImplicitParam(name = "search", paramType = "query", defaultValue = "0", value = "搜索值")
     })
     public RestResult listTestingType(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
         return new RestResult(200, "success", storagePlaceService.listStoragePlace(map));
@@ -53,9 +56,34 @@ public class StoragePlaceController {
     @PutMapping
     @ApiOperation(value = "修改存放地点", notes = "修改成功失败标志位")
     @ApiImplicitParam(name = "super-token", value = "token", defaultValue = "cd8716732ef8476b9894dbe1ba2dd7b1", required = true, paramType = "header")
-    public RestResult updateTestingType(@RequestBody StoragePlace record) throws Exception {
-        storagePlaceService.update(record);
+    public RestResult updateTestingType(@RequestBody StoragePlaceParam record) throws Exception {
+        Map<String, Object> map = JSONObject.parseObject(JSONObject.toJSONString(record), Map.class);
+        StoragePlace storagePlace = JSONObject.parseObject(JSONObject.toJSONString(map), StoragePlace.class);
+        storagePlaceService.update(storagePlace);
         return new RestResult(200, "success", null);
     }
 
+    @GetMapping("/listSortingPlace")
+    @ApiOperation(value = "获取分拣点", notes = "分拣点列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+            @ApiImplicitParam(name = "pageSize", paramType = "query", defaultValue = "30", value = "每页记录数,不传默认10条,非必需"),
+            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "3", value = "当前页,不传默认第一页,非必需"),
+            @ApiImplicitParam(name = "search", paramType = "query", defaultValue = "0", value = "搜索值")
+    })
+    public RestResult listSortingPlace(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
+        return new RestResult(200, "success", storagePlaceService.listSortingPlace(map));
+    }
+
+    @PostMapping("updateDisableFlag")
+    @ApiOperation(value = "设置存放地点启用状态", notes = "修改成功失败标志位")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+            @ApiImplicitParam(name = "id", paramType = "query", defaultValue = "1", value = "id"),
+            @ApiImplicitParam(name = "disableFlag", paramType = "query", defaultValue = "3", value = "状态标记：启用值为0，禁用值为1"),
+    })
+    public RestResult updateDisableFlag(Integer id, Integer disableFlag) throws Exception {
+        storagePlaceService.updateDisableFlag(id,disableFlag);
+        return new RestResult(200, "success", null);
+    }
 }

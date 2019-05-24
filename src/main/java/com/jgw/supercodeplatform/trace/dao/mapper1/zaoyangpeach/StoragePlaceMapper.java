@@ -3,6 +3,7 @@ package com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach;
 import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.StoragePlace;
 import java.util.List;
 
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.type.JdbcType;
 
@@ -76,11 +77,18 @@ public interface StoragePlaceMapper {
           "CurrentBatchId = #{currentBatchId,jdbcType=VARCHAR},",
           "SortingPlaceName = #{sortingPlaceName,jdbcType=VARCHAR},",
           "SortingPlaceId = #{sortingPlaceId,jdbcType=VARCHAR},",
-          "CreateTime = #{createTime,jdbcType=TIMESTAMP},",
           "PlaceStaff = #{placeStaff,jdbcType=VARCHAR},",
           "DisableFlag = #{disableFlag,jdbcType=INTEGER},",
           "PlaceNumber = #{placeNumber,jdbcType=VARCHAR}",
         "where Id = #{id,jdbcType=INTEGER}"
     })
     int updateByPrimaryKey(StoragePlace record);
+
+    @Update({
+            "update zaoyang_storageplace",
+            "set ",
+            "DisableFlag = #{disableFlag,jdbcType=INTEGER}",
+            "where Id = #{id}"
+    })
+    int updateDisableFlag(@Param("id") Integer id, @Param("disableFlag")Integer disableFlag);
 }
