@@ -128,6 +128,19 @@ public class Swagger2Config {
                  .apiInfo(apiInfo())
                  .enable(enable);
      }
+
+     @Bean("枣阳桃溯源")
+     public Docket zaoyangPeachApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("枣阳桃溯源")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.project.zaoyangpeach.controller"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("新超级码系统平台接口文档")
