@@ -62,9 +62,33 @@ public class CommonController {
         @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
         @ApiImplicitParam(name = "content", paramType = "query", defaultValue = "http://www.baidu.com", value = "", required = true),
    })
-   public  boolean createQrCode(String content,HttpServletResponse response) throws WriterException, IOException{
-        return commonService.createQrCode(content,response.getOutputStream());
-   }
+    public  boolean createQrCode(String content, HttpServletResponse response) throws Exception{
+        //设置二维码纠错级别ＭＡＰ
+        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<>();
+        hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);  // 矫错级别
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        //创建比特矩阵(位矩阵)的QR码编码的字符串
+        StringBuilder sb = new StringBuilder();
+        sb.append(content);
+        BitMatrix byteMatrix = qrCodeWriter.encode(sb.toString(), BarcodeFormat.QR_CODE, 1600, 1600, hintMap);
+        // 使BufferedImage勾画QRCode  (matrixWidth 是行二维码像素点)
+        int matrixWidth = byteMatrix.getWidth();
+        BufferedImage image = new BufferedImage(matrixWidth-200, matrixWidth-200, BufferedImage.TYPE_INT_RGB);
+        image.createGraphics();
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, matrixWidth, matrixWidth);
+        // 使用比特矩阵画并保存图像
+        graphics.setColor(Color.BLACK);
+        for (int i = 0; i < matrixWidth; i++){
+            for (int j = 0; j < matrixWidth; j++){
+                if (byteMatrix.get(i, j)){
+                    graphics.fillRect(i-100, j-100, 1, 1);
+                }
+            }
+        }
+        return ImageIO.write(image, "JPEG", response.getOutputStream());
+    }
 
     @RequestMapping(value = "/qrCodeUrl", method = RequestMethod.GET)
     @ApiOperation(value = "生成二维码接口", notes = "")
