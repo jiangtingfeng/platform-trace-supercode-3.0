@@ -689,6 +689,11 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		TraceOrgFunRoute traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
 		DynamicBaseMapper baseMapper=traceApplicationContextAware.getDynamicMapperByFunctionId(null, functionId);
 		String querySQL=String.format( "select * from %s  where  OrganizationId = '%s' ",traceOrgFunRoute.getTableName(),organizationId);
+		if(StringUtils.isEmpty(traceBatchInfoId)){
+			querySQL+=" and TraceBatchInfoId is null ";
+		} else {
+			querySQL+=String.format( " and TraceBatchInfoId ='%s' ", traceBatchInfoId);
+		}
 		List<LinkedHashMap<String, Object>> data=baseMapper.select(querySQL);
 		if(CollectionUtils.isNotEmpty(data)){
 			throw new SuperCodeTraceException("该定制功能不可多次输入");
@@ -726,7 +731,15 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		TraceFunRegulation traceFunRegulation= traceFunRegulationMapper.selectByFunId(param.getFunctionId());
 		if(!traceFunRegulation.isMultipleInput()){
-			checkAllowInsert(param.getFunctionId(),traceBatchInfoId);
+			if(StringUtils.isEmpty(traceBatchInfoId)){
+				if(traceBatchInfo!=null){
+					checkAllowInsert(param.getFunctionId(),traceBatchInfo.getTraceBatchInfoId());
+				}else {
+					//checkAllowInsert(param.getFunctionId(),null);
+				}
+			}else {
+				checkAllowInsert(param.getFunctionId(),traceBatchInfoId);
+			}
 		}
 
 		List<BaseBatchInfo> baseBatchInfos=null;
