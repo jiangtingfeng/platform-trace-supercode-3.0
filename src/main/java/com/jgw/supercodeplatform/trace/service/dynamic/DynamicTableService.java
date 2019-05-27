@@ -152,7 +152,6 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	@Autowired
 	private StoragePlaceService storagePlaceService;
 
-
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
 	{
 		String batchInfoId=null;
@@ -605,9 +604,21 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return baseBatchInfos;
 	}
 
-	private int getParentNodeCount(String traceBatchInfoId){
+	private int getParentNodeCount(String traceBatchInfoId) throws Exception{
+		Integer nodeDataCount=0;
 		TraceBatchInfo traceBatchInfo= traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
-		return traceBatchInfo.getNodeDataCount();
+		if(traceBatchInfo==null){
+			RestResult<List<Map<String, Object>>> nodeData= traceBatchInfoService.listBusinessNodeData(traceBatchInfoId);
+			if(nodeData!=null){
+				nodeDataCount=nodeData.getResults().size();
+			}
+
+//			TraceObjectBatchInfo traceObjectBatchInfo= traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+//			nodeDataCount=traceObjectBatchInfo.getNodeDataCount();
+		} else {
+			nodeDataCount=traceBatchInfo.getNodeDataCount();
+		}
+		return nodeDataCount;
 	}
 
 	private RestResult<String> addFunData(DynamicAddFunParam param,TraceFunRegulation traceFunRegulation,Integer batchindex) throws Exception{
