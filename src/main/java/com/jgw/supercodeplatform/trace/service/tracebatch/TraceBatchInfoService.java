@@ -518,7 +518,11 @@ public class TraceBatchInfoService extends CommonUtil {
     public RestResult<List<Map<String, Object>>> listBusinessNodeData(String traceBatchInfoId) throws Exception {
         TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
         if (null == traceBatchInfo) {
-            throw new SuperCodeTraceException("无此批次号记录", 500);
+			TraceObjectBatchInfo traceObjectBatchInfo= traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
+            traceBatchInfo= commonUtil.convert(traceObjectBatchInfo,TraceBatchInfo.class);
+			if(traceObjectBatchInfo==null){
+                throw new SuperCodeTraceException("无此批次号记录", 500);
+            }
         }
         String orgnizationId = commonUtil.getOrganizationId();
         RestResult<List<Map<String, Object>>> nodeDataResult=null;

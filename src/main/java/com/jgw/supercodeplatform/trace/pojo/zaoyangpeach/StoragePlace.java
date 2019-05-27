@@ -25,6 +25,16 @@ public class StoragePlace {
 
     private String placeStaffId;
 
+    private String organizationId;
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
+
     public Integer getId() {
         return id;
     }

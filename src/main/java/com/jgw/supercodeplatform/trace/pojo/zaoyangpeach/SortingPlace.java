@@ -9,6 +9,16 @@ public class SortingPlace {
 
     private Date createTime;
 
+    private String organizationId;
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
+
     public Integer getId() {
         return id;
     }
