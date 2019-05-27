@@ -17,9 +17,9 @@ public interface SortingPlaceMapper  extends CommonSql {
 
     @Insert({
         "insert into zaoyang_sortingplace (Id, SortingPlaceName, ",
-        "CreateTime)",
+        "CreateTime, organizationId)",
         "values (#{id,jdbcType=INTEGER}, #{sortingPlaceName,jdbcType=VARCHAR}, ",
-        "#{createTime,jdbcType=TIMESTAMP})"
+        "#{createTime,jdbcType=TIMESTAMP}, #{organizationId,jdbcType=VARCHAR})"
     })
     int insert(SortingPlace record);
 

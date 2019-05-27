@@ -20,13 +20,13 @@ public interface StoragePlaceMapper {
         "SortingPlaceName, SortingPlaceId, ",
         " PlaceStaff, ",
         "DisableFlag, PlaceNumber, ",
-        "PlaceStaffId)",
+        "PlaceStaffId, OrganizationId)",
         "values (#{id,jdbcType=INTEGER}, #{placeId,jdbcType=VARCHAR}, ",
         "#{placeName,jdbcType=VARCHAR}, #{currentBatchId,jdbcType=VARCHAR}, ",
         "#{sortingPlaceName,jdbcType=VARCHAR}, #{sortingPlaceId,jdbcType=VARCHAR}, ",
         " #{placeStaff,jdbcType=VARCHAR}, ",
         "#{disableFlag,jdbcType=INTEGER}, #{placeNumber,jdbcType=VARCHAR}, ",
-        "#{placeStaffId,jdbcType=VARCHAR})"
+        "#{placeStaffId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR})"
     })
     int insert(StoragePlace record);
 

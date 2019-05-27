@@ -18,6 +18,7 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
             startScript+
                     "SELECT COUNT(1) FROM zaoyang_storageplace a"
                     +startWhere
+                    + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
                     + " <if test='disableFlag !=null  '>  DisableFlag = #{disableFlag} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.PlaceName LIKE CONCAT('%',#{search},'%') or a.SortingPlaceName LIKE CONCAT('%',#{search},'%') or a.PlaceNumber LIKE CONCAT('%',#{search},'%')or a.PlaceStaff LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
@@ -31,6 +32,7 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
             startScript+
                     "select * from zaoyang_storageplace a"
                     +startWhere
+                    + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
                     + " <if test='disableFlag !=null  '>  DisableFlag = #{disableFlag} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.PlaceName LIKE CONCAT('%',#{search},'%') or a.SortingPlaceName LIKE CONCAT('%',#{search},'%') or a.PlaceNumber LIKE CONCAT('%',#{search},'%')or a.PlaceStaff LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere

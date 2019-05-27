@@ -17,6 +17,7 @@ public interface SortingPlaceExMapper extends SortingPlaceMapper {
             startScript+
                     "SELECT COUNT(1) FROM zaoyang_sortingplace a"
                     +startWhere
+                    + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.SortingPlaceName LIKE CONCAT('%',#{search},'%')  )</if> "
                     +endWhere
                     +page
@@ -29,6 +30,7 @@ public interface SortingPlaceExMapper extends SortingPlaceMapper {
             startScript+
                     "select * from zaoyang_sortingplace a"
                     +startWhere
+                    + " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.SortingPlaceName LIKE CONCAT('%',#{search},'%')  )</if> "
                     +endWhere
                     +orderBy

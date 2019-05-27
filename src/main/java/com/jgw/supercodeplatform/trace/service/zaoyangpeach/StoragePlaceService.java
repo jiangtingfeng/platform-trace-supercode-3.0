@@ -54,9 +54,12 @@ public class StoragePlaceService extends AbstractPageService {
 
     public String insert(StoragePlace record) throws Exception{
 
+        String organizationId= getOrganizationId();
+
         if(StringUtils.isEmpty(record.getSortingPlaceId())){
             SortingPlace sortingPlace=new SortingPlace();
             sortingPlace.setSortingPlaceName(record.getSortingPlaceName());
+            sortingPlace.setOrganizationId(organizationId);
             sortingPlaceExMapper.insert(sortingPlace);
             String sortingPlaceId= sortingPlaceExMapper.selectIdentity();
 
@@ -70,6 +73,7 @@ public class StoragePlaceService extends AbstractPageService {
             record.setPlaceNumber(placeNumber);
         }
 
+        record.setOrganizationId(organizationId);
         record.setDisableFlag(0);
         record.setPlaceId(getUUID());
         storagePlaceMapper.insert(record);
@@ -85,6 +89,7 @@ public class StoragePlaceService extends AbstractPageService {
     }
 
     public Map<String, Object> listStoragePlace(Map<String, Object> map) throws Exception {
+        map.put("organizationId", getOrganizationId());
 
         ReturnParamsMap returnParamsMap=null;
         Map<String, Object> dataMap=null;
@@ -101,6 +106,7 @@ public class StoragePlaceService extends AbstractPageService {
     }
 
     public Map<String, Object> listSortingPlace(Map<String, Object> map) throws Exception {
+        map.put("organizationId", getOrganizationId());
 
         ReturnParamsMap returnParamsMap=null;
         Map<String, Object> dataMap=null;
