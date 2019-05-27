@@ -1,5 +1,6 @@
 package com.jgw.supercodeplatform.trace.service.zaoyangpeach;
 
+import com.jgw.supercodeplatform.exception.SuperCodeException;
 import com.jgw.supercodeplatform.trace.common.model.ReturnParamsMap;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
@@ -12,6 +13,7 @@ import com.jgw.supercodeplatform.trace.pojo.producttesting.TestingType;
 import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.BatchStoragePlaceRelation;
 import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.SortingPlace;
 import com.jgw.supercodeplatform.trace.pojo.zaoyangpeach.StoragePlace;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -56,6 +58,11 @@ public class StoragePlaceService extends AbstractPageService {
 
         String organizationId= getOrganizationId();
 
+        List<StoragePlace> storagePlaces=storagePlaceMapper.selectByPlaceName(record.getPlaceName(),organizationId);
+        if(CollectionUtils.isNotEmpty(storagePlaces)){
+            throw new SuperCodeException(String.format("存放点名称已存在：%s",record.getPlaceName()));
+        }
+
         if(StringUtils.isEmpty(record.getSortingPlaceId())){
             SortingPlace sortingPlace=new SortingPlace();
             sortingPlace.setSortingPlaceName(record.getSortingPlaceName());
@@ -71,6 +78,11 @@ public class StoragePlaceService extends AbstractPageService {
             String serial= StringUtils.leftPad(String.valueOf(incr),5,"0");
             String placeNumber=String.format("PL%s",serial);
             record.setPlaceNumber(placeNumber);
+        }else {
+            storagePlaces=storagePlaceMapper.selectByPlaceNumber(record.getPlaceNumber(),organizationId);
+            if(CollectionUtils.isNotEmpty(storagePlaces)){
+                throw new SuperCodeException(String.format("存放点编号已存在：%s",record.getPlaceNumber()));
+            }
         }
 
         record.setOrganizationId(organizationId);

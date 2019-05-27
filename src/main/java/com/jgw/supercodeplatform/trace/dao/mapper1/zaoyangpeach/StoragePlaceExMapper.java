@@ -50,4 +50,10 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
     })
     int updateDisableFlag(@Param("id") Integer id, @Param("disableFlag")Integer disableFlag);
 
+    @Select("SELECT * FROM zaoyang_storageplace where PlaceName=#{placeName} and  OrganizationId = #{organizationId} ")
+    List<StoragePlace> selectByPlaceName(@Param("placeName") String placeName,@Param("organizationId") String organizationId);
+
+
+    @Select("SELECT * FROM zaoyang_storageplace where PlaceNumber=#{placeNumber} and  OrganizationId = #{organizationId} ")
+    List<StoragePlace> selectByPlaceNumber(@Param("placeNumber") String placeNumber,@Param("organizationId") String organizationId);
 }
