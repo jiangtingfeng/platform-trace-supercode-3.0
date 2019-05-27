@@ -51,6 +51,10 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
 				+"<foreach collection='list' item='item' index='index' separator=' ' open='case Id' close='end'>"
 				+"when #{item.id} then #{item.fieldWeight}"
 				+"</foreach>"
+				+", DefaultValue ="
+				+"<foreach collection='list' item='item' index='index' separator=' ' open='case Id' close='end'>"
+				+"when #{item.id} then #{item.defaultValue}"
+				+"</foreach>"
 			
 			+" where Id in"
 				+"<foreach collection='list' index='index' item='item' separator=',' open='(' close=')'>"

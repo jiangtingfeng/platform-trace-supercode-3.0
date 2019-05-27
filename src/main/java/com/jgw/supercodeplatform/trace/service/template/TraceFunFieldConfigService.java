@@ -328,7 +328,7 @@ public class TraceFunFieldConfigService {
 		if(addConfigLlist.size()>0){
 			restResult=traceFunFieldConfigDelegate.addNewFields(addConfigLlist, tableName,false,false,functionId,functionName,null,null);
 		}
-		List<TraceFunFieldConfig> editConfigList= traceFunFieldConfigParams.stream().filter(e->e.getId()!=null).map(e->new TraceFunFieldConfig(e.getId(),e.getFieldWeight())).collect(Collectors.toList());
+		List<TraceFunFieldConfig> editConfigList= traceFunFieldConfigParams.stream().filter(e->e.getId()!=null).map(e->new TraceFunFieldConfig(e.getId(),e.getFieldWeight(),e.getDefaultValue())).collect(Collectors.toList());
 		dao.batchUpdate(editConfigList);
 
 		traceFunRegulationMapper.deleteTraceFunRegulation(functionId);
