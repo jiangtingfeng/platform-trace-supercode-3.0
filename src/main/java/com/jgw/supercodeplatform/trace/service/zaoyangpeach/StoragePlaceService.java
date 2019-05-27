@@ -53,24 +53,27 @@ public class StoragePlaceService extends AbstractPageService {
         return traceBatchInfoId;
     }
 
+    private void insertSortingPlace(String organizationId, StoragePlace record){
+        SortingPlace sortingPlace=new SortingPlace();
+        sortingPlace.setSortingPlaceName(record.getSortingPlaceName());
+        sortingPlace.setOrganizationId(organizationId);
+        sortingPlaceExMapper.insert(sortingPlace);
+        String sortingPlaceId= sortingPlaceExMapper.selectIdentity();
+
+        record.setSortingPlaceId(sortingPlaceId);
+    }
 
     public String insert(StoragePlace record) throws Exception{
 
         String organizationId= getOrganizationId();
 
-        List<StoragePlace> storagePlaces=storagePlaceMapper.selectByPlaceName(record.getPlaceName(),organizationId);
+        List<StoragePlace> storagePlaces=storagePlaceMapper.selectByPlaceName(record.getPlaceName(),organizationId,null);
         if(CollectionUtils.isNotEmpty(storagePlaces)){
             throw new SuperCodeException(String.format("存放点名称已存在：%s",record.getPlaceName()));
         }
 
         if(StringUtils.isEmpty(record.getSortingPlaceId())){
-            SortingPlace sortingPlace=new SortingPlace();
-            sortingPlace.setSortingPlaceName(record.getSortingPlaceName());
-            sortingPlace.setOrganizationId(organizationId);
-            sortingPlaceExMapper.insert(sortingPlace);
-            String sortingPlaceId= sortingPlaceExMapper.selectIdentity();
-
-            record.setSortingPlaceId(sortingPlaceId);
+            insertSortingPlace(organizationId,record);
         }
         if (StringUtils.isEmpty(record.getPlaceNumber())){
             String incrKey=String.format("%s", RedisKey.StoragePlaceSerialNumber);
@@ -79,7 +82,7 @@ public class StoragePlaceService extends AbstractPageService {
             String placeNumber=String.format("PL%s",serial);
             record.setPlaceNumber(placeNumber);
         }else {
-            storagePlaces=storagePlaceMapper.selectByPlaceNumber(record.getPlaceNumber(),organizationId);
+            storagePlaces=storagePlaceMapper.selectByPlaceNumber(record.getPlaceNumber(),organizationId, null);
             if(CollectionUtils.isNotEmpty(storagePlaces)){
                 throw new SuperCodeException(String.format("存放点编号已存在：%s",record.getPlaceNumber()));
             }
@@ -96,7 +99,21 @@ public class StoragePlaceService extends AbstractPageService {
         storagePlaceMapper.deleteByPrimaryKey(id);
     }
 
-    public void update(StoragePlace record){
+    public void update(StoragePlace record)throws Exception{
+        String organizationId= getOrganizationId();
+
+        List<StoragePlace> storagePlaces=storagePlaceMapper.selectByPlaceName(record.getPlaceName(),organizationId,record.getId());
+        if(CollectionUtils.isNotEmpty(storagePlaces)){
+            throw new SuperCodeException(String.format("存放点名称已存在：%s",record.getPlaceName()));
+        }
+        storagePlaces=storagePlaceMapper.selectByPlaceNumber(record.getPlaceNumber(),organizationId, record.getId());
+        if(CollectionUtils.isNotEmpty(storagePlaces)){
+            throw new SuperCodeException(String.format("存放点编号已存在：%s",record.getPlaceNumber()));
+        }
+
+        if(StringUtils.isEmpty(record.getSortingPlaceId())){
+            insertSortingPlace(organizationId,record);
+        }
         storagePlaceMapper.updateByPrimaryKey(record);
     }
 

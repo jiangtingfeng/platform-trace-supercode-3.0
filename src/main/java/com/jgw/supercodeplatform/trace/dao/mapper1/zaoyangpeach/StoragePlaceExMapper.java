@@ -50,10 +50,24 @@ public interface StoragePlaceExMapper extends StoragePlaceMapper {
     })
     int updateDisableFlag(@Param("id") Integer id, @Param("disableFlag")Integer disableFlag);
 
-    @Select("SELECT * FROM zaoyang_storageplace where PlaceName=#{placeName} and  OrganizationId = #{organizationId} ")
-    List<StoragePlace> selectByPlaceName(@Param("placeName") String placeName,@Param("organizationId") String organizationId);
+    @Select(startScript+
+            "SELECT * FROM zaoyang_storageplace  a "
+            +startWhere
+            + "  AND a.OrganizationId = #{organizationId}  AND a.PlaceName = #{placeName} "
+            + " <if test='id !=null  '>  AND a.Id != #{id} </if> "
+            +endWhere
+            +endScript
+    )
+    List<StoragePlace> selectByPlaceName(@Param("placeName") String placeName,@Param("organizationId") String organizationId, @Param("id")Integer id);
 
 
-    @Select("SELECT * FROM zaoyang_storageplace where PlaceNumber=#{placeNumber} and  OrganizationId = #{organizationId} ")
-    List<StoragePlace> selectByPlaceNumber(@Param("placeNumber") String placeNumber,@Param("organizationId") String organizationId);
+    @Select(startScript+
+            "SELECT * FROM zaoyang_storageplace a "
+            +startWhere
+            + "  AND a.OrganizationId = #{organizationId}  AND a.PlaceNumber = #{placeNumber} "
+            + " <if test='id !=null  '>  AND a.Id != #{id} </if> "
+            +endWhere
+            +endScript
+    )
+    List<StoragePlace> selectByPlaceNumber(@Param("placeNumber") String placeNumber,@Param("organizationId") String organizationId, @Param("id")Integer id);
 }
