@@ -546,6 +546,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			baseBatchInfo.setTraceBatchInfoId(traceBatchInfo.getTraceBatchInfoId());
 			baseBatchInfos.add(baseBatchInfo);
 
+			FieldBusinessParam batchField= getObjectParam(param.getLineData(),"TraceBatchInfoId");
+			batchField.setFieldValue(traceBatchInfo.getTraceBatchInfoId());
+
 			TraceBatchRelation traceBatchRelation=new TraceBatchRelation(getUUID(),traceBatchInfo.getTraceBatchInfoId(),parentTraceBatchInfoId,parentBatchTableType);
 			traceBatchRelationEsService.insertTraceBatchRelation(traceBatchRelation);
 		} else if(userSceneType==TraceUseSceneEnum.BatchMixWithSameObject.getKey()){
