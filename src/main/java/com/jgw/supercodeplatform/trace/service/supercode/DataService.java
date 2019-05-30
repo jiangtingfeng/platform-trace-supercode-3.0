@@ -2,6 +2,7 @@ package com.jgw.supercodeplatform.trace.service.supercode;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,15 +19,16 @@ public class DataService {
     @Value("${rest.supercode.token}")
     private String superCodeToken;
 
-    RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate2;
 
     public String getForObject(String functionId,String queryString) throws Exception {
-        restTemplate=new RestTemplate();
+        //restTemplate=new RestTemplate();
         String url=String.format( "%s/JsonDataService.ashx?Token=%s&function=%s",superCodeUrl,superCodeToken,functionId);
         if(StringUtils.isNotEmpty(queryString)){
             url+="&"+queryString;
         }
-        String responseText = restTemplate.getForObject(url,String.class);
+        String responseText = restTemplate2.getForObject(url,String.class);
         return responseText;
     }
 

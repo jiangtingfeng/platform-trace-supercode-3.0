@@ -24,5 +24,13 @@ public class RestTemplateConfig {
 		restTemplate.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 		return restTemplate;
 	}
+
+	@Bean(name="restTemplate2")
+	//@LoadBalanced
+	public RestTemplate restTemplate() {
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+		return restTemplate;
+	}
 	
 }
