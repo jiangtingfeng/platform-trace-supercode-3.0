@@ -44,6 +44,7 @@ public class CodeService extends CommonUtil {
 
         Map<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("super-token", getSuperToken());
+        headerMap.put(getSysAuthHeaderKey(),getSecretKeyForCodeManager());
 
         Map<String, Object> dataMap=new HashMap<String, Object>();
 
