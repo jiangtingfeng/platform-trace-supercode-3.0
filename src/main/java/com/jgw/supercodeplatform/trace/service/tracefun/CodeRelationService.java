@@ -113,6 +113,7 @@ public class CodeRelationService extends CommonUtil {
             params.put("endCode", getCodeRelationFieldValue(fields,"endCode"));
 
             headerMap.put("super-token", getSuperToken());
+            headerMap.put(getSysAuthHeaderKey(),getSecretKeyForCodeManager());
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/relation/addRelation", JSONObject.toJSONString( params), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
@@ -139,6 +140,7 @@ public class CodeRelationService extends CommonUtil {
             AccountCache userAccount = getUserLoginCache();
 
             headerMap.put("super-token", getSuperToken());
+            headerMap.put(getSysAuthHeaderKey(),getSecretKeyForCodeManager());
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/relation/addRelation", JSONObject.toJSONString( codeObjectRelationDto), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
@@ -178,6 +180,7 @@ public class CodeRelationService extends CommonUtil {
         try {
 
             headerMap.put("super-token", getSuperToken());
+            headerMap.put(getSysAuthHeaderKey(),getSecretKeyForCodeManager());
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restCodeManagerUrl + "/code/relation/empty/relation", JSONObject.toJSONString( emptyRelationDto), headerMap);
 
             if (rest.getStatusCode().value() == 200) {

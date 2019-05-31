@@ -234,6 +234,7 @@ public class TraceBatchInfoService extends CommonUtil {
         Map<String, String> headerMap = new HashMap<String, String>();
         try {
             headerMap.put("super-token", getSuperToken());
+            headerMap.put(getSysAuthHeaderKey(),getSecretKeyForUser());
             ResponseEntity<String> rest = restTemplateUtil.deleteJsonDataAndReturnJosn(restUserUrl + "/product-batch",batchModel, headerMap);
 
             if (rest.getStatusCode().value() == 200) {
@@ -265,6 +266,7 @@ public class TraceBatchInfoService extends CommonUtil {
         Map<String, String> headerMap = new HashMap<String, String>();
         try {
             headerMap.put("super-token", getSuperToken());
+            headerMap.put(getSysAuthHeaderKey(),getSecretKeyForUser());
             ResponseEntity<String> rest = restTemplateUtil.putJsonDataAndReturnJosn(restUserUrl + "/product-batch/v2",JSONObject.toJSONString( batchModel), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
@@ -296,6 +298,7 @@ public class TraceBatchInfoService extends CommonUtil {
         Map<String, String> headerMap = new HashMap<String, String>();
         try {
             headerMap.put("super-token", getSuperToken());
+            headerMap.put(getSysAuthHeaderKey(),getSecretKeyForUser());
             ResponseEntity<String> rest = restTemplateUtil.postJsonDataAndReturnJosn(restUserUrl + "/product-batch",JSONObject.toJSONString( batchModel), headerMap);
 
             if (rest.getStatusCode().value() == 200) {
@@ -378,6 +381,7 @@ public class TraceBatchInfoService extends CommonUtil {
         Map<String, Object> dataMap=new HashMap<String, Object>();
         try {
             headerMap.put("super-token", getSuperToken());
+            headerMap.put(getSysAuthHeaderKey(),getSecretKeyForUser());
             ResponseEntity<String> rest = restTemplateUtil.getRequestAndReturnJosn(restUserUrl + "/product-batch/list", params, headerMap);
             if (rest.getStatusCode().value() == 200) {
                 String body = rest.getBody();
@@ -447,6 +451,7 @@ public class TraceBatchInfoService extends CommonUtil {
             Map<String, String> headerMap = new HashMap<String, String>();
             try {
                 headerMap.put("super-token", getSuperToken());
+                headerMap.put(getSysAuthHeaderKey(),getSecretKeyForUser());
                 ResponseEntity<String> rest = restTemplateUtil.getRequestAndReturnJosn(restUserUrl + "/platform/h5/Ids", params, headerMap);
                 if (rest.getStatusCode().value() == 200) {
                     String body = rest.getBody();
