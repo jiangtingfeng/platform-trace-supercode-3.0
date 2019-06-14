@@ -162,4 +162,8 @@ public interface TraceBatchInfoMapper extends CommonSql{
 			"SELECT * FROM trace_batchinfo WHERE TraceBatchInfoId=#{traceBatchName} ) t\n" +
 			"limit 0,1")
 	TraceBatchInfo selectByBatchName(@Param("traceBatchName") String traceBatchName);
+
+	@Select("SELECT * FROM trace_batchinfo WHERE TraceBatchId=#{traceBatchId} ORDER BY Id DESC Limit 0,1")
+	TraceBatchInfo selectBatchInfoByTraceBatchId(@Param("traceBatchId")String traceBatchId);
+
 }

@@ -74,6 +74,9 @@ public class TraceBatchInfoService extends CommonUtil {
     @Value("${rest.user.url}")
     private String restUserUrl;
 
+    @Value("${trace.h5page.url}")
+    private String h5PageUrl;
+
 
     @Autowired
     private TraceFunTemplateconfigMapper traceFunTemplateconfigMapper;
@@ -693,5 +696,14 @@ public class TraceBatchInfoService extends CommonUtil {
                 return ret;
             }
         });
+    }
+
+    public String getH5PageUrlByTraceBatchId(String batchId) throws Exception{
+        TraceBatchInfo traceBatchInfo= traceBatchInfoMapper.selectBatchInfoByTraceBatchId(batchId);
+        if(traceBatchInfo==null){
+            throw new Exception("未找到该批次号对应的批次信息");
+        }
+        String url=String.format("%s?traceBatchInfoId=%s",h5PageUrl,traceBatchInfo.getTraceBatchInfoId());
+        return url;
     }
 }
