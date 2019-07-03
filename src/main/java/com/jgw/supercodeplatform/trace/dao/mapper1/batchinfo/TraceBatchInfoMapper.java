@@ -3,6 +3,8 @@ package com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo;
 import java.util.List;
 import java.util.Map;
 
+import com.jgw.supercodeplatform.common.pojo.common.DaoSearch;
+import com.jgw.supercodeplatform.project.hainanrunda.dto.batchinfo.PlantingBatchDto;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -39,11 +41,11 @@ public interface TraceBatchInfoMapper extends CommonSql{
 	@Insert(" INSERT INTO trace_batchinfo"
 			+ "(TraceBatchInfoId,OrganizationId,ProductID,ProductName,TraceBatchName,"
 			+ "TraceBatchId,ListedTime,TraceTemplateId,TraceTemplateName,H5TrancePageId,"
-			+ "H5TempleteName,CreateId,CreateMan,NodeDataCount, SysId, traceBatchPlatformId)"
+			+ "H5TempleteName,CreateId,CreateMan,NodeDataCount, SysId, traceBatchPlatformId, functionId)"
 			+ "VALUES"
 			+ "(#{traceBatchInfoId},#{organizationId},#{productId},#{productName},#{traceBatchName},"
 			+ "#{traceBatchId},#{listedTime},#{traceTemplateId},#{traceTemplateName},#{h5TrancePageId},"
-			+ "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}, #{sysId}, #{traceBatchPlatformId}) ")
+			+ "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount}, #{sysId}, #{traceBatchPlatformId}, #{functionId}) ")
 	int insertTraceBatchInfo(TraceBatchInfo traceBatchInfo);
 	
 	/**
@@ -163,7 +165,59 @@ public interface TraceBatchInfoMapper extends CommonSql{
 			"limit 0,1")
 	TraceBatchInfo selectByBatchName(@Param("traceBatchName") String traceBatchName);
 
+	@Select(" SELECT a.*,r.storagePlaceId massId FROM trace_batchinfo a \n" +
+            "left JOIN zaoyang_batchstorageplace_relation r on a.TraceBatchInfoId = r.traceBatchInfoId " +
+            "WHERE FunctionId=#{other.functionId}  AND OrganizationId=#{other.organizationId}  " +
+			"AND not Exists( SELECT 1 FROM trace_batchrelation r where r.ParentBatchId = a.TraceBatchInfoId )  " +
+			"ORDER BY a.Id desc limit #{startNumber}, #{pageSize}")
+	List<PlantingBatchDto> selectProcessingBatchByFunctionId(  DaoSearch searchParams);
+
+	@Select(" SELECT a.TraceBatchInfoId, b.TraceBatchName,b.TraceBatchInfoId PickingBatchId, b.ProductName,sp.storagePlaceId massId FROM trace_batchinfo a \n" +
+			"inner join trace_batchrelation r on a.TraceBatchInfoId=r.ParentBatchId\n " +
+			"INNER JOIN trace_batchinfo b on r.CurrentBatchId = b.TraceBatchInfoId\n " +
+            "left JOIN zaoyang_batchstorageplace_relation sp on a.TraceBatchInfoId = sp.traceBatchInfoId  " +
+			"WHERE a.FunctionId=#{other.functionId} AND a.OrganizationId=#{other.organizationId}\n" +
+			"ORDER BY b.Id desc limit #{startNumber}, #{pageSize}")
+	List<PlantingBatchDto> selectEndBatchByFunctionId(DaoSearch searchParams);
+
+	@Select(" SELECT Count(*) FROM trace_batchinfo a WHERE FunctionId=#{other.functionId}  AND OrganizationId=#{other.organizationId}  " +
+			"AND not Exists( SELECT 1 FROM trace_batchrelation r where r.ParentBatchId = a.TraceBatchInfoId )  " )
+	Integer countProcessingBatchByFunctionId(  DaoSearch searchParams);
+
+	@Select(" SELECT count(*) FROM trace_batchinfo a \n" +
+			"inner join trace_batchrelation r on a.TraceBatchInfoId=r.ParentBatchId\n" +
+			"INNER JOIN trace_batchinfo b on r.CurrentBatchId = b.TraceBatchInfoId\n" +
+			"WHERE a.FunctionId=#{other.functionId} AND a.OrganizationId=#{other.organizationId} " )
+	Integer countEndBatchByFunctionId( DaoSearch searchParams);
+
+
+	@Select("SELECT * FROM trace_batchinfo a WHERE a.ProductName LIKE CONCAT('%',#{search},'%')  ORDER BY a.id Desc limit 0,1 ")
+	TraceBatchInfo selectBatchByProductName(@Param("search") String search);
+
 	@Select("SELECT * FROM trace_batchinfo WHERE TraceBatchId=#{traceBatchId} ORDER BY Id DESC Limit 0,1")
 	TraceBatchInfo selectBatchInfoByTraceBatchId(@Param("traceBatchId")String traceBatchId);
 
+	@Select(startScript + selectSql
+			+ " FROM trace_batchinfo a LEFT JOIN trace_funtemplatestatistical b ON a.TraceTemplateId = b.TraceTemplateId "
+			+ startWhere
+			+" AND not Exists( SELECT 1 FROM trace_batchrelation r where r.ParentBatchId = a.TraceBatchInfoId ) "
+			+ " <if test='organizationId !=null and organizationId != &apos;&apos; '>  AND a.OrganizationId = #{organizationId} </if> "
+			+ " <if test='productID !=null and productID != &apos;&apos; '>  AND a.ProductID = #{productID} </if> "
+			+ " <if test='search !=null and search != &apos;&apos; '> AND ( a.ProductName LIKE CONCAT('%',#{search},'%') OR a.TraceBatchName LIKE CONCAT('%',#{search},'%') "
+			+ " OR a.TraceTemplateName LIKE CONCAT('%',#{search},'%') OR a.H5TempleteName LIKE CONCAT('%',#{search},'%') OR a.CreateMan LIKE CONCAT('%',#{search},'%') )</if> "
+			+ endWhere
+			+ orderBy
+			+ page
+			+ endScript)
+	List<ReturnTraceBatchInfo> selectProcessingBatch(Map<String,Object> map);
+
+	@Select(startScript + " SELECT COUNT(1) FROM trace_batchinfo a "
+			+ startWhere
+			+" AND not Exists( SELECT 1 FROM trace_batchrelation r where r.ParentBatchId = a.TraceBatchInfoId ) "
+			+ " <if test='organizationId !=null and organizationId != &apos;&apos; '> AND  OrganizationId = #{organizationId} </if> "
+			+ " <if test='search !=null and search != &apos;&apos; '> AND ( a.ProductName LIKE CONCAT('%',#{search},'%') OR a.TraceBatchName LIKE CONCAT('%',#{search},'%') "
+			+ " OR a.TraceTemplateName LIKE CONCAT('%',#{search},'%') OR a.H5TempleteName LIKE CONCAT('%',#{search},'%') OR a.CreateMan LIKE CONCAT('%',#{search},'%') )</if> "
+			+ endWhere
+			+ endScript)
+	int selectProcessingBatchCount(Map<String,Object> map);
 }

@@ -18,7 +18,7 @@ public class TraceFunTemplateconfigParam {
 	private String traceTemplateId;      //溯源模板号
 	
 	@NotEmpty
-	@ApiModelProperty(value = "溯源模板名称",required=true)
+	@ApiModelProperty(value = "溯源模板名称")
     private String traceTemplateName;    //溯源模板名称
 	
 	@NotEmpty

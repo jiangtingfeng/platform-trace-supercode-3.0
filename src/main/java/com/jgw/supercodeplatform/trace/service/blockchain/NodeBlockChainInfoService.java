@@ -218,7 +218,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
      * @throws SuperCodeException 
      * @throws SuperCodeTraceException 
      */
-	public void coChain(LineBusinessData lineData, boolean isNode, String traceBatchInfoId, Map<String, TraceFunFieldConfig> fieldsMap, TraceBatchInfo traceBatchInfo) throws SuperCodeException, SuperCodeTraceException {
+	public void coChain(LineBusinessData lineData, boolean isNode, String traceBatchInfoId, Map<String, TraceFunFieldConfig> fieldsMap, TraceBatchInfo traceBatchInfo,OrganizationCache organizationCache) throws SuperCodeException, SuperCodeTraceException {
 		List<FieldBusinessParam> fields=lineData.getFields();
 		if (null==fields || fields.isEmpty()) {
 			throw new SuperCodeException("新增溯源记录时入链参数不能为空", 500);
@@ -296,6 +296,10 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 				list.add(noStruct);
 			}
 		}
+		nodeBlockChainInfo.setOrganizationId(organizationCache.getOrganizationId());
+		nodeBlockChainInfo.setOrganizationName(organizationCache.getOrganizationFullName());
+		nodeBlockChainInfo.setSysId(organizationCache.getSysCache().getSysId());
+
 		int len=realCoChain(nodeBlockChainInfo, list);
 	}
 
@@ -308,7 +312,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
      * @param fieldsMap 
      * @throws SuperCodeException 
      */
-	public void updateCoChain(List<LinkedHashMap<String, Object>> listData, boolean containObj, Map<String, TraceFunFieldConfig> fieldsMap) throws SuperCodeException {
+	public void updateCoChain(List<LinkedHashMap<String, Object>> listData, boolean containObj, Map<String, TraceFunFieldConfig> fieldsMap,OrganizationCache organizationCache) throws SuperCodeException {
      	if (null==listData || listData.isEmpty() || listData.size()>1) {
      		throw new SuperCodeException("修改溯源记录时入链参数不能为空且入链长度不能大于1", 500);
 		}	
@@ -407,6 +411,10 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 
      	}
      	if (hasBatch) {
+			nodeBlockChainInfo.setOrganizationId(organizationCache.getOrganizationId());
+			nodeBlockChainInfo.setOrganizationName(organizationCache.getOrganizationFullName());
+			nodeBlockChainInfo.setSysId(organizationCache.getSysCache().getSysId());
+
      		int len=realCoChain(nodeBlockChainInfo, list);
 		}
      	
@@ -428,14 +436,14 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 		
 		//设置上链数据
 		if (null!=blockChainResultInfo) {
-			try {
+	/*		try {
 				//TODO 
 				OrganizationCache organizationCache=commonUtil.getOrganization();
 				nodeBlockChainInfo.setOrganizationId(organizationCache.getOrganizationId());
 				nodeBlockChainInfo.setOrganizationName(organizationCache.getOrganizationFullName());
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
+			}*/
 			nodeBlockChainInfo.setBlockHash(blockChainResultInfo.getBlockHash());
 			nodeBlockChainInfo.setBlockNo(blockChainResultInfo.getBlockNo());
 			String wrappercoChainData=JSONObject.toJSONString(wrapper);
@@ -443,7 +451,7 @@ public class NodeBlockChainInfoService extends AbstractPageService{
 			nodeBlockChainInfo.setTransactionHash(blockChainResultInfo.getTransactionHash());
 			SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			nodeBlockChainInfo.setTransactionTime(format.format(new Date(blockChainResultInfo.getTransactionTime())));
-			nodeBlockChainInfo.setSysId(getSysId());
+
 			int len=nodeBlockChainInfoDao.insert(nodeBlockChainInfo);
 			return len;
 		}

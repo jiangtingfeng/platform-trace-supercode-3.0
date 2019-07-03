@@ -79,7 +79,7 @@ public  class CustomizeFun {
     @ApiModelProperty(value = "批次关联对象")
     private String objectAssociatedType;
 
-    @ApiModelProperty(value = "功能类型：过程节点/控制节点")
+    @ApiModelProperty(value = "功能类型：过程节点为1，控制节点为2，单一表单为3；")
     private int regulationType;
 
     @ApiModelProperty(value = "是否可多次输入")

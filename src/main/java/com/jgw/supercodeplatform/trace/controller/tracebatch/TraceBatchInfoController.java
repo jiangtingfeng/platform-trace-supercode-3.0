@@ -4,8 +4,14 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.jgw.supercodeplatform.trace.common.model.ObjectUniqueValueResult;
+import com.jgw.supercodeplatform.trace.dto.tracebatch.TraceBatchNodeDto;
+import com.jgw.supercodeplatform.trace.dto.tracebatch.TraceBatchNodeParam;
+import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceObjectBatchInfo;
 import com.jgw.supercodeplatform.trace.service.tracefun.CodeRelationService;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,11 +50,16 @@ import springfox.documentation.annotations.ApiIgnore;
 @Api(tags = "批次管理")
 public class TraceBatchInfoController extends CommonUtil {
 
+    private static Logger logger = LoggerFactory.getLogger(TraceBatchInfoController.class);
+
     @Autowired
     private TraceBatchInfoService traceBatchInfoService;
 
     @Autowired
     private CodeRelationService codeRelationService;
+
+    @Autowired
+    private CommonUtil commonUtil;
 
     /**
      * 新增溯源批次
@@ -136,7 +147,7 @@ public class TraceBatchInfoController extends CommonUtil {
             @ApiImplicitParam(name = "batchType", paramType = "query", defaultValue = "1", value = "批次类型,产品批次为1/地块批次为2,非必需")
     })
     public RestResult listTraceBatchInfoByOrgPage(@RequestParam @ApiIgnore Map<String, Object> map) throws Exception {
-        Map<String, Object> result=traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
+        Map<String, Object> result=null; //traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
         if (map.get("batchType")!=null && map.get("batchType").toString().equals("2")){
             result=traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
         }else {
@@ -175,27 +186,40 @@ public class TraceBatchInfoController extends CommonUtil {
     @ApiOperation(value = "获取溯源批次信息通过批次表属性", notes = "获取溯源批次信息通过批次表属性")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+            @ApiImplicitParam(name = "pageSize", paramType = "query", defaultValue = "10", value = "每页记录数,不传默认10条,非必需"),
+            @ApiImplicitParam(name = "current", paramType = "query", defaultValue = "1", value = "当前页,不传默认第一页,非必需"),
+            @ApiImplicitParam(name = "batchType", paramType = "query", defaultValue = "1", value = "批次类型,产品批次为1/地块批次为2,非必需")
     })
     public RestResult listTraceBatchInfoByOrgAndField(@RequestParam Map<String, Object> map) throws Exception {
-        validateRequestParamAndValueNotNull(map,"field");
+        /*validateRequestParamAndValueNotNull(map,"field");
         String field = map.get("field").toString();
         BatchInfo batchInfo = BatchInfo.valueOf(field);
         if (batchInfo == null) {
             return new RestResult(500, "field 有误：" + field, null);
-        }
+        }*/
 
         Map result = traceBatchInfoService.listTraceBatchInfoByOrgPage(map);
 
-        List<ReturnTraceBatchInfo> traceBatchInfos = (List<ReturnTraceBatchInfo>) result.get("list");
-
-        Set<Object> re;
-        if (traceBatchInfos != null && traceBatchInfos.size() > 0) {
-            re = getBatchInfoValue(batchInfo,traceBatchInfos);
-        } else {
-            re = new HashSet<>();
+        if (map.get("batchType")!=null && map.get("batchType").toString().equals("2")){
+            List<TraceObjectBatchInfo> traceBatchInfos = (List<TraceObjectBatchInfo>) result.get("list");
+            List<ObjectUniqueValueResult> re;
+            if (traceBatchInfos != null && traceBatchInfos.size() > 0) {
+                re = traceBatchInfos.stream().map(p->new ObjectUniqueValueResult(p.getTraceBatchInfoId(),p.getTraceBatchName(),commonUtil.convert(p,Map.class)) ).collect(Collectors.toList());
+            } else {
+                re = new ArrayList<>();
+            }
+            result.put("list",re);
+        } else{
+            List<ReturnTraceBatchInfo> traceBatchInfos = (List<ReturnTraceBatchInfo>) result.get("list");
+            Set<Object> re;
+            if (traceBatchInfos != null && traceBatchInfos.size() > 0) {
+                re = getBatchInfoValue(BatchInfo.TraceBatchName,traceBatchInfos);
+            } else {
+                re = new HashSet<>();
+            }
+            result.put("list",re);
         }
 
-        result.put("list",re);
         return new RestResult(200, "success", result);
     }
 
@@ -347,5 +371,24 @@ public class TraceBatchInfoController extends CommonUtil {
 	    return traceBatchInfoService.h5PageData(traceBatchInfoId,traceBatchType,start,end);
 	}
 
+    @PostMapping("/listBatchNodeDataCount")
+    @ApiOperation(value = "根据批次Id数组计算每一个批次的节点数量", notes = "节点业务数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "super-token", paramType = "header", defaultValue = "64b379cd47c843458378f479a115c322", value = "token信息", required = true),
+    })
+    public RestResult<List<TraceBatchNodeDto>> listBusinessNodeData(@RequestBody TraceBatchNodeParam traceBatchNodeParam) throws Exception{
+        List<TraceBatchNodeDto> batchNodeDtos=traceBatchNodeParam.getBatchNodeDtos();
+	    for(TraceBatchNodeDto traceBatchNodeDto: batchNodeDtos){
+            String traceBatchInfoId= traceBatchNodeDto.getTraceBatchInfoId();
+            try{
+                Integer nodeDataCount= traceBatchInfoService.listBusinessNodeData(traceBatchInfoId).getResults().size();
+                traceBatchNodeDto.setNodeDataCount(nodeDataCount);
+            }catch (Exception e){
+                traceBatchNodeDto.setNodeDataCount(0);
+                logger.error(e.getMessage()+",traceBatchInfoId:"+traceBatchInfoId);
+            }
+        }
+        return new RestResult(200, "success", batchNodeDtos);
+    }
 
 }

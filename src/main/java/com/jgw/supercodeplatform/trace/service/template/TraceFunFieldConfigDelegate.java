@@ -202,6 +202,13 @@ public class TraceFunFieldConfigDelegate {
 			}
 		}
 	}
+
+	public void insertField(List<TraceFunFieldConfigParam> param,boolean isAdd,String nodeFunctionId, String nodeFunctionName, String businessType,String traceTemplateId) throws Exception {
+		StringBuilder build=new StringBuilder();
+		List<TraceFunFieldConfig> tffcList=buildFunFieldConfig(param,nodeFunctionId,nodeFunctionName,"",2,traceTemplateId,true, build);
+		dao.batchInsert(tffcList);
+	}
+
 	/**
      * @see根据字段动态生成表，新增定制功能和新增溯源模板创建节点共同使用方法
      *          插入字段数据 并如果是创建模板节点则生成企业功能路由关系
@@ -375,6 +382,7 @@ public class TraceFunFieldConfigDelegate {
 			field.setDefaultValue(traceFunFieldConfigParam.getDefaultValue());
 			field.setIsRequired(traceFunFieldConfigParam.getIsRequired());
 			field.setShowHidden(traceFunFieldConfigParam.getShowHidden());
+			field.setReadOnly(traceFunFieldConfigParam.getReadOnly());
 
 			field.setId(traceFunFieldConfigParam.getId());
 
@@ -595,6 +603,9 @@ public class TraceFunFieldConfigDelegate {
 			tffc.setObjectType(objectType);
 			tffc.setFieldWeight(traceFunConfigParam.getFieldWeight());
 			tffc.setComponentId(traceFunConfigParam.getComponentId());
+			tffc.setFilterField(traceFunConfigParam.getFilterField());
+			tffc.setFilterSource(traceFunConfigParam.getFilterSource());
+			tffc.setReadOnly(traceFunConfigParam.getReadOnly());
 			tffcList.add(tffc);
 
 		}

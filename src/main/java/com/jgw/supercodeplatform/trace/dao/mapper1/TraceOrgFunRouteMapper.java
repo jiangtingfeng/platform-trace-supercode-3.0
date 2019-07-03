@@ -46,6 +46,9 @@ public interface TraceOrgFunRouteMapper extends CommonSql{
 			)
 	TraceOrgFunRoute selectByTraceTemplateIdAndFunctionId(@Param("traceTemplateId")String traceTemplateId, @Param("functionId")String functionId);
 
+	@Select("select * from trace_fun WHERE  FunctionId=#{functionId}  order by Id desc limit 0,1 ")
+    TraceOrgFunRoute selectByFunctionId(@Param("functionId")String functionId);
+
 	@Delete("delete from trace_fun where FunctionId=#{nodeFunctionId} and TraceTemplateId=#{traceTemplateId}")
 	void deleteByFunctionId(@Param("nodeFunctionId")String nodeFunctionId,@Param("traceTemplateId")String traceTemplateId);
 

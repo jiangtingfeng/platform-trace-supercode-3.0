@@ -82,6 +82,7 @@ public interface ProductTestingMapper extends CommonSql {
         "set OrganizationId = #{organizationId,jdbcType=VARCHAR},",
           "ThirdpartyOrganizationId = #{thirdpartyOrganizationId,jdbcType=VARCHAR},",
           "ProductID = #{productID,jdbcType=VARCHAR},",
+            "ProductName = #{productName,jdbcType=VARCHAR},",
           "TraceBatchInfoId = #{traceBatchInfoId,jdbcType=VARCHAR}," ,
           "TraceBatchInfoName = #{traceBatchInfoName,jdbcType=VARCHAR},",
           "TestingDate = #{testingDate,jdbcType=VARCHAR},",
@@ -97,7 +98,7 @@ public interface ProductTestingMapper extends CommonSql {
             "SELECT COUNT(1) FROM trace_ProductTesting a"
                     +startWhere
                     +" a.TestingType = #{testingType} "
-                    + " <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND a.OrganizeId = #{organizeId} </if> "
+                    + " <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND (a.OrganizeId = #{organizeId}  OR  a.ThirdpartyOrganizationId = #{organizeId}) </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') or a.ProductName LIKE CONCAT('%',#{search},'%')  or a.TraceBatchInfoName LIKE CONCAT('%',#{search},'%')  or a.OrganizationName LIKE CONCAT('%',#{search},'%') or a.ThirdpartyOrganizationName LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +page
@@ -114,7 +115,7 @@ public interface ProductTestingMapper extends CommonSql {
                     "from trace_ProductTesting a"
                     +startWhere
                     +" a.TestingType = #{testingType} "
-                    + " <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND a.OrganizeId = #{organizeId} </if> "
+                    + " <if test='organizeId !=null and organizeId != &apos;&apos; '>  AND (a.OrganizeId = #{organizeId} OR  a.ThirdpartyOrganizationId = #{organizeId}) </if> "
                     + " <if test='search !=null and search != &apos;&apos; '> AND ( a.TestingMan LIKE CONCAT('%',#{search},'%') or a.ProductName LIKE CONCAT('%',#{search},'%')  or a.TraceBatchInfoName LIKE CONCAT('%',#{search},'%')  or a.OrganizationName LIKE CONCAT('%',#{search},'%') or a.ThirdpartyOrganizationName LIKE CONCAT('%',#{search},'%') )</if> "
                     +endWhere
                     +orderBy

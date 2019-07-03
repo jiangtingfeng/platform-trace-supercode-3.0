@@ -28,7 +28,8 @@ public class MySessionExcludePathInterceptor implements WebMvcSessionInterceptor
                 //h5扫码不需要拦截
                 "/trace/batch/info/h5PageData",
                 //生产二维码
-                "/trace/common/qrCode",
+                "/trace/common/*",
+                "/trace/supercode/redirectTracePage",
                 "/trace/supercode/redirectTracePage",
                 // 蚂蚁区块链定时任务
                 "/trace/node/antchain/reCoChain",

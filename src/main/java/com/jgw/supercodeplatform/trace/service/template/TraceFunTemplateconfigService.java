@@ -344,7 +344,7 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 	 * @return
 	 * @throws Exception 
 	 */
-	private void save(List<TraceFunTemplateconfigParam> templateList, String templateId,String organizationId) throws Exception {
+	public void save(List<TraceFunTemplateconfigParam> templateList, String templateId,String organizationId) throws Exception {
 		//先循环校验参数非空
 		for (TraceFunTemplateconfigParam traceFunTemplateconfigParam : templateList) {
 			List<TraceFunFieldConfigParam> list=traceFunTemplateconfigParam.getFieldConfigList();
@@ -370,7 +370,14 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			//节点对应马平台创建出来的功能id
 			//创建字段及新建功能表，创建企业路由关系，动态创建表
 			List<TraceFunFieldConfigParam> fieldConfigList=traceFunTemplateconfigParam.getFieldConfigList();
-			traceFunFieldConfigDelegate.tempalteCreateTableAndGerenteOrgFunRouteAndSaveFields(fieldConfigList,true,nodeFunctionId,traceFunTemplateconfigParam.getNodeFunctionName(),traceFunTemplateconfigParam.getBusinessType(),templateId);
+
+			if(StringUtils.isEmpty(organizationId)){
+				//标准模板
+				traceFunFieldConfigDelegate.insertField(fieldConfigList,true,nodeFunctionId,traceFunTemplateconfigParam.getNodeFunctionName(),traceFunTemplateconfigParam.getBusinessType(),templateId);
+			}else {
+				//溯源模板
+				traceFunFieldConfigDelegate.tempalteCreateTableAndGerenteOrgFunRouteAndSaveFields(fieldConfigList,true,nodeFunctionId,traceFunTemplateconfigParam.getNodeFunctionName(),traceFunTemplateconfigParam.getBusinessType(),templateId);
+			}
 			
 			//新增后刷新模板节点字段信息缓存
 			//functionFieldCache.flush(templateId, nodeFunctionId, 2);
@@ -454,6 +461,9 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 		String organizationId=commonUtil.getOrganizationId();
 		int startNumber = (searchParams.getCurrent()-1)*searchParams.getPageSize();
 		searchParams.setStartNumber(startNumber);
+		if(searchParams.getFlag()==null){
+			searchParams.setFlag(1);
+		}
 		return traceFunTemplateconfigDao.selectTemplateReturnDataTypeByTemplateId(searchParams,organizationId);
 	}
 
@@ -585,8 +595,11 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 
 			//平安项目
 			if(!nodeFunctionName.equals("基地管理")){
-				if(start!=null && end!=null){
-					nodeData = nodeData.stream().filter(e->dateAfter(e.get("SortDateTime").toString(),start) && dateBefore(e.get("SortDateTime").toString(),end) ).collect(Collectors.toList());
+				if(start!=null ){
+					nodeData = nodeData.stream().filter(e->dateAfter(e.get("SortDateTime").toString(),start) ).collect(Collectors.toList());
+				}
+				if( end!=null){
+					nodeData = nodeData.stream().filter(e->dateBefore(e.get("SortDateTime").toString(),end) ).collect(Collectors.toList());
 				}
 			}
 
@@ -600,6 +613,11 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 			Map<String, TraceFunFieldConfig> fieldCacheMap=functionFieldCache.getFunctionIdFields(traceTemplateId, nodeFunctionId, 2);
 			
 			if (null!=nodeData && !nodeData.isEmpty()) {
+
+				if(isLogin()){
+					dynamicTableService.getFunComponentData(nodeFunctionId,nodeData);
+				}
+
 				for (Map<String, Object> map : nodeData) {
 					Map<String, Object> lineData=new LinkedHashMap<String, Object>();
 					lineData.put("nodeFunctionName", traceFunTemplateconfigVO.getNodeFunctionName());
@@ -609,6 +627,9 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 					List<Field> fieldList=new ArrayList<Field>();
 					List<Field> defualtfieldList=new ArrayList<Field>();
 					for(String key:map.keySet()) {
+						if(key.equals("components")){
+							break;
+						}
 						field=new Field();
 						field.setFieldCode(key);
 						field.setFieldValue(map.get(key));
@@ -625,18 +646,40 @@ public class TraceFunTemplateconfigService extends AbstractPageService {
 						if (FunctionFieldCache.defaultCreateFields.contains(key)) {
 							defualtfieldList.add(field);	
 						}else {
-							fieldList.add(field);
+							if(fieldCacheMap.get(key).getShowHidden()==1){
+								fieldList.add(field);
+							}
 						}
 					}
 					lineData.put("lineData", fieldList);
 					lineData.put("defaultLineData", defualtfieldList);
 					allNodeData.add(lineData);
 
+					if(map.get("components")!=null){
+						HashMap<String, Object> component=((ArrayList<HashMap<String,Object>>)map.get("components")).get(0);
+						List<LinkedHashMap<String, Object>> fieldDatas= (List<LinkedHashMap<String, Object>>)(component.get("fields"));
+						List<TraceFunFieldConfig> fieldConfigs=  (List<TraceFunFieldConfig> )(component.get("fieldConfigs"));
+						fieldConfigs= fieldConfigs.stream().filter(e->e.getShowHidden()==1).collect(Collectors.toList());
+						for(LinkedHashMap<String, Object> fieldData:fieldDatas){
+							for(TraceFunFieldConfig fieldConfig:fieldConfigs){
+								String fieldVal= fieldData.get(fieldConfig.getFieldCode()).toString();
+								field=new Field();
+								field.setFieldCode(fieldConfig.getFieldCode());
+								field.setFieldValue(fieldVal);
+								field.setFieldName(fieldConfig.getFieldName());
+								field.setFieldType(fieldConfig.getFieldType());
+								fieldList.add(field);
+							}
+						}
+					}
+
 					//平安项目
 					if( nodeFunctionName.equals("基地管理")){
 						lineData.put("businessType", "4");
 					}
 				}
+
+
 			}
 		}
 		//判断节点数据集合是否为空，为空则表示该模板下的节点无业务数据

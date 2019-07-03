@@ -19,18 +19,18 @@ public interface TraceObjectBatchInfoMapper extends CommonSql {
             + "a.TraceBatchName traceBatchName,a.TraceTemplateName traceTemplateName,"
             + "a.TraceBatchId traceBatchId,a.TraceTemplateId traceTemplateId,"
             +"a.NodeDataCount nodeDataCount,"
-            + "a.H5TrancePageId h5TrancePageId,a.H5TempleteName h5TempleteName,a.CreateId createId,a.CreateMan createMan, a.TraceBatchPlatformId traceBatchPlatformId"
+            + "a.H5TrancePageId h5TrancePageId,a.H5TempleteName h5TempleteName,a.CreateId createId,a.CreateMan createMan, a.TraceBatchPlatformId traceBatchPlatformId, productId, productName"
             + createTime + updateTime ;
 
 
     @Insert(" INSERT INTO trace_objectbatchinfo"
             + "(TraceBatchInfoId,OrganizationId,TraceBatchName,"
             + "TraceBatchId,TraceTemplateId,TraceTemplateName,H5TrancePageId,"
-            + "H5TempleteName,CreateId,CreateMan,NodeDataCount,ObjectId, SysId)"
+            + "H5TempleteName,CreateId,CreateMan,NodeDataCount,ObjectId, SysId, productId, productName)"
             + "VALUES"
             + "(#{traceBatchInfoId},#{organizationId},#{traceBatchName},"
             + "#{traceBatchId},#{traceTemplateId},#{traceTemplateName},#{h5TrancePageId},"
-            + "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount},#{objectId}, #{sysId}) ")
+            + "#{h5TempleteName},#{createId},#{createMan},#{nodeDataCount},#{objectId}, #{sysId}, #{productId}, #{productName}) ")
     int insertTraceObjectBatchInfo(TraceObjectBatchInfo traceBatchInfo);
 
     @Select(selectSql+" from trace_objectbatchinfo a WHERE TraceBatchInfoId = #{traceBatchInfoId}")
@@ -85,4 +85,8 @@ public interface TraceObjectBatchInfoMapper extends CommonSql {
             +"where objectid =#{objectid}"
             + endScript)
     int getCountByObjectId(String objectId);
+
+    @Select("SELECT * FROM `trace_objectbatchinfo` WHERE TraceBatchInfoId IN ( ${ids} )")
+    List<TraceObjectBatchInfo> listBatchInfoByIds(@Param("ids") String ids);
+
 }

@@ -24,6 +24,24 @@ public class TraceObjectBatchInfo implements Serializable {
     private Integer nodeDataCount;
     private String traceBatchPlatformId;
     private String sysId;
+    private String productId;//产品id
+    private String productName;//产品名称
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
 
     public String getSysId() {
         return sysId;

@@ -6,6 +6,16 @@ public class BaseBatchInfo {
     private String traceBatchInfoId;//唯一id
     private String traceBatchName;//批次名称
 
+    private String massifName;
+
+    public String getMassifName() {
+        return massifName;
+    }
+
+    public void setMassifName(String massifName) {
+        this.massifName = massifName;
+    }
+
     private String productId=null;
 
     public String getProductId() {

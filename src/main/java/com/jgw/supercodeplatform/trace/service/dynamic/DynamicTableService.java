@@ -6,15 +6,18 @@ import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.pojo.cache.AccountCache;
+import com.jgw.supercodeplatform.pojo.cache.OrganizationCache;
 import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtilComponent;
 import com.jgw.supercodeplatform.trace.constants.ObjectTypeEnum;
 import com.jgw.supercodeplatform.trace.constants.RedisKey;
+import com.jgw.supercodeplatform.trace.dao.mapper1.TraceFunFieldConfigMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.TraceOrgFunRouteMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo.TraceBatchInfoMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFunTemplateconfigMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.template.TraceFuntemplateStatisticalMapper;
 import com.jgw.supercodeplatform.trace.dao.mapper1.tracefun.*;
+import com.jgw.supercodeplatform.trace.dao.mapper1.zaoyangpeach.BatchStoragePlaceRelationMapper;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.common.*;
 import com.jgw.supercodeplatform.trace.dto.dynamictable.node.DynamicUpdateNodeParam;
 import com.jgw.supercodeplatform.trace.dto.template.query.TraceFunTemplateconfigListParam;
@@ -152,6 +155,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	@Autowired
 	private StoragePlaceService storagePlaceService;
 
+	@Autowired
+	private BatchStoragePlaceRelationMapper batchStoragePlaceRelationMapper;
+
+	@Autowired
+	private TraceFunFieldConfigMapper traceFunFieldConfigDao;
+
 	private String getBatchInfoId(LineBusinessData lineBusinessData) throws SuperCodeTraceException
 	{
 		String batchInfoId=null;
@@ -164,6 +173,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 					switch (objectTypeEnum) {
 						case TRACE_BATCH:
 						case MassifBatch:
+						case PlantingBatch:
 							batchInfoId = fieldParam.getObjectUniqueValue();
 							break;
 						default:
@@ -394,10 +404,19 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		return backResult;
 	}
 
-	public void coChain(LineBusinessData lineData,TraceBatchInfo traceBatchInfo,Map<String, TraceFunFieldConfig> fieldsMap)throws Exception {
+	public void coChain(LineBusinessData lineData,TraceBatchInfo traceBatchInfo,Map<String, TraceFunFieldConfig> fieldsMap) throws Exception {
 		Boolean flag=commonUtil.getTraceSeniorFunFlag();
+		OrganizationCache organizationCache=getOrganization();
+
 		if (null!=flag && flag) {
-			blockChainService.coChain(lineData,false,null,fieldsMap,traceBatchInfo);
+			taskExecutor.execute(()->{
+				try{
+					blockChainService.coChain(lineData,false,null,fieldsMap,traceBatchInfo,organizationCache);
+				}catch (Exception e){
+					logger.error("数据上链失败",e);
+					e.printStackTrace();
+				}
+			});
 		}
 	}
 
@@ -456,6 +475,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		String traceTemplateName=null;
 		Integer defaultNodeCount=0;
 		String organizationId= commonUtil.getOrganizationId();
+		String functionId= traceFunRegulation.getFunId();
 		TraceFuntemplateStatistical traceFunTemplateconfig= traceFuntemplateStatisticalDao.selectOrgDefaultTemplate(organizationId);
 		if(traceFunTemplateconfig!=null ){
 			traceTemplateId=traceFunTemplateconfig.getTraceTemplateId();
@@ -478,18 +498,22 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		ObjectTypeEnum objectTypeEnum= ObjectTypeEnum.getType(objectAssociatedType);
 		int parentBatchTableType=BatchTableType.getBatchTableType(objectTypeEnum).getKey();
 
+		String massifName=getMassifName(param.getLineData());
 
 		List<BaseBatchInfo> baseBatchInfos=new ArrayList<BaseBatchInfo>();
 		if(userSceneType == TraceUseSceneEnum.CreateBatch.getKey()) {
 			//创建关联对象批次
-			if(objectAssociatedType == ObjectTypeEnum.MassifInfo.getCode())
-				createBatchType=ObjectTypeEnum.MassifBatch.getCode();
+			if(objectAssociatedType == ObjectTypeEnum.MassifInfo.getCode()) {
+				createBatchType = ObjectTypeEnum.MassifBatch.getCode();
+			}
 			else if(objectAssociatedType == ObjectTypeEnum.PRODUCT.getCode()){
 				createBatchType=ObjectTypeEnum.TRACE_BATCH.getCode();
-				productName=getProductName(param.getLineData());
-				productId= getProductId(param.getLineData());
 			}
+			productName=getProductName(param.getLineData());
+			productId= getProductId(param.getLineData());
+
 			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
+			baseBatchInfo.setMassifName(massifName);
 			String traceBatchInfoId=null;
 			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
@@ -506,11 +530,14 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				traceObjectBatchInfo.setObjectId(massifId);
 				traceObjectBatchInfo.setTraceTemplateId(traceTemplateId);
 				traceObjectBatchInfo.setTraceTemplateName(traceTemplateName);
+				traceObjectBatchInfo.setProductId(productId);
+				traceObjectBatchInfo.setProductName(productName);
+
 				traceObjectBatchInfoService.insertTraceObjectBatchInfo(traceObjectBatchInfo);
 				traceBatchInfoId = traceObjectBatchInfo.getTraceBatchInfoId();
 			}else if(createBatchType == ObjectTypeEnum.TRACE_BATCH.getCode()){
 
-				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),defaultNodeCount);
+				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),defaultNodeCount,functionId);
 				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 				traceBatchInfoId = traceBatchInfo.getTraceBatchInfoId();
 			}
@@ -535,11 +562,12 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				productId= getProductId(param.getLineData());
 			}
 			BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
+			baseBatchInfo.setMassifName(massifName);
 			String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-			TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null);
-			int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
-			traceBatchInfo.setNodeDataCount(nodeDataCount+1);
+			TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null,functionId);
+//			int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
+//			traceBatchInfo.setNodeDataCount(nodeDataCount);
 			traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
 
 			baseBatchInfo.setTraceBatchName(traceBatchName);
@@ -558,7 +586,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 				BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 				String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null);
+				TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null,functionId);
 				int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
 				traceBatchInfo.setNodeDataCount(nodeDataCount);
 				traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
@@ -585,7 +613,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 					BaseBatchInfo baseBatchInfo=new BaseBatchInfo(productName,productId);
 					String traceBatchName=traceBatchNamedService.buildBatchName(traceFunRegulation,baseBatchInfo);
 
-					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null);
+					TraceBatchInfo traceBatchInfo=new TraceBatchInfo(traceBatchName,productId,productName,traceBatchName,traceTemplateId,traceTemplateName,createBatchType,baseBatchInfo.getSerialNumber(),null,functionId);
 					int nodeDataCount= getParentNodeCount(parentTraceBatchInfoId);
 					traceBatchInfo.setNodeDataCount(nodeDataCount+1);
 					traceBatchInfoService.insertTraceBatchInfo(traceBatchInfo);
@@ -721,17 +749,42 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional(rollbackFor = Exception.class)
 	public RestResult<String> addFunDataV3(DynamicAddFunParam param) throws Exception
 	{
 		TraceBatchInfo traceBatchInfo=null;
+		FieldBusinessParam traceBatchParam= getObjectParam(param.getLineData(),ObjectTypeEnum.TRACE_BATCH.getCode());
+		if(traceBatchParam==null){
+			traceBatchParam= getObjectParam(param.getLineData(),ObjectTypeEnum.PlantingBatch.getCode());
+		}
+
+		if(traceBatchParam==null){
+			traceBatchParam= getObjectParam(param.getLineData(),ObjectTypeEnum.MassifBatch.getCode());
+			if(traceBatchParam!=null){
+				String massIfBatchId= traceBatchParam.getObjectUniqueValue();
+				TraceObjectBatchInfo traceObjectBatchInfo= traceObjectBatchInfoMapper.selectByTraceBatchInfoId(massIfBatchId);
+				FieldBusinessParam traceBatchInfoParam= getObjectParam(param.getLineData(),"TraceBatchInfoId");
+				traceBatchInfoParam.setFieldValue(traceObjectBatchInfo.getTraceBatchInfoId());
+				traceBatchInfo= commonUtil.convert(traceObjectBatchInfo,TraceBatchInfo.class);
+			}
+		}
+
 		FieldBusinessParam massifParam= getObjectParam(param.getLineData(), ObjectTypeEnum.MassifInfo.getCode());
-		if(massifParam!=null){
+		if(traceBatchParam ==null && massifParam!=null){
 			FieldBusinessParam traceBatchInfoParam= getObjectParam(param.getLineData(),"TraceBatchInfoId");
 			if(traceBatchInfoParam!=null && StringUtils.isEmpty(traceBatchInfoParam.getFieldValue())){
-				TraceObjectBatchInfo traceObjectBatchInfo= traceObjectBatchInfoMapper.selectByObjectId(massifParam.getObjectUniqueValue());
-				if(traceObjectBatchInfo!=null){
-					traceBatchInfoParam.setFieldValue(traceObjectBatchInfo.getTraceBatchInfoId());
-					traceBatchInfo= commonUtil.convert(traceObjectBatchInfo,TraceBatchInfo.class);
+				traceBatchInfo= batchStoragePlaceRelationMapper.selectBatchByStoragePlaceId(massifParam.getObjectUniqueValue());
+				if(traceBatchInfo!=null)
+				{
+					traceBatchInfoParam.setFieldValue(traceBatchInfo.getTraceBatchInfoId());
+				}
+				else
+				{
+					TraceObjectBatchInfo traceObjectBatchInfo= traceObjectBatchInfoMapper.selectByObjectId(massifParam.getObjectUniqueValue());
+					if(traceObjectBatchInfo!=null){
+						traceBatchInfoParam.setFieldValue(traceObjectBatchInfo.getTraceBatchInfoId());
+						traceBatchInfo= commonUtil.convert(traceObjectBatchInfo,TraceBatchInfo.class);
+					}
 				}
 			}
 		}
@@ -744,7 +797,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		}
 
 		TraceFunRegulation traceFunRegulation= traceFunRegulationMapper.selectByFunId(param.getFunctionId());
-		if(!traceFunRegulation.isMultipleInput()){
+		if(traceFunRegulation!=null && !traceFunRegulation.isMultipleInput()){
 			if(StringUtils.isEmpty(traceBatchInfoId)){
 				if(traceBatchInfo!=null){
 					checkAllowInsert(param.getFunctionId(),traceBatchInfo.getTraceBatchInfoId());
@@ -789,18 +842,14 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 
 		restResult= addFunData(param,traceFunRegulation,index++);
 
-		try{
-			Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,param.getFunctionId(),1);
-			if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
-				for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
-					TraceBatchInfo traceBatchInfo1= traceBatchInfoMapper.selectByTraceBatchInfoId(baseBatchInfo.getTraceBatchInfoId());
-					coChain(param.getLineData(),traceBatchInfo1,fieldsMap);
-				}
-			}else {
-				coChain(param.getLineData(),null,fieldsMap);
+		Map<String, TraceFunFieldConfig> fieldsMap = functionFieldManageService.getFunctionIdFields(null,param.getFunctionId(),1);
+		if(baseBatchInfos!=null&& baseBatchInfos.size()>0){
+			for (BaseBatchInfo baseBatchInfo:baseBatchInfos){
+				TraceBatchInfo traceBatchInfo1= traceBatchInfoMapper.selectByTraceBatchInfoId(baseBatchInfo.getTraceBatchInfoId());
+				coChain(param.getLineData(),traceBatchInfo1,fieldsMap);
 			}
-		}catch (Exception e){
-			e.printStackTrace();
+		}else {
+			coChain(param.getLineData(),null,fieldsMap);
 		}
 
 		return restResult;
@@ -884,9 +933,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			}
 			traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
 
-			taskExecutor.execute(()->{
-				coChain(param,traceBatchInfoId,fieldsMap,traceBatchInfo);
-			});
+			coChain(param,traceBatchInfoId,fieldsMap,traceBatchInfo);
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
@@ -900,9 +947,17 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 	private void coChain(DynamicAddNodeParam param,String traceBatchInfoId,Map<String, TraceFunFieldConfig> fieldsMap,TraceBatchInfo traceBatchInfo) {
 		try{
 			Boolean flag=commonUtil.getTraceSeniorFunFlag();
+			OrganizationCache organizationCache=getOrganization();
 			if (null!=flag && flag) {
-				blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
+				taskExecutor.execute(()->{
+					try{
+						blockChainService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo,organizationCache);
+					}catch (Exception e){
+						logger.error(e.getMessage(),e);
+					}
+				});
 			}
+
 			Boolean traceAntSeniorFunFlag = commonUtil.getTraceAntSeniorFunFlag();
 			if(traceAntSeniorFunFlag != null && traceAntSeniorFunFlag){
 				antChainInfoService.coChain(param.getLineData(),true,traceBatchInfoId,fieldsMap,traceBatchInfo);
@@ -1017,7 +1072,8 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			NodeOrFunFields nodeOrFunFields=dynamicServiceDelegate.selectFields(fieldsMap);
 			String querySQL="select "+nodeOrFunFields.getFields()+" from "+tableName+sqlFieldValueBuilder.toString();
 			List<LinkedHashMap<String, Object>> listDdata=dao.select(querySQL);
-			blockChainService.updateCoChain(listDdata,nodeOrFunFields.isContainObj(),fieldsMap);
+			updateCoChain(listDdata,nodeOrFunFields,fieldsMap);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1025,6 +1081,17 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 		backResult.setMsg("操作成功");
 		backResult.setState(200);
 		return backResult;
+	}
+
+	private void updateCoChain(List<LinkedHashMap<String, Object>> listDdata,NodeOrFunFields nodeOrFunFields,Map<String, TraceFunFieldConfig> fieldsMap) throws Exception{
+        OrganizationCache organizationCache=getOrganization();
+		taskExecutor.execute(()->{
+			try{
+				blockChainService.updateCoChain(listDdata,nodeOrFunFields.isContainObj(),fieldsMap,organizationCache);
+			}catch (Exception e){
+				logger.error("数据上链失败",e);
+			}
+		});
 	}
 
 	private void updateDynamicTable(LineBusinessData lineData,String tableName,DynamicBaseMapper dao,boolean isNode,StringBuilder sqlFieldValueBuilder) throws SuperCodeTraceException, SuperCodeException
@@ -1100,6 +1167,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 					e.printStackTrace();
 					continue;
 				}
+				List<TraceFunFieldConfig> fieldConfigList =traceFunFieldConfigDao.selectDZFPartFieldsByFunctionId(componentId);
 				DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(null,componentId);
 				List<LinkedHashMap<String, Object>> componentDataList = dao.select(sql);
 				if (componentDataList!=null && componentDataList.size()>0){
@@ -1114,6 +1182,7 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 							HashMap<String, Object> component= new HashMap<String, Object>();
 							component.put("componentId",traceFunComponent.getComponentId());
 							component.put("fields",childRows);
+							component.put("fieldConfigs",fieldConfigList);
 							components.add(component);
 						}
 					}
@@ -1273,6 +1342,9 @@ public class DynamicTableService extends AbstractPageService<DynamicTableRequest
 			sql = "select count(*) from " + tableName + sqlFieldValueBuilder.toString();
 		} else {
 			sqlFieldValueBuilder.append(" order by " + sortFiled+" desc ");
+			if(!sortFiled.equals("SortDateTime")){
+                sqlFieldValueBuilder.append(", SortDateTime desc ");
+            }
 
 			if (null !=searchParam.getStartNumber() && null != searchParam.getPageSize()) {
 				sqlFieldValueBuilder.append(" limit ").append(searchParam.getStartNumber()).append(",")

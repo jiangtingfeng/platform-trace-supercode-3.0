@@ -141,6 +141,54 @@ public class Swagger2Config {
                  .enable(enable);
      }
 
+     @Bean("标准模板")
+     public Docket standardTemplateApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("标准模板")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.standardtemplate"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
+     @Bean("合格证")
+     public Docket certificateApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("合格证")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.trace.controller.certificate"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
+     @Bean("海南润达")
+     public Docket hainanrundaApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("海南润达")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.project.hainanrunda.controller"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
+     @Bean("平安项目")
+     public Docket pinganApis() {
+         return new Docket(DocumentationType.SWAGGER_2)
+                 .groupName("平安项目")
+                 .select()
+                 .apis(RequestHandlerSelectors.basePackage("com.jgw.supercodeplatform.project.pingan.controller"))
+                 .paths(PathSelectors.any())
+                 .build()
+                 .apiInfo(apiInfo())
+                 .enable(enable);
+     }
+
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("新超级码系统平台接口文档")

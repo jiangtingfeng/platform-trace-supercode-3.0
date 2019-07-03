@@ -151,14 +151,15 @@ public class CodeRelationService extends CommonUtil {
                 JsonNode node = new ObjectMapper().readTree(body);
                 if (200 == node.get("state").asInt()) {
 
-                    List<ObjectPropertyDto> objectPropertyDtos= codeObjectRelationDto.getObjectPropertyDtoList().stream().filter(e->e.getObjectTypeId()==3).collect(Collectors.toList());
-                    if(objectPropertyDtos!=null && objectPropertyDtos.size()>0){
-                        String batchInfoId= objectPropertyDtos.get(0).getObjectId();
-                        Integer codebatchId= Integer.parseInt(node.get("results").textValue());
-                        if(codebatchId>0){
-                            addSbatchUrl(codebatchId,batchInfoId);
-                        }
+                    //List<ObjectPropertyDto> objectPropertyDtos= codeObjectRelationDto.getObjectPropertyDtoList().stream().filter(e->e.getObjectTypeId()==3).collect(Collectors.toList());
+                    //if(objectPropertyDtos!=null && objectPropertyDtos.size()>0){
+                        //String batchInfoId= objectPropertyDtos.get(0).getObjectId();
+                    String batchInfoId=codeObjectRelationDto.getProductBatchId();
+                    Integer codebatchId= Integer.parseInt(node.get("results").textValue());
+                    if(codebatchId>0){
+                        addSbatchUrl(codebatchId,batchInfoId);
                     }
+                    //}
                     return node.get("results");
                 }else {
                     throw new Exception(node.get("msg").textValue());

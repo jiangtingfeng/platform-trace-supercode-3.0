@@ -275,7 +275,7 @@ public class TraceFunFieldConfigService {
 			restResult.setState(500);
 			restResult.setMsg("参数不能为空");
 		}else {
-			dao.batchUpdate(fields);
+			dao.batchUpdateSort(fields);
 			restResult.setState(200);
 			restResult.setMsg("操作成功");
 		}

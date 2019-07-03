@@ -23,12 +23,12 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
     
     String ALLFields="Id id,FunctionId functionId,ObjectFieldId objectFieldId,ObjectType objectType,FunctionName functionName,ExtraCreate extraCreate,TraceTemplateId traceTemplateId,EnTableName enTableName,FieldType fieldType,FieldName fieldName,FieldWeight fieldWeight,FieldCode fieldCode,TypeClass typeClass,DefaultValue defaultValue,"
     		+ "IsRequired isRequired,ValidateFormat validateFormat,MinSize minSize,MaxSize maxSize,RequiredNumber requiredNumber,MinNumber minNumber,MaxNumber maxNumber,DataValue dataValue,IsRemarkEnable isRemarkEnable,ShowHidden showHidden,CreateBy createBy,DATE_FORMAT(CreateTime,'%Y-%m-%d %H:%i:%S') createTime,LastUpdateBy lastUpdateBy,DATE_FORMAT(LastUpdateTime,'%Y-%m-%d %H:%i:%S') lastUpdateTime,"
-			+"ComponentId componentId";
+			+"ComponentId componentId, filterField, filterSource, readOnly";
     
 	@InsertProvider(type = TraceFunFieldConfigProvider.class, method = "batchInsert")
 	void batchInsert(@Param("list")List<TraceFunFieldConfig> arg0);
 	
-	@Select("select EnTableName enTableName " +
+	@Select("select f.TableName EnTableName " +
 			"from trace_fun_config t " +
 			"left join trace_fun f  on t.FUNCTIONid=f.FUNCTIONid " +
 			"where f.FunctionId=#{functionId}    AND (f.TraceTemplateId is null or f.TraceTemplateId <>'DELETE')  limit 1")
@@ -64,11 +64,29 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
 	})
 	void batchUpdate(@Param("list")List<TraceFunFieldConfig> update_tffcList);
 
+	@Update({
+			"<script>"
+					+"update trace_fun_config "
+					+"set"
+					+" FieldWeight ="
+					+"<foreach collection='list' item='item' index='index' separator=' ' open='case Id' close='end'>"
+					+"when #{item.id} then #{item.fieldWeight}"
+					+"</foreach>"
+
+					+" where Id in"
+					+"<foreach collection='list' index='index' item='item' separator=',' open='(' close=')'>"
+					+"#{item.id,jdbcType=BIGINT}"
+					+"</foreach>"
+					+"</script>"
+	})
+	void batchUpdateSort(@Param("list")List<TraceFunFieldConfig> update_tffcList);
+
 	@Update(startScript + " UPDATE trace_fun_config "
 			+ " <set>"
 			+ " <if test='showHidden !=null  '>  ShowHidden = #{showHidden} ,</if> "
 			+ " <if test='isRequired !=null  '>  IsRequired  = #{isRequired} ,</if> "
 			+ " <if test='defaultValue !=null  '>  DefaultValue  = #{defaultValue} ,</if> "
+			+ " <if test='readOnly !=null  '>  ReadOnly  = #{readOnly} ,</if> "
 			+ " </set>"
 			+ " WHERE Id = #{id} "
 			+ endScript
@@ -76,7 +94,7 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
 	void updateField(TraceFunFieldConfig update_tffcList);
 
     
-	@Select("select "+PARTFields+" from trace_fun_config where FunctionId=#{functionId} and TypeClass=1 order by FieldWeight ")
+	@Select("select "+ALLFields+" from trace_fun_config where FunctionId=#{functionId} and TypeClass=1 order by FieldWeight ")
 	List<TraceFunFieldConfig> selectDZFPartFieldsByFunctionId(@Param("functionId")String functionId);
     
 	@Select("<script>"
@@ -97,10 +115,16 @@ public interface TraceFunFieldConfigMapper extends CommonSql{
 	@Delete("delete from trace_fun_config where FunctionId=#{functionId} and TypeClass=1")
 	void deleteDzFieldsByFunctionId(@Param("functionId")String functionId);
 
-	@Select("select "+PARTFields+" from trace_fun_config where TraceTemplateId = #{traceTemplateId} and FunctionId=#{functionId} order by FieldWeight")
+	@Select("select "+ALLFields+" from trace_fun_config where TraceTemplateId = #{traceTemplateId} and FunctionId=#{functionId} order by FieldWeight")
 	List<TraceFunFieldConfig> selectPartTraceTemplateIdAndNodeFunctionId(@Param("traceTemplateId")String traceTemplateId, @Param("functionId")String functionId);
 
 	@Update("update trace_fun_config set FunctionName=#{functionName} where FunctionId=#{functionId} and TypeClass=1")
 	void updateDzGnFunctionNameByFunctionId(@Param("functionName")String functionName, @Param("functionId")String functionId);
+
+	@Select("SELECT * FROM trace_fun_config WHERE TraceTemplateId=#{traceTemplateId} AND showHidden=1 ")
+	List<TraceFunFieldConfig> selectByTraceTemplateId(@Param("traceTemplateId")String traceTemplateId);
+
+	@Delete("delete from trace_fun_config where TraceTemplateId = #{traceTemplateId}")
+	void deleteByTraceTemplateId(@Param("traceTemplateId")String traceTemplateId);
 
 }

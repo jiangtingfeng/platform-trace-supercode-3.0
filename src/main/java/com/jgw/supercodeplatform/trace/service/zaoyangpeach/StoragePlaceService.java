@@ -41,6 +41,9 @@ public class StoragePlaceService extends AbstractPageService {
         BatchStoragePlaceRelation batchStoragePlaceRelation=new BatchStoragePlaceRelation();
         batchStoragePlaceRelation.setStoragePlaceId(storagePlaceId);
         batchStoragePlaceRelation.setTraceBatchInfoId(traceBatchInfoId);
+
+        batchStoragePlaceRelationMapper.setDeleteStatus(storagePlaceId);
+
         batchStoragePlaceRelationMapper.insertBatchStoragePlaceRelation(batchStoragePlaceRelation);
     }
 

@@ -28,7 +28,7 @@ public class TraceFunFieldConfigParam implements Comparable<TraceFunFieldConfigP
 	private String functionName; //功能名称
 	
 	@NotEmpty
-	@ApiModelProperty(value = "**-字段类型,1、表示文本，2、多行文本，3 表示单选 4、多选 5、表示金额，6 表示日期，7表示时间，8表示日期和时间，9 表示图片，10 表示附件，11 表示邮箱，12 表示网址，13_表示对象，14表示手机，15数字，16操作人，17操作时间，18设备，19物料",notes="注意如果选择的是13对象类型传递的字段类型为13_具体类型，如：13_varchar(10)", required=true)
+	@ApiModelProperty(value = "**-字段类型,1、表示文本，2、多行文本，3 表示单选 4、多选 5、表示金额，6 表示日期，7表示时间，8表示日期和时间，9 表示图片，10 表示附件，11 表示邮箱，12 表示网址，13_表示对象，14表示手机，15数字，16操作人，17操作时间，18设备，19物料，20对象显示字段",notes="注意如果选择的是13对象类型传递的字段类型为13_具体类型，如：13_varchar(10)", required=true)
     private String fieldType;  //字段类型 1、表示文本，2、多行文本，3 表示单选 4、多选 5、表示金额，6 表示日期，7表示时间，8表示日期和时间，8表示手机，9 表示图片，10 表示附件，11 表示邮箱，12 表示网址，13 表示对象
 	
 	@NotNull
@@ -87,6 +87,39 @@ public class TraceFunFieldConfigParam implements Comparable<TraceFunFieldConfigP
     private Integer showHidden;  //显示隐藏
 
 	private String componentId;
+
+	@ApiModelProperty(value = "筛选字段")
+	private String filterField;
+
+	@ApiModelProperty(value = "筛选来源")
+	private String filterSource;
+
+	public Integer getReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(Integer readOnly) {
+		this.readOnly = readOnly;
+	}
+
+	@ApiModelProperty(value = "只读")
+	private Integer readOnly;
+
+	public String getFilterField() {
+		return filterField;
+	}
+
+	public void setFilterField(String filterField) {
+		this.filterField = filterField;
+	}
+
+	public String getFilterSource() {
+		return filterSource;
+	}
+
+	public void setFilterSource(String filterSource) {
+		this.filterSource = filterSource;
+	}
 
 
 	public String getComponentId() {

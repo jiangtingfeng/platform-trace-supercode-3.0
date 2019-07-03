@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -55,20 +56,22 @@ public class DynamicServiceDelegate {
 		String delete_sql = "delete from " + tableName + sqlFieldValueBuilder.toString();
 		String query_sql = "select TraceBatchInfoId  from " + tableName + sqlFieldValueBuilder.toString();
 		DynamicBaseMapper dao=applicationAware.getDynamicMapperByFunctionId(traceTemplateId,functionId);
-		
+
 		List<LinkedHashMap<String, Object>> data=dao.select(query_sql);
 		if (null==data || data.isEmpty()) {
 			 throw new SuperCodeTraceException("不存在此记录", 500);
 		}
-		String traceBatchInfoId=(String) data.get(0).get("TraceBatchInfoId");
-		TraceBatchInfo traceBatchInfo=traceBatchInfoService.selectByTraceBatchInfoId(traceBatchInfoId);
-		if (null==traceBatchInfo) {
-			 throw new SuperCodeTraceException("无法查询批次记录", 500);
-		}
-		
+
 		dao.delete(delete_sql);
-		traceBatchInfo.setNodeDataCount((traceBatchInfo.getNodeDataCount()==null?0:traceBatchInfo.getNodeDataCount())-ids.size());
-		traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+
+		if(data.get(0)!=null){
+			String traceBatchInfoId=(String) data.get(0).get("TraceBatchInfoId");
+			TraceBatchInfo traceBatchInfo=traceBatchInfoService.selectByTraceBatchInfoId(traceBatchInfoId);
+			if (null!=traceBatchInfo) {
+				traceBatchInfo.setNodeDataCount((traceBatchInfo.getNodeDataCount()==null?0:traceBatchInfo.getNodeDataCount())-ids.size());
+				traceBatchInfoService.updateTraceBatchInfo(traceBatchInfo);
+			}
+		}
 		
 		restResult.setState(200);
 		restResult.setMsg("删除成功");
@@ -136,6 +139,7 @@ public class DynamicServiceDelegate {
 							switch (objectTypeEnum) {
 								case TRACE_BATCH:
 								case MassifBatch:
+								case PlantingBatch:
 									//如果不是自动节点的插入修改则必须传模板id
 									//如果是自动节点则新增时无模板id但必须有批次号
 									adDataModel.setTraceBatchInfoId(fieldParam.getObjectUniqueValue());
@@ -148,12 +152,15 @@ public class DynamicServiceDelegate {
 				}
 				//if (StringUtils.isBlank(adDataModel.getTraceBatchInfoId())) {
 					List<FieldBusinessParam> batchParams= fields.stream().filter(e->e.getFieldCode().equals("TraceBatchInfoId")).collect(Collectors.toList());
-					String batchInfoId= batchParams.get(0).getFieldValue();
-					if(StringUtils.isEmpty(batchInfoId)){
-						//throw new SuperCodeTraceException("生产管理新增数据无法获取到批次唯一id", 500);
-					}else {
-						adDataModel.setTraceBatchInfoId(batchInfoId);
-					}
+				    if(CollectionUtils.isNotEmpty(batchParams)){
+                        String batchInfoId= batchParams.get(0).getFieldValue();
+                        if(StringUtils.isEmpty(batchInfoId)){
+                            //throw new SuperCodeTraceException("生产管理新增数据无法获取到批次唯一id", 500);
+                        }else {
+                            adDataModel.setTraceBatchInfoId(batchInfoId);
+                        }
+                    }
+
 				//}
 			}
 		} catch (Exception e) {
@@ -176,11 +183,16 @@ public class DynamicServiceDelegate {
      */
 	public boolean funAddOrUpdateSqlBuilder(LineBusinessData lineBusinessData, int operateType,StringBuilder sqlFieldNameBuilder,StringBuilder sqlFieldValueBuilder,boolean isNode) throws SuperCodeTraceException, SuperCodeException {
     	List<FieldBusinessParam> fieldBusinessList=lineBusinessData.getFields();
+		FieldBusinessParam batchField= getObjectParam(fieldBusinessList,"TraceBatchInfoId");
+        String traceBatchInfoId=null;
+		if(batchField!=null){
+            traceBatchInfoId= batchField.getFieldValue();
+        }
     	boolean containObj=false;
     	for (FieldBusinessParam fieldBusinessParam : fieldBusinessList) {
     		switch (operateType) {
     		case 1: // 表示新增数据操作
-    			boolean flag=caseAdd(sqlFieldNameBuilder, sqlFieldValueBuilder, fieldBusinessParam,isNode);
+    			boolean flag=caseAdd(sqlFieldNameBuilder, sqlFieldValueBuilder, fieldBusinessParam,isNode,traceBatchInfoId);
     			if (flag) {
     				containObj=true;
 				}
@@ -194,6 +206,17 @@ public class DynamicServiceDelegate {
 		}
     	return containObj;
 	}
+
+	private FieldBusinessParam getObjectParam(List<FieldBusinessParam> fields,String fieldCode)
+	{
+		List<FieldBusinessParam> params= fields.stream().filter(e->e.getFieldCode().equals(fieldCode)).collect(Collectors.toList());
+		FieldBusinessParam param=null;
+		if(params!=null&&params.size()>0){
+			param=params.get(0);
+		}
+		return param;
+	}
+
 	/**
 	 * 
 	 * @param sqlFieldNameBuilder
@@ -205,12 +228,12 @@ public class DynamicServiceDelegate {
 	 * @return 
 	 * @throws SuperCodeTraceException 
 	 */
-	private boolean caseAdd(StringBuilder sqlFieldNameBuilder, StringBuilder sqlFieldValueBuilder, FieldBusinessParam fieldBusinessParam, boolean isNode) throws SuperCodeTraceException {
+	private boolean caseAdd(StringBuilder sqlFieldNameBuilder, StringBuilder sqlFieldValueBuilder, FieldBusinessParam fieldBusinessParam, boolean isNode,String traceBatchInfoId) throws SuperCodeTraceException {
 		String fieldCode = fieldBusinessParam.getFieldCode();
 		// 剩下的类型都可以当字符处理包括时间
 		String fieldValue = fieldBusinessParam.getFieldValue();
 		boolean containObj=false;
-		if (StringUtils.isNotBlank(fieldValue) && !"null".equalsIgnoreCase(fieldValue)) {
+		if (StringUtils.isNotBlank(fieldValue) && !"null".equalsIgnoreCase(fieldValue) && sqlFieldNameBuilder.toString().indexOf(fieldCode)<0) {
 			sqlFieldNameBuilder.append(fieldCode).append(",");
 			sqlFieldValueBuilder.append("'").append(fieldValue).append("'").append(",");
 			Integer objectType=fieldBusinessParam.getObjectType();
@@ -220,8 +243,9 @@ public class DynamicServiceDelegate {
 				switch (objectTypeEnum) {
 				//新增数据设置批次id时只有定制功能才需要在字段数据里找，节点数据新增有单独的字段接收批次唯一id
 				case TRACE_BATCH:
+				case PlantingBatch:
 					if (!isNode) {
-						if(sqlFieldNameBuilder.toString().indexOf("TraceBatchInfoId")<0){
+						if(sqlFieldNameBuilder.toString().indexOf("TraceBatchInfoId")<0 && StringUtils.isEmpty(traceBatchInfoId)){
 							sqlFieldNameBuilder.append(objectTypeEnum.getFieldCode()).append(",");
 							sqlFieldValueBuilder.append("'").append(fieldBusinessParam.getObjectUniqueValue()).append("'").append(",");
 						}

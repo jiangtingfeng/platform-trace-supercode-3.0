@@ -550,4 +550,14 @@ public class CommonUtil extends UserInfoUtil {
         T result = JSONObject.parseObject(JSONObject.toJSONString(map), c);
         return result;
     }
+
+    public Map<String, String> getSuperCodeToken() throws SuperCodeException {
+        Map<String, String> header = new HashMap<>();
+        header.put("super-token", getSuperToken());
+        return header;
+    }
+
+    public boolean isLogin(){
+	    return this.request.getSession().getAttribute("user")!=null;
+    }
 }

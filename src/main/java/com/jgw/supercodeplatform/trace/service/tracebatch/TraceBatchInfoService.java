@@ -2,12 +2,15 @@ package com.jgw.supercodeplatform.trace.service.tracebatch;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
 
 
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.jgw.supercodeplatform.trace.common.model.Field;
 import com.jgw.supercodeplatform.trace.common.model.page.AbstractPageService;
 import com.jgw.supercodeplatform.trace.common.model.page.Page;
@@ -18,8 +21,11 @@ import com.jgw.supercodeplatform.trace.enums.BatchTableType;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceBatchRelation;
 import com.jgw.supercodeplatform.trace.pojo.tracefun.TraceObjectBatchInfo;
 import com.jgw.supercodeplatform.trace.service.producttesting.ProductTestingService;
+import com.jgw.supercodeplatform.trace.service.template.TraceFunFieldConfigDelegate;
 import com.jgw.supercodeplatform.trace.service.tracefun.TraceBatchRelationService;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +56,8 @@ import com.jgw.supercodeplatform.trace.service.template.TraceFunTemplateconfigSe
  */
 @Service
 public class TraceBatchInfoService extends CommonUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(TraceBatchInfoService.class);
 
     @Autowired
     private TraceBatchInfoMapper traceBatchInfoMapper;
@@ -536,7 +544,18 @@ public class TraceBatchInfoService extends CommonUtil {
         RestResult<List<Map<String, Object>>> nodeDataResult=null;
         nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), false, orgnizationId, null,null);
         List<Map<String, Object>> batchDatas = nodeDataResult.getResults();
-        getParentNodeInfo(traceBatchInfoId,batchDatas,false);
+
+        Date nodeEndTime=null;
+        if(StringUtils.isNotEmpty(traceBatchInfo.getCreateTime())){
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            nodeEndTime =sdf.parse( traceBatchInfo.getCreateTime());
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(nodeEndTime);
+            cal.add(Calendar.HOUR, 1);
+            nodeEndTime = cal.getTime();
+        }
+
+        getParentNodeInfo(traceBatchInfoId,batchDatas,false, null, nodeEndTime);
         return nodeDataResult;
     }
 
@@ -576,7 +595,7 @@ public class TraceBatchInfoService extends CommonUtil {
         }
     }
 
-    private List<Map<String,Object>> getBatchNodeInfo(TraceBatchRelation traceBatchRelation, boolean fromH5) throws Exception{
+    private List<Map<String,Object>> getBatchNodeInfo(TraceBatchRelation traceBatchRelation, boolean fromH5, Date start, Date end) throws Exception{
         String traceBatchInfoId=traceBatchRelation.getParentBatchId();
         String traceTemplateId=null;
         List<Map<String,Object>> parentNodeData=null;
@@ -591,7 +610,7 @@ public class TraceBatchInfoService extends CommonUtil {
                 traceTemplateId=traceBatchInfo.getTraceTemplateId();
                 batchInfo=traceBatchInfo;
             }
-            RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, fromH5, null,null, null);
+            RestResult<List<Map<String, Object>>> nodeDataResult= traceFunTemplateconfigService.queryNodeInfo(traceBatchInfoId, traceTemplateId, fromH5, null,start, end);
             parentNodeData=nodeDataResult.getResults();
 
 
@@ -621,6 +640,9 @@ public class TraceBatchInfoService extends CommonUtil {
         List<JSONObject> productTestings= productTestingService.getProductTesting(traceBatchInfoId);
         dataMap.put("testingInfo",productTestings);
 
+        Date nodeEndTime =null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         if(traceBatchType !=null && traceBatchType.intValue()==2){
             TraceObjectBatchInfo traceBatchInfo=traceObjectBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
             if (null == traceBatchInfo) {
@@ -629,6 +651,7 @@ public class TraceBatchInfoService extends CommonUtil {
             nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null,null,null);
 
             dataMap.put("productInfo", traceBatchInfo);
+            nodeEndTime=traceBatchInfo.getCreateTime();
         } else {
             TraceBatchInfo traceBatchInfo = traceBatchInfoMapper.selectByTraceBatchInfoId(traceBatchInfoId);
             if (null == traceBatchInfo) {
@@ -638,12 +661,21 @@ public class TraceBatchInfoService extends CommonUtil {
             nodeDataResult = traceFunTemplateconfigService.queryNodeInfo(traceBatchInfo.getTraceBatchInfoId(), traceBatchInfo.getTraceTemplateId(), true, null,start,end);
 
             dataMap.put("productInfo", traceBatchInfo);
+            nodeEndTime=sdf.parse( traceBatchInfo.getCreateTime());
         }
+
+        if(nodeEndTime!=null){
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(nodeEndTime);
+            cal.add(Calendar.HOUR, 1);
+            nodeEndTime = cal.getTime();
+        }
+
         dataMap.put("nodeInfo", nodeDataResult.getResults());
         batchDatas =nodeDataResult.getResults();
 
         //递归查询所有父级批次，查询所有父级批次对应的溯源信息数据并返回
-        getParentNodeInfo(traceBatchInfoId,batchDatas,true);
+        getParentNodeInfo(traceBatchInfoId,batchDatas,true, null, nodeEndTime);
 
         if (nodeDataResult.getState() != 200) {
             throw new SuperCodeTraceException(nodeDataResult.getMsg(), 500);
@@ -654,7 +686,7 @@ public class TraceBatchInfoService extends CommonUtil {
         return backResult;
     }
 
-    private void getParentNodeInfo(String traceBatchInfoId,List<Map<String, Object>> batchDatas, boolean fromH5) throws Exception
+    public void getParentNodeInfo(String traceBatchInfoId,List<Map<String, Object>> batchDatas, boolean fromH5, Date start, Date end) throws Exception
     {
         List<TraceBatchRelation> traceBatchRelations= traceBatchRelationService.selectByBatchId(traceBatchInfoId);
         if (traceBatchRelations!=null && traceBatchRelations.size()>0){
@@ -663,7 +695,7 @@ public class TraceBatchInfoService extends CommonUtil {
             List<TraceBatchRelation> parentBatchs= traceBatchRelations.stream().filter(e->e.getCurrentBatchId().equals(traceBatchInfoId)).collect(Collectors.toList());
             while (parentBatchs!=null && parentBatchs.size()>0){
                 if(parentBatchs.size()==1){
-                    currentDataMap = getBatchNodeInfo(parentBatchs.get(0),fromH5);
+                    currentDataMap = getBatchNodeInfo(parentBatchs.get(0),fromH5, start, end);
                     if(currentDataMap!=null){
                         currentDataMap= currentDataMap.stream().filter(e->!e.get("businessType").equals("3")).collect(Collectors.toList());
                     }
@@ -703,7 +735,35 @@ public class TraceBatchInfoService extends CommonUtil {
         if(traceBatchInfo==null){
             throw new Exception("未找到该批次号对应的批次信息");
         }
+//        String url= getOrgDomainUrl(traceBatchInfo.getOrganizationId());
+//        url=String.format(url,traceBatchInfo.getTraceBatchInfoId());
         String url=String.format("%s?traceBatchInfoId=%s",h5PageUrl,traceBatchInfo.getTraceBatchInfoId());
         return url;
     }
+
+    public String getOrgDomainUrl(String organizationId) throws Exception{
+        String url=String.format("%s?traceBatchInfoId=",h5PageUrl )+"%s";
+        Map<String, String> headerMap=getSuperCodeToken();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("organizationId", organizationId);
+
+        try{
+            ResponseEntity<String> rest =  restTemplateUtil.getRequestAndReturnJosn(restUserUrl + "/orgdomain/selectByOrgId", params, headerMap);
+            if (rest.getStatusCode().value() == 200) {
+                String body = rest.getBody();
+                JsonNode node = new ObjectMapper().readTree(body);
+                if (200 == node.get("state").asInt()) {
+                    if(  node.get("results").getClass()!= NullNode.class){
+
+                        url= node.get("results").get("url").asText();
+                    }
+                }
+            }
+        }catch (Exception e){
+            logger.error(e.getMessage(),e);
+        }
+        return url;
+    }
+
+
 }

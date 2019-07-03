@@ -54,7 +54,7 @@ public interface TraceFunTemplateconfigMapper extends CommonSql{
 					"<if test='organizationId !=null and organizationId != &apos;&apos; '> AND trace_funtemplatestatistical.organizationId = #{organizationId}</if>"+
 					"</where>";
 
-	static String AllFieldsWithTemplate = "trace_fun_templateconfig.Id id,trace_funtemplatestatistical.TraceTemplateId traceTemplateId,trace_funtemplatestatistical.TraceTemplateName traceTemplateName,NodeCount nodeCount,(SELECT Count(TraceBatchId) from trace_batchinfo WHERE OrganizationId = #{organizationId} and trace_batchinfo.TraceTemplateId = trace_funtemplatestatistical.TraceTemplateId) AS traceBatchNum,trace_funtemplatestatistical.CreateMan createMan,DATE_FORMAT(trace_funtemplatestatistical.CreateTime,'%Y-%m-%d %H:%i:%S') createTime,NodeWeight nodeWeight,BusinessType businessType, NodeFunctionId nodeFunctionId,NodeFunctionName nodeFunctionName ";
+	static String AllFieldsWithTemplate = "trace_fun_templateconfig.Id id,trace_funtemplatestatistical.TraceTemplateId traceTemplateId,trace_funtemplatestatistical.TraceTemplateName traceTemplateName,(select count(*) from trace_fun_templateconfig WHERE trace_funtemplatestatistical.TraceTemplateId=trace_fun_templateconfig.TraceTemplateId)  nodeCount,(SELECT Count(*) from trace_batchinfo WHERE OrganizationId = #{organizationId} and trace_batchinfo.TraceTemplateId = trace_funtemplatestatistical.TraceTemplateId) AS traceBatchNum,trace_funtemplatestatistical.CreateMan createMan,DATE_FORMAT(trace_funtemplatestatistical.CreateTime,'%Y-%m-%d %H:%i:%S') createTime,NodeWeight nodeWeight,BusinessType businessType, NodeFunctionId nodeFunctionId,NodeFunctionName nodeFunctionName ";
 
 	static String TableWithTemplate = "trace_funtemplatestatistical left join trace_batchinfo on trace_funtemplatestatistical.TraceTemplateId=trace_batchinfo.TraceTemplateId left join trace_fun_templateconfig on trace_funtemplatestatistical.TraceTemplateId=trace_fun_templateconfig.TraceTemplateId";
 
@@ -202,5 +202,11 @@ public interface TraceFunTemplateconfigMapper extends CommonSql{
 
 	@Select("SELECT count(*)  from trace_fun_templateconfig where TraceTemplateId=#{traceTemplateId} and BusinessType=3")
 	Integer selectDefaultNodeCount(@Param("traceTemplateId")String traceTemplateId);
+
+	@Select("SELECT * FROM trace_fun_templateconfig WHERE TraceTemplateId = #{traceTemplateId} ")
+	List<TraceFunTemplateconfig> selectByTraceTemplateId(@Param("traceTemplateId")String traceTemplateId);
+
+	@Delete("delete from trace_fun_templateconfig where TraceTemplateId=#{traceTemplateId} ")
+	int deleteByTemplateId(@Param("traceTemplateId")String traceTemplateId);
 
 }

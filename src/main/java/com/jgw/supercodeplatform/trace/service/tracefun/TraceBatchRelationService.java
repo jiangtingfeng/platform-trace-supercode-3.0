@@ -36,9 +36,10 @@ public class TraceBatchRelationService extends CommonUtil {
         boolean showAllOnSameClass=false;
 
         List<TraceBatchRelation> traceBatchRelations=traceBatchRelationEsService.selectByBatchId(batchId);
-        if(traceBatchRelations==null || traceBatchRelations.size()==0){
+        if(traceBatchRelations==null || traceBatchRelations.size()==0 || true){
             traceBatchRelations=traceBatchRelationMapper.selectByBatchId(batchId);
         }
+
 
         if(traceBatchRelations!=null && traceBatchRelations.size()>0){
             if(traceBatchRelations.size()==1

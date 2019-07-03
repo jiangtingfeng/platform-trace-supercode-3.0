@@ -21,11 +21,11 @@ public interface  BatchInfoMapper {
     TraceFunFieldConfig selectByNestCompentFieldCode(@Param("organizationId") String organizationId,@Param("fieldCode")String fieldCode);
 
 
-    @Select("SELECT * FROM trace_fun_config c WHERE FieldCode=#{fieldCode} and  c.FunctionId in (            \n" +
-            "SELECT NodeFunctionId FROM trace_fun_templateconfig WHERE TraceTemplateId in ( \n" +
-            "SELECT TraceTemplateId FROM trace_funtemplatestatistical \n" +
-            "where OrganizationId=#{organizationId}\n" +
-            ") \n" +
-            ") limit 0,1")
+    @Select("SELECT fc.*\n" +
+            "FROM trace_funtemplatestatistical t\n" +
+            "inner join trace_fun_templateconfig  tc on t.TraceTemplateId = tc.TraceTemplateId\n" +
+            "inner join trace_fun_config fc on fc.FunctionId = tc.NodeFunctionId and fc.TraceTemplateId = tc.TraceTemplateId\n" +
+            "where t.OrganizationId=#{organizationId} and FieldCode=#{fieldCode}  limit 0,1 "
+            )
     TraceFunFieldConfig selectByFieldCode(@Param("organizationId") String organizationId,@Param("fieldCode")String fieldCode);
 }

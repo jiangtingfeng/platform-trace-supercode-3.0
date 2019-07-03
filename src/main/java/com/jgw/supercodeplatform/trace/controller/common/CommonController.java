@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.common.util.CommonUtil;
+import com.jgw.supercodeplatform.trace.dao.mapper1.batchinfo.TraceBatchInfoMapper;
+import com.jgw.supercodeplatform.trace.pojo.tracebatch.TraceBatchInfo;
 import com.jgw.supercodeplatform.trace.service.common.Base64Utils;
 import com.jgw.supercodeplatform.trace.service.common.CommonService;
 import org.apache.commons.io.FileUtils;
@@ -47,6 +49,9 @@ public class CommonController {
 
     @Autowired
     private CommonService commonService;
+
+    @Autowired
+    private TraceBatchInfoMapper traceBatchInfoMapper;
 
    /**
     * 创建二维码
@@ -156,6 +161,21 @@ public class CommonController {
         }
 
         return new RestResult(200, "success", base64Image);
+    }
+
+    @RequestMapping(value = "/createBatchQrCodeByProductName", method = RequestMethod.GET)
+    @ApiOperation(value = "根据产品名称生成二维码接口", notes = "")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "productName", paramType = "query", defaultValue = "特优黄桃", value = "产品名称", required = true),
+    })
+    public  boolean createBatchQrCodeByProductName(String productName, HttpServletResponse response) throws Exception{
+
+        TraceBatchInfo traceBatchInfo= traceBatchInfoMapper.selectBatchByProductName(productName);
+        if(traceBatchInfo==null){
+            throw new Exception("未找到该产品对应的批次信息");
+        }
+	    String url=String.format("http://trace2.h5.kf315.net/?traceBatchInfoId=%s",traceBatchInfo.getTraceBatchInfoId()) ;
+	    return createQrCode(url,response);
     }
 
 }

@@ -37,6 +37,33 @@ public class TraceFunFieldConfig implements Comparable<TraceFunFieldConfig>{
     private String lastUpdateTime;  //修改时间
     private String objectFieldId;//对象字段表主键id
 	private String componentId;
+	private String filterField;
+	private String filterSource;
+	private Integer readOnly;
+
+	public Integer getReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(Integer readOnly) {
+		this.readOnly = readOnly;
+	}
+
+	public String getFilterField() {
+		return filterField;
+	}
+
+	public void setFilterField(String filterField) {
+		this.filterField = filterField;
+	}
+
+	public String getFilterSource() {
+		return filterSource;
+	}
+
+	public void setFilterSource(String filterSource) {
+		this.filterSource = filterSource;
+	}
 
 	public String getComponentId() {
 		return componentId;

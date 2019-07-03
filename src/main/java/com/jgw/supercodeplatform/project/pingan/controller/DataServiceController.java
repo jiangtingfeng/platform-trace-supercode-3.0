@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jgw.supercodeplatform.trace.common.model.RestResult;
 import com.jgw.supercodeplatform.trace.service.supercode.DataService;
 import com.jgw.supercodeplatform.trace.service.tracebatch.TraceBatchInfoService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/trace/supercode")
+@Api(tags = "数据接口")
 public class DataServiceController {
 
     @Autowired

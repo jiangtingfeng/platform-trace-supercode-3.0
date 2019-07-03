@@ -26,4 +26,13 @@ public interface TraceBatchRelationMapper extends CommonSql {
      */
     @Select("SELECT * FROM trace_batchrelation where CurrentBatchId=#{batchId}")
     List<TraceBatchRelation> selectByBatchId(@Param("batchId") String batchId);
+
+    @Select("SELECT b.CurrentBatchId, t.CurrentBatchId ParentBatchId, t.CreateDate FROM trace_batchrelation t \n" +
+            "INNER JOIN trace_batchrelation b on b.ParentBatchId=t.CurrentBatchId\n" +
+            "WHERE t.ParentBatchId IS NULL AND b.CurrentBatchId in (${ids})")
+    List<TraceBatchRelation> selectParentBatch(@Param("ids") String ids);
+
+    @Select("SELECT CurrentBatchId,ParentBatchId, CreateDate FROM trace_batchrelation\n" +
+            "WHERE ParentBatchId in (${ids})")
+    List<TraceBatchRelation> selectChildBatch(@Param("ids") String ids);
 }

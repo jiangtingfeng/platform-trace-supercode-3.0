@@ -29,4 +29,11 @@ public class RedisKey {
     public static final String BatchSerialNumber = "trace:batch:serialnumber:";
 
     public static final String StoragePlaceSerialNumber = "trace:storageplace:serialnumber:";
+
+    public static final String CertificateInfoSerialNumber = "trace:certificateinfo:serialnumber:";
+
+    public static final String CertificateTemplateSerialNumber = "trace:certificatetemplate:serialnumber:";
+
+    public static final String StandardTemplateSerialNumber = "trace:standardtemplate:serialnumber:";
+
 }

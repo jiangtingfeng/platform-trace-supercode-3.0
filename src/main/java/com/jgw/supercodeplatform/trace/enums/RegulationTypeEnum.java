@@ -9,7 +9,8 @@ package com.jgw.supercodeplatform.trace.enums;
 public enum RegulationTypeEnum {
 
     ProcedureNode(1,"过程节点"),
-    ControlNode(2,"控制节点");
+    ControlNode(2,"控制节点"),
+    SingleForm(3,"单一表单");
 
 
     private final int key;

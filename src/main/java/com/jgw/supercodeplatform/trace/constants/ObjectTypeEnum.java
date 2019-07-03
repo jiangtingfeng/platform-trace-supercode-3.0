@@ -9,6 +9,8 @@ import com.jgw.supercodeplatform.trace.exception.SuperCodeTraceException;
  * @date: 2019-03-28
  */
 public enum ObjectTypeEnum {
+	Default(0,"",""),
+
 	USER(13001,"UserId", "员工"),
 	PRODUCT(13002, "ProductId","产品"),
 	TRACE_BATCH(13003,"TraceBatchInfoId", "产品批次"),
@@ -23,12 +25,15 @@ public enum ObjectTypeEnum {
 	MassifInfo(13012,"MassIfId","地块"),
 	MassifBatch(13013,"TraceBatchId","地块批次"),
 
+	PlantingBatch(13014,"TraceBatchInfoId", "种植批次"),
+
 	Device(13018,"DeviceId","设备"),
 	Material(13019,"MaterialId","物料"),
 	MaterialSpecific(13020,"MaterialSpecificId","物料规格"),
 	MaterialBatch(13021,"MaterialBatchId","物料批次"),
 
 	CodeAssociate(13010,"AssociateType","码关联方式");
+
 
 	public static ObjectTypeEnum getType(Integer codeTypeId) throws SuperCodeTraceException {
 		if (null==codeTypeId) {
@@ -58,6 +63,8 @@ public enum ObjectTypeEnum {
 			return MassifInfo;
 		case 13013:
 			return MassifBatch;
+		case 13014:
+			return PlantingBatch;
 		case 13018:
 			return Device;
 		case 13019:
@@ -71,7 +78,7 @@ public enum ObjectTypeEnum {
 		case 13010:
 			return CodeAssociate;
 		default:
-			return null;
+			return Default;
 			//throw new SuperCodeTraceException("无法根据对象类型codeTypeId="+codeTypeId+"获取到对象", 500);
 		}
 	}

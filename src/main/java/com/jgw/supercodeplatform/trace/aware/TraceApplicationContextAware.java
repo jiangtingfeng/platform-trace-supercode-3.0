@@ -60,7 +60,10 @@ public class TraceApplicationContextAware implements ApplicationContextAware{
 		if (null==traceOrgFunRoute) {
 			traceOrgFunRoute=traceOrgFunRouteDao.selectByTraceTemplateIdAndFunctionId(null, functionId);
 			if(traceOrgFunRoute==null){
-				throw new SuperCodeTraceException("TraceApplicationContextAware.getDynamicMapperByFunctionId：无法根据功能id："+functionId+"在企业路由表里获取记录", 500);
+			    traceOrgFunRoute=traceOrgFunRouteDao.selectByFunctionId(functionId);
+			    if(traceOrgFunRoute==null){
+                    throw new SuperCodeTraceException("TraceApplicationContextAware.getDynamicMapperByFunctionId：无法根据功能id："+functionId+"在企业路由表里获取记录", 500);
+                }
 			}
 		}
 		String database=traceOrgFunRoute.getDatabaseAddress();

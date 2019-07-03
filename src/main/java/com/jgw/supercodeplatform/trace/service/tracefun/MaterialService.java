@@ -99,7 +99,7 @@ public class MaterialService  extends CommonUtil {
                     return node.get("results");
                 }else {
                     String msg=node.get("msg").asText();
-                    //throw new SuperCodeTraceException(msg);
+                    throw new SuperCodeTraceException(msg);
                 }
             }
         } catch (Exception e) {

@@ -101,6 +101,9 @@ public class TraceBatchNamedService extends CommonUtil {
                 case "StaticText":
                     traceBatchName.append(traceBatchNamed.getFieldName());
                     break;
+                case "MassifName":
+                    traceBatchName.append(baseBatchInfo.getMassifName());
+                    break;
             }
             if(i!=batchNameds.size()-1){
                 traceBatchName.append(traceFunRegulation.getBatchNamingLinkCharacter());

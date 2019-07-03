@@ -14,8 +14,19 @@ public class ProductTestingItem {
     @ApiModelProperty(value = "检测项id")
     private String testingTypeId;
 
+    public String getTestingTypeName() {
+        return testingTypeName;
+    }
+
+    public void setTestingTypeName(String testingTypeName) {
+        this.testingTypeName = testingTypeName;
+    }
+
     @ApiModelProperty(value = "检测标准")
     private String testingStandard;
+
+    @ApiModelProperty(value = "检测项名称")
+    private String testingTypeName;
 
     @ApiModelProperty(value = "检测结果")
     private Integer testingResult;

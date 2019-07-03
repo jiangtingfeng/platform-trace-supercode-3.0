@@ -15,7 +15,7 @@ public class EmptyRelationDto {
 
     @ApiModelProperty(value = "唯一id")
     @NotNull
-    public long relationCodeId;//唯一id
+    public String relationId;//唯一id
 
     @ApiModelProperty(value = "关联方式")
     @NotNull
